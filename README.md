@@ -1,20 +1,20 @@
-# OmoSats ⚡
+# SatQuest ⚡
 
 > Learn Bitcoin the fun way. Stack real sats.
 
-**OmoSats** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 26 progressive levels mixing match-the-pair puzzles with timed Word Hunt puzzles, and earn satoshis at every level.
+**SatQuest** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 26 progressive levels mixing match-the-pair puzzles with timed Word Hunt puzzles, and earn satoshis at every level.
 
 Plays fully offline. All progress is saved on the device. Ready for a backend sync when you plug one in.
 
 ---
 
-## Why OmoSats Exists
+## Why SatQuest Exists
 
 Most Bitcoin education is written for people who already have bank accounts, stable currencies, and functioning financial systems.
 
 Nigerians — and hundreds of millions of people across Africa — live with 25%+ annual inflation, frozen accounts, PayPal restrictions, SWIFT delays, and currencies that halve in value every few years.
 
-**OmoSats teaches Bitcoin as a tool for financial survival, not speculation.**
+**SatQuest teaches Bitcoin as a tool for financial survival, not speculation.**
 
 Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka sending money to Aba, Dayo's account being frozen during EndSARS. By the end of level 26, players understand Bitcoin and Lightning better than most people who have held it for years.
 
@@ -26,7 +26,7 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 - **2 game modes**, rotated through the journey:
   - **🎯 Match** — tap a picture, tap its meaning. Pure vocabulary teaching.
   - **🧩 Word Hunt** — timed puzzle every 4th level. Spot real Bitcoin words mixed with regular finance words (bank, IBAN, SWIFT, etc.). Beat the clock to earn sats.
-- **7 custom avatars** with username — players pick their character on first launch
+- **38 custom avatars** (19 sisters + 19 brothers) with username — players pick their character on first launch
 - **Welcome-back screen** — your sats and levels done are visible before you even tap Continue
 - **Edit profile any time** — username + avatar changeable from the Wallet screen
 - **Performance tracked** per level — fastest completion time and attempt count, ready for future leaderboards
@@ -56,8 +56,8 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 ### Install
 
 ```bash
-git clone https://github.com/your-org/omosats.git
-cd omosats
+git clone https://github.com/your-org/satquest.git
+cd satquest
 npm install
 ```
 
@@ -93,9 +93,9 @@ The [`dist/`](dist/ ) folder is a complete PWA with service worker, manifest, an
 ## Project Structure
 
 ```
-omosats/
+satquest/
 ├── public/
-│   ├── icon.svg                   # Source vector logo (OmoSats gradient + bolt)
+│   ├── icon.svg                   # Source vector logo (SatQuest gradient + bolt)
 │   ├── icon-192.png               # Android home-screen
 │   ├── icon-512.png               # Android splash
 │   ├── icon-maskable-512.png      # Android adaptive icon (safe-zone padded)
@@ -105,7 +105,7 @@ omosats/
 ├── scripts/
 │   └── gen-icons.mjs              # Regenerates all PNGs from icon.svg (uses sharp)
 ├── src/
-│   ├── avatars/                   # 7 character webp images (1_nobg.webp … 7_nobg.webp)
+│   ├── avatars/                   # 38 character webp images (19 female + 19 male, round portraits)
 │   ├── components/
 │   │   ├── AvatarPick.jsx         # Sign-up flow (username + avatar) + Welcome-Back
 │   │   ├── Avatar.jsx             # Reusable avatar renderer (sm/md/lg/xl)
@@ -222,7 +222,7 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
 ### Storage shape ([`src/lib/storage.js`](src/lib/storage.js ))
 
 ```js
-// localStorage key: omosats.profile
+// localStorage key: satquest.profile
 {
   username:  'emeka_lagos',
   avatarId:  'av3',
@@ -230,7 +230,7 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
   updatedAt: 1779080000000,
 }
 
-// localStorage key: omosats.progress
+// localStorage key: satquest.progress
 {
   sats: 145,
   unlockedUpTo: 7,
@@ -244,7 +244,7 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
 }
 ```
 
-Legacy `satquest.*` keys are auto-migrated on first load so anyone who played the old build keeps their progress.
+Legacy `omosats.*` keys are auto-migrated on first load so anyone who played the old build keeps their progress.
 
 ### Future backend (already wired)
 
@@ -263,22 +263,22 @@ Per-level `bestTimeMs` is already tracked, so a "fastest L7 completions" leaderb
 
 ## Installing on Your Phone
 
-OmoSats now ships with proper home-screen icons (PNG, all sizes).
+SatQuest now ships with proper home-screen icons (PNG, all sizes).
 
 ### iPhone
 
 1. Open the app in **Safari** (Chrome on iOS won't install PWAs)
 2. Tap the **Share** button (square with arrow)
 3. Scroll down → **Add to Home Screen**
-4. Tap **Add** — the OmoSats logo will appear on your home screen
+4. Tap **Add** — the SatQuest logo will appear on your home screen
 
 ### Android
 
 1. Open the app in **Chrome**
 2. Tap the 3-dot menu → **Install app** (or **Add to Home Screen**)
-3. Tap **Install** — the OmoSats logo will appear as a real app icon
+3. Tap **Install** — the SatQuest logo will appear as a real app icon
 
-Once installed, OmoSats works fully offline. All progress is saved to your device.
+Once installed, SatQuest works fully offline. All progress is saved to your device.
 
 ---
 
@@ -291,7 +291,7 @@ Quick summary:
 - **Add pairs to a level** — edit [`src/data/levels.js`](src/data/levels.js ), add to `pairs[]` and `reveals[]`
 - **Add a new match level** — copy an existing level object, increment id, run `npm run build` to confirm
 - **Tweak a Word Hunt** — edit the `WORD_HUNTS` array at the bottom of [`levels.js`](src/data/levels.js )
-- **Add an avatar** — drop `N_nobg.webp` in [`src/avatars/`](src/avatars/ ) and append a new entry to `AVATARS`
+- **Add an avatar** — drop a new `Size_XXL__2048px______Avatar_{female|male}_N_____Round_no.webp` file in [`src/avatars/`](src/avatars/ ) and bump `AVATAR_COUNT` in [`src/data/levels.js`](src/data/levels.js )
 - **Fix a bug** — open an issue or PR
 - **Translate** — each level's `story`, `hint`, `def`, and `funny` fields can be localised
 
