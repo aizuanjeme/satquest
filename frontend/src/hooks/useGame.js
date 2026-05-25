@@ -373,6 +373,7 @@ export function useGame() {
   const goToWallet      = useCallback(() => setPhase('wallet'), [])
   const goToHome        = useCallback(() => setPhase('home'), [])
   const goToLeaderboard = useCallback(() => setPhase('leaderboard'), [])
+  const goToProfile     = useCallback(() => setPhase('profile'), [])
 
   /* =========================================================================
      Persist progress whenever sats/unlocked change
@@ -433,7 +434,7 @@ export function useGame() {
     level, levelIdx,
     sats, unlockedUpTo, lastEarned,
     goNext, jumpTo, chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
-    goToMap, goToWallet, goToHome, goToLeaderboard,
+    goToMap, goToWallet, goToHome, goToLeaderboard, goToProfile,
     goToCelebrate, closeCelebrate,
 
     // match game

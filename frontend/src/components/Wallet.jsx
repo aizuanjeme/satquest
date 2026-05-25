@@ -3,15 +3,10 @@ import { LEVELS, TOTAL_SATS } from '../data/levels'
 import { lightningApi, rewardsApi } from '../lib/api'
 import { useLightningEvents } from '../hooks/useLightningEvents'
 import Avatar from './Avatar'
-import BackupSeed from './BackupSeed'
-import ProfileEditor from './ProfileEditor'
 import QrCode from './QrCode'
 import s from './Wallet.module.css'
 
-export default function Wallet({ sats, avatar, username, progress, unlockedUpTo, onBack, onReset, onUpdateProfile }) {
-  const [editing, setEditing]         = useState(false)
-  const [backingUp, setBackingUp]     = useState(false)
-
+export default function Wallet({ sats, avatar, username, progress, unlockedUpTo, onBack }) {
   // Server-side wallet info (balance, pubkey).
   const [walletInfo, setWalletInfo]     = useState(null)
   const [walletErr, setWalletErr]       = useState(null)
@@ -135,31 +130,6 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         <span className={s.topTitle}>⚡ Lightning Wallet</span>
         <Avatar avatar={avatar} size="md" className={s.ava} />
       </div>
-
-      {/* Username header */}
-      {username && (
-        <div className={s.userHeader}>
-          <p className={s.userHandle}>@{username}</p>
-          {onUpdateProfile && (
-            <button className={s.editBtn} onClick={() => setEditing(true)}>
-              ✏️ Edit profile
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Edit profile modal */}
-      {editing && (
-        <ProfileEditor
-          currentUsername={username}
-          currentAvatarId={avatar?.id}
-          onSave={(updates) => {
-            onUpdateProfile(updates)
-            setEditing(false)
-          }}
-          onClose={() => setEditing(false)}
-        />
-      )}
 
       {/* Balance card */}
       <div className={s.balCard}>
@@ -373,48 +343,6 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
           <div className={s.lStat}><span className={s.lNum}>∞</span><span className={s.lLbl}>no borders</span></div>
         </div>
       </div>
-
-      {/* Back-up your wallet (lets a player play again on another device) */}
-      <div className={s.backupZone}>
-        <p className={s.backupTitle}>🔑 Back up your wallet</p>
-        <p className={s.backupSub}>
-          Save your 12-word recovery phrase. Without it, clearing browser data
-          means your sats are gone forever — but with it, you can restore on
-          any device, including the Breez mobile app.
-        </p>
-        <button className={s.backupBtn} onClick={() => setBackingUp(true)}>
-          Show recovery words →
-        </button>
-      </div>
-
-      {backingUp && (
-        <BackupSeed username={username} onClose={() => setBackingUp(false)} />
-      )}
-
-      {/* Reset zone */}
-      {onReset && (
-        <div className={s.resetZone}>
-          <button
-            className={s.resetBtn}
-            onClick={() => {
-              if (
-                confirm(
-                  '⚠️ This wipes everything on this device.\n\n' +
-                  'If you have NOT backed up your 12 recovery words, your sats are GONE FOREVER.\n\n' +
-                  'Continue?',
-                )
-              ) {
-                onReset()
-              }
-            }}
-          >
-            Reset profile &amp; progress
-          </button>
-          <p className={s.resetHint}>
-            Wiping is permanent. Back up your wallet first if you want to come back.
-          </p>
-        </div>
-      )}
     </div>
   )
 }

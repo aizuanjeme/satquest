@@ -124,9 +124,7 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
 
     this.serverMnemonic = this.config.get<string>('BREEZ_SERVER_MNEMONIC');
     if (!this.serverMnemonic) {
-      this.logger.warn(
-        'BREEZ_SERVER_MNEMONIC is not set — the /claim endpoint will return 503.',
-      );
+      this.logger.warn('BREEZ_SERVER_MNEMONIC is not set — the /claim endpoint will return 503.');
     }
 
     this.lnurlDomain = this.config.get<string>('BREEZ_LNURL_DOMAIN');
@@ -213,7 +211,8 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async sendPayment(username: string, dto: SendPaymentDto): Promise<PaymentEntity> {    const sdk = await this.sdkFor(username);
+  async sendPayment(username: string, dto: SendPaymentDto): Promise<PaymentEntity> {
+    const sdk = await this.sdkFor(username);
 
     // Step 1 — prepare. The SDK expects amounts as bigint at the wire boundary.
     const prep = await sdk.prepareSendPayment({
@@ -416,9 +415,11 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
       case 'paymentFailed': {
         const p = e.payment as { id?: string; amount?: number | bigint; paymentType?: string };
         const direction: 'incoming' | 'outgoing' | undefined =
-          p.paymentType === 'receive' ? 'incoming'
-            : p.paymentType === 'send' ? 'outgoing'
-            : undefined;
+          p.paymentType === 'receive'
+            ? 'incoming'
+            : p.paymentType === 'send'
+              ? 'outgoing'
+              : undefined;
         return {
           ...base,
           paymentId: p.id,
@@ -441,9 +442,7 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
 
     const existing = await sdk.getLightningAddress();
     if (existing?.lightningAddress) {
-      this.logger.log(
-        `Lightning Address for "${username}": ${existing.lightningAddress}`,
-      );
+      this.logger.log(`Lightning Address for "${username}": ${existing.lightningAddress}`);
       return;
     }
 
@@ -463,14 +462,10 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
           username: candidate,
           description: 'SatQuest player',
         });
-        this.logger.log(
-          `Registered Lightning Address ${info.lightningAddress} for "${username}"`,
-        );
+        this.logger.log(`Registered Lightning Address ${info.lightningAddress} for "${username}"`);
         return;
       } catch (err) {
-        this.logger.warn(
-          `register attempt "${candidate}" failed: ${(err as Error).message}`,
-        );
+        this.logger.warn(`register attempt "${candidate}" failed: ${(err as Error).message}`);
       }
     }
   }

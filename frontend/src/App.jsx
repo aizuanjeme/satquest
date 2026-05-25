@@ -8,6 +8,7 @@ import Reveal           from './components/Reveal'
 import Celebrate        from './components/Celebrate'
 import Wallet           from './components/Wallet'
 import Leaderboard      from './components/Leaderboard'
+import Profile          from './components/Profile'
 import BottomNav        from './components/BottomNav'
 import { LEVELS }       from './data/levels'
 import s                from './App.module.css'
@@ -18,15 +19,16 @@ export default function App() {
     phase, avatar, username, profile, progress,
     level, levelIdx, sats, unlockedUpTo, lastEarned,
     chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
-    jumpTo, goToMap, goToWallet, goToLeaderboard,
+    jumpTo, goToMap, goToWallet, goToLeaderboard, goToProfile,
     goToCelebrate, closeCelebrate,
   } = game
 
-  const showNav = ['map', 'wallet', 'leaderboard'].includes(phase)
+  const showNav = ['map', 'wallet', 'leaderboard', 'profile'].includes(phase)
 
   const handleTab = (id) => {
     if (id === 'map')         goToMap()
     else if (id === 'wallet') goToWallet()
+    else if (id === 'profile') goToProfile()
     else                      goToLeaderboard()
   }
 
@@ -67,6 +69,17 @@ export default function App() {
           <Leaderboard username={username} avatar={avatar} />
         )}
 
+        {phase === 'profile' && (
+          <div className={s.scroll}>
+            <Profile
+              avatar={avatar}
+              username={username}
+              onUpdateProfile={updateProfile}
+              onReset={resetEverything}
+            />
+          </div>
+        )}
+
         {phase === 'wallet' && (
           <div className={s.scroll}>
             <Wallet
@@ -76,8 +89,6 @@ export default function App() {
               progress={progress}
               unlockedUpTo={unlockedUpTo}
               onBack={goToMap}
-              onReset={resetEverything}
-              onUpdateProfile={updateProfile}
             />
           </div>
         )}

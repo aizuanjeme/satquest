@@ -1,0 +1,137 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding-bottom: 80px;
+  position: relative;
+}
+
+.topbar {
+  background: linear-gradient(135deg, rgba(184,69,255,0.14) 0%, rgba(0,207,255,0.08) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(12px);
+}
+.topTitle {
+  color: var(--purple);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* ── Hero card ────────────────────────────────── */
+.heroCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.avatarWrap {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 3px var(--purple), 0 8px 32px rgba(184,69,255,0.35);
+}
+.handle {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+.editBtn {
+  background: transparent;
+  border: 1px solid var(--purple);
+  border-radius: 20px;
+  padding: 7px 18px;
+  color: var(--purple);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.editBtn:hover {
+  background: rgba(184,69,255,0.12);
+}
+
+/* ── Generic section card ─────────────────────── */
+.section {
+  margin: 12px 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.sectionIcon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sectionBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sectionTitle {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+  margin: 0;
+}
+.sectionSub {
+  color: var(--muted2);
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Action button (backup) ───────────────────── */
+.actionBtn {
+  margin-top: 4px;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: #1a0a00;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.18s;
+  align-self: flex-start;
+}
+.actionBtn:hover {
+  filter: brightness(1.07);
+}
+
+/* ── Reset button ────────────────────────────── */
+.resetBtn {
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid var(--red);
+  border-radius: 10px;
+  padding: 9px 16px;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  align-self: flex-start;
+}
+.resetBtn:hover {
+  background: rgba(255,86,112,0.1);
+}

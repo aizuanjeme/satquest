@@ -22,7 +22,7 @@
   background: linear-gradient(180deg, rgba(40,15,80,0.98), rgba(20,5,50,0.98));
   border-top: 1.5px solid var(--border);
   border-radius: 24px 24px 0 0;
-  padding: 8px 18px 24px;
+  padding: 8px 18px 88px;
   max-height: 92vh;
   overflow-y: auto;
   animation: slideUp 0.28s cubic-bezier(.34,1.56,.64,1);

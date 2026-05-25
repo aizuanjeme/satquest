@@ -4,6 +4,7 @@ const TABS = [
   { id: 'map',         label: 'Map',      icon: '🗺️' },
   { id: 'wallet',      label: 'Wallet',   icon: '⚡' },
   { id: 'leaderboard', label: 'Rankings', icon: '🏆' },
+  { id: 'profile',     label: 'Profile',  icon: '👤' },
 ]
 
 export default function BottomNav({ phase, onTab }) {
