@@ -2,16 +2,3 @@
   base    = "frontend"
   command = "npm run build"
   publish = "dist"
-
-# Proxy all /api/* calls to the VPS backend (server-side — no CORS issues)
-[[redirects]]
-  from   = "/api/*"
-  to     = "http://158.220.127.210:3000/api/:splat"
-  status = 200
-  force  = true
-
-# SPA catch-all — must be last so React Router handles all other routes
-[[redirects]]
-  from   = "/*"
-  to     = "/index.html"
-  status = 200

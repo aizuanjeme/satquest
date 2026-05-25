@@ -1,2 +1,2 @@
-# SPA fallback so direct links and refreshes never 404
-/*    /index.html   200
+/api/*  http://158.220.127.210:3000/api/:splat  200
+/*      /index.html                              200
