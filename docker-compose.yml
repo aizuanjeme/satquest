@@ -1,0 +1,24 @@
+services:
+  satquest-backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    restart: always
+    networks:
+      - satquest-network
+
+  satquest-frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "127.0.0.1:3001:80"
+    volumes:
+      - ./nginx/frontend.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - satquest-backend
+    networks:
+      - satquest-network
+
+networks:
+  satquest-network:
+    driver: bridge

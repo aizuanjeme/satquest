@@ -21,8 +21,9 @@ jobs:
 
             cd /home/stephanie/apps/satquest
 
-            # Pull latest source from prod branch
-            git pull origin main
+            # Always match remote exactly — safe because .env files are gitignored
+            git fetch origin main
+            git reset --hard origin/main
 
             docker compose down
             
