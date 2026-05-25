@@ -1,4 +1,4 @@
-name: CI
+name: CI / Deploy
 
 on:
   push:
@@ -60,3 +60,30 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  deploy:
+    name: Deploy to production
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            cd /home/stephanie/apps/satquest
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            docker compose down
+
+            docker compose up -d --build
+
+            docker image prune -f
