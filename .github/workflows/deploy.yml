@@ -19,18 +19,10 @@ jobs:
           script: |
             set -e
 
-            cd /opt/satquest
+            cd /home/stephanie/apps/satquest
 
             # Pull latest source from prod branch
-            git pull origin prod
-
-            # Ensure secrets file exists on server
-            if [ -f .production.env ]; then
-              cp .production.env .env
-            else
-              echo "Missing .production.env file on server"
-              exit 1
-            fi
+            git pull origin main
 
             # Install deps and build inside running containers
             docker compose exec -T backend npm install
