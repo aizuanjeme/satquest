@@ -25,14 +25,8 @@ jobs:
             git pull origin main
 
             docker compose down
-            # Install deps and build inside running containers
-            docker compose exec -T satquest-backend npm install
-            docker compose exec -T satquest-backend npm run build
-
-            docker compose exec -T satquest-frontend npm install
-            docker compose exec -T satquest-frontend npm run build
-            # Restart all services to pick up new build
-            docker compose restart
+            
+            docker compose up -d --build
 
             # Clean up dangling images
             docker image prune -f
