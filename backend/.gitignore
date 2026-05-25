@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+
+# Breez SDK per-wallet storage (contains real mainnet seed state — NEVER commit)
+.breez/

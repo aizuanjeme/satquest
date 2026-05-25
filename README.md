@@ -53,40 +53,69 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 - Node.js 18+
 - npm 9+
 
+SatQuest is a **monorepo** with two top-level apps:
+
+```
+satquest/
+├── frontend/    ← Vite + React PWA (the game itself)
+├── backend/     ← NestJS API (profile sync + leaderboard)
+├── README.md
+├── CONTRIBUTORS.md
+└── LICENSE
+```
+
 ### Install
 
 ```bash
-git clone https://github.com/your-org/satquest.git
+git clone https://github.com/aizuanjeme/satquest.git
 cd satquest
-npm install
+
+# Frontend (PWA)
+cd frontend && npm install && cd ..
+
+# Backend (NestJS API)
+cd backend  && npm install && cd ..
 ```
 
-### Run locally
+### Run the frontend (the game)
 
 ```bash
+cd frontend
 npm run dev
 ```
 
 Open the URL Vite prints (default `http://localhost:5173`).
 
-### Regenerate home-screen icons
-
-If you edit [`public/icon.svg`](public/icon.svg ), rebuild the PNG icons:
+### Run the backend (API)
 
 ```bash
+cd backend
+cp .env.example .env
+npm run start:dev
+```
+
+The API listens on `http://localhost:3000/api`. See [`backend/README.md`](backend/README.md) for the full endpoint list.
+
+### Regenerate home-screen icons
+
+If you edit [`frontend/public/icon.svg`](frontend/public/icon.svg ), rebuild the PNG icons:
+
+```bash
+cd frontend
 npm run icons
 ```
 
 This produces the 16/32/180/192/512 PNGs plus a maskable 512 that Android and iOS need for a clean home-screen logo.
 
-### Build for production
+### Build the frontend for production
 
 ```bash
+cd frontend
 npm run build
 npm run preview
 ```
 
-The [`dist/`](dist/ ) folder is a complete PWA with service worker, manifest, and all icons.
+The [`frontend/dist/`](frontend/dist/ ) folder is a complete PWA with service worker, manifest, and all icons — ready to drag-and-drop to Netlify.
 
 ---
 
@@ -94,40 +123,42 @@ The [`dist/`](dist/ ) folder is a complete PWA with service worker, manifest, an
 
 ```
 satquest/
-├── public/
-│   ├── icon.svg                   # Source vector logo (SatQuest gradient + bolt)
-│   ├── icon-192.png               # Android home-screen
-│   ├── icon-512.png               # Android splash
-│   ├── icon-maskable-512.png      # Android adaptive icon (safe-zone padded)
-│   ├── apple-touch-icon.png       # iPhone home-screen (180×180)
-│   ├── favicon-16.png             # Browser tab
-│   └── favicon-32.png             # Browser tab retina
-├── scripts/
-│   └── gen-icons.mjs              # Regenerates all PNGs from icon.svg (uses sharp)
-├── src/
-│   ├── avatars/                   # 38 character webp images (19 female + 19 male, round portraits)
-│   ├── components/
-│   │   ├── AvatarPick.jsx         # Sign-up flow (username + avatar) + Welcome-Back
-│   │   ├── Avatar.jsx             # Reusable avatar renderer (sm/md/lg/xl)
-│   │   ├── LevelMap.jsx           # Zig-zag map with 26 nodes (dashed = puzzle)
-│   │   ├── GameBoard.jsx          # Match game grid (picture rows + meaning rows)
-│   │   ├── WordHuntBoard.jsx      # Timed Word Hunt puzzle with countdown
-│   │   ├── Card.jsx               # Single match-card (picture or word)
-│   │   ├── Reveal.jsx             # Post-level reveal (handles match + wordhunt)
-│   │   ├── Wallet.jsx             # Sats balance, history, edit profile, reset
-│   │   └── ProfileEditor.jsx      # Bottom-sheet modal to change username/avatar
-│   ├── hooks/
-│   │   └── useGame.js             # Full state machine + storage hydration
-│   ├── lib/
-│   │   └── storage.js             # localStorage layer + future backend sync stub
-│   ├── data/
-│   │   └── levels.js              # All 20 match levels + 6 word-hunts + avatars
-│   ├── App.jsx                    # Phase router (avatar → map → playing → reveal)
-│   ├── App.module.css
-│   └── index.css                  # Brand palette as CSS variables
-├── index.html                     # PWA meta tags + icon links + Nunito font
-├── vite.config.js                 # Vite + vite-plugin-pwa (manifest + workbox)
-├── package.json
+├── frontend/                          # ⚡ Vite + React PWA (the game)
+│   ├── public/
+│   │   ├── icon.svg                   # Source vector logo (SatQuest gradient + bolt)
+│   │   ├── icon-192.png               # Android home-screen
+│   │   ├── icon-512.png               # Android splash
+│   │   ├── icon-maskable-512.png      # Android adaptive icon (safe-zone padded)
+│   │   ├── apple-touch-icon.png       # iPhone home-screen (180×180)
+│   │   ├── favicon-16.png             # Browser tab
+│   │   └── favicon-32.png             # Browser tab retina
+│   ├── scripts/
+│   │   └── gen-icons.mjs              # Regenerates all PNGs from icon.svg (uses sharp)
+│   ├── src/
+│   │   ├── avatars/                   # 38 character webp images
+│   │   ├── components/                # AvatarPick, LevelMap, GameBoard, Reveal, Wallet, …
+│   │   ├── hooks/useGame.js           # Full state machine + storage hydration
+│   │   ├── lib/storage.js             # localStorage layer + backend sync stub
+│   │   ├── data/levels.js             # All 20 match levels + 6 word-hunts
+│   │   ├── App.jsx                    # Phase router (avatar → intro → map → playing → …)
+│   │   └── index.css                  # Brand palette as CSS variables
+│   ├── index.html
+│   ├── vite.config.js                 # Vite + vite-plugin-pwa
+│   ├── netlify.toml                   # Netlify build + SPA redirects
+│   └── package.json
+├── backend/                           # ⚡ NestJS API (profile sync + leaderboard)
+│   ├── src/
+│   │   ├── main.ts                    # Bootstrap, global /api prefix, ValidationPipe
+│   │   ├── app.module.ts
+│   │   ├── health/                    # GET  /api/health
+│   │   ├── profile/                   # POST / GET / PATCH /api/profile
+│   │   ├── progress/                  # PUT  / GET /api/progress  (merge logic)
+│   │   └── leaderboard/               # GET  /api/leaderboard
+│   ├── tsconfig.json
+│   ├── nest-cli.json
+│   ├── .env.example
+│   └── package.json
+├── .gitignore
 ├── LICENSE
 ├── README.md
 └── CONTRIBUTORS.md
@@ -143,7 +174,7 @@ satquest/
 | Build | Vite 5 | Fast dev, small output |
 | Styling | CSS Modules | Scoped styles, no runtime overhead |
 | PWA | vite-plugin-pwa + Workbox | Auto service worker + manifest |
-| State | React hooks | [`useGame.js`](src/hooks/useGame.js ) is a complete state machine |
+| State | React hooks | [`useGame.js`](frontend/src/hooks/useGame.js ) is a complete state machine |
 | Persistence | localStorage | Offline-first, sync-ready |
 | Icon pipeline | sharp | SVG → PNG at home-screen sizes |
 | Fonts | Nunito (Google) | Rounded, friendly, legible on small screens |
@@ -152,7 +183,7 @@ satquest/
 
 ## Game Architecture
 
-### Phase state machine ([`useGame.js`](src/hooks/useGame.js ))
+### Phase state machine ([`useGame.js`](frontend/src/hooks/useGame.js ))
 
 ```
 avatar (signup) ────► map ────► playing ────► reveal ────► (next level or done)
@@ -219,7 +250,7 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
 }
 ```
 
-### Storage shape ([`src/lib/storage.js`](src/lib/storage.js ))
+### Storage shape ([`frontend/src/lib/storage.js`](frontend/src/lib/storage.js ))
 
 ```js
 // localStorage key: satquest.profile
@@ -248,7 +279,7 @@ Legacy `omosats.*` keys are auto-migrated on first load so anyone who played the
 
 ### Future backend (already wired)
 
-[`storage.js`](src/lib/storage.js ) exposes a no-op `syncProgress(progress, profile)` you can swap with a real backend. Suggested endpoints:
+[`storage.js`](frontend/src/lib/storage.js ) exposes a no-op `syncProgress(progress, profile)` you can swap with a real backend. The matching server is in [`backend/`](backend/) (NestJS). Endpoints already wired up:
 
 ```
 POST /api/profile         body: profile           -> 201
@@ -288,10 +319,10 @@ See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full contribution guide.
 
 Quick summary:
 
-- **Add pairs to a level** — edit [`src/data/levels.js`](src/data/levels.js ), add to `pairs[]` and `reveals[]`
-- **Add a new match level** — copy an existing level object, increment id, run `npm run build` to confirm
-- **Tweak a Word Hunt** — edit the `WORD_HUNTS` array at the bottom of [`levels.js`](src/data/levels.js )
-- **Add an avatar** — drop a new `Size_XXL__2048px______Avatar_{female|male}_N_____Round_no.webp` file in [`src/avatars/`](src/avatars/ ) and bump `AVATAR_COUNT` in [`src/data/levels.js`](src/data/levels.js )
+- **Add pairs to a level** — edit [`frontend/src/data/levels.js`](frontend/src/data/levels.js ), add to `pairs[]` and `reveals[]`
+- **Add a new match level** — copy an existing level object, increment id, run `npm run build` in `frontend/` to confirm
+- **Tweak a Word Hunt** — edit the `WORD_HUNTS` array at the bottom of [`levels.js`](frontend/src/data/levels.js )
+- **Add an avatar** — drop a new `Size_XXL__2048px______Avatar_{female|male}_N_____Round_no.webp` file in [`frontend/src/avatars/`](frontend/src/avatars/ ) and bump `AVATAR_COUNT` in [`frontend/src/data/levels.js`](frontend/src/data/levels.js )
 - **Fix a bug** — open an issue or PR
 - **Translate** — each level's `story`, `hint`, `def`, and `funny` fields can be localised
 

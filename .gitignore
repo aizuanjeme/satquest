@@ -1,0 +1,53 @@
+# =============================================================
+# Root .gitignore for the SatQuest monorepo
+# Covers both frontend/ (Vite/React PWA) and backend/ (NestJS)
+# =============================================================
+
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/dist-ssr/
+**/build/
+*.local
+
+# Vite cache
+**/.vite/
+
+# NestJS / TS
+**/.nest/
+**/*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+**/coverage/
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.*
+
+# Netlify CLI / cache
+.netlify/
+
+# Breez SDK wallet storage (contains real seed-derived state)
+**/.breez/

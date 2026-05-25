@@ -1,0 +1,242 @@
+/* LevelMap — Candy-Crush style vertical lane that flows BOTTOM-UP. */
+
+.body {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Hero (sticky header) --- */
+.hero {
+  background: linear-gradient(135deg, rgba(153,69,255,0.2) 0%, rgba(247,147,26,0.12) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 5;
+}
+.heroemoji  { filter: drop-shadow(0 2px 8px rgba(153,69,255,0.4)); }
+.heroText   { min-width: 0; }
+.heroname   { color: var(--text); font-size: 15px; font-weight: 800; }
+.herorole   { color: var(--green); font-size: 10px; margin-top: 2px; font-weight: 700; }
+.heroSats   { margin-left: auto; text-align: right; }
+.heroSatNum {
+  background: linear-gradient(90deg, var(--orange), var(--yellow));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-size: 20px; font-weight: 900;
+}
+.heroSatLbl { color: var(--muted); font-size: 10px; }
+
+.walletBtn {
+  background: linear-gradient(135deg, rgba(0,207,255,0.15), rgba(153,69,255,0.15));
+  border: 1px solid rgba(0,207,255,0.3);
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: var(--cyan);
+  font-size: 11px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.18s;
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 4px;
+}
+.walletBtn:hover { background: rgba(0,207,255,0.2); box-shadow: 0 0 12px rgba(0,207,255,0.2); }
+
+/* --- Scrollable lane --- */
+.scroller {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  padding-bottom: 72px; /* clear the fixed BottomNav */
+
+  /* 3-D perspective: stage the lane like a road that recedes into the distance */
+  perspective: 1400px;
+  perspective-origin: 50% 0%;
+
+  /* Hide the scrollbar but keep scrolling enabled */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / old Edge */
+}
+.scroller::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;                  /* Chrome / Safari / Chromium */
+}
+
+/* The 3-D scene wrapper — the entire lane is tilted backward so distant
+   levels appear smaller and farther away. transform-origin pinned to the
+   BOTTOM so Level 1 ("Start") sits flush with the viewer and higher levels
+   recede into the distance. */
+.scene {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;        /* tilt from the bottom */
+  transform: rotateX(14deg);          /* gentle tilt — adjust 8–22deg for taste */
+  will-change: transform;
+}
+
+/* On phones, lean the perspective tilt a little harder for more drama.
+   Nodes counter-rotate by the same amount so the circles stay round. */
+@media (max-width: 600px) {
+  .scroller { perspective: 1100px; }
+  .scene    { transform: rotateX(18deg); }
+  .nodeSlot { transform: translate(-50%, -50%) rotateX(-18deg); }
+}
+
+.lane {
+  position: relative;
+  width: 100%;
+  /* subtle vignette to feel like a road */
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+}
+
+.laneSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Nodes --- */
+.nodeSlot {
+  position: absolute;
+  /* Counter-rotate against the scene's 14° tilt so circles stay perfectly
+     round (not ovals). The scene is tilted on phones too (18°) — overridden
+     in the mobile media query at the bottom. */
+  transform: translate(-50%, -50%) rotateX(-14deg);
+  z-index: 2;
+  transform-style: preserve-3d;
+}
+
+.node {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), border-color 0.18s, box-shadow 0.18s;
+  font-family: inherit;
+  position: relative;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.35);   /* candy-style chunky drop shadow */
+}
+.node:hover:not(:disabled)  { transform: scale(1.10) translateY(-2px); }
+.node:active:not(:disabled) { transform: scale(0.95) translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
+
+.done {
+  border-color: var(--green);
+  background: linear-gradient(135deg, rgba(0,229,160,0.22), rgba(0,229,160,0.06));
+  box-shadow: 0 6px 0 rgba(0,80,55,0.55), 0 0 16px rgba(0,229,160,0.25);
+}
+.active {
+  border-color: var(--orange);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255,214,10,0.35), transparent 70%),
+    linear-gradient(135deg, rgba(153,69,255,0.18), rgba(247,147,26,0.18));
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 6px 0 rgba(120,55,0,0.55), 0 0 24px rgba(247,147,26,0.55);
+}
+.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+}
+
+/* Word Hunt puzzle levels get a distinct cyan look */
+.hunt {
+  border-style: dashed;
+  border-color: var(--cyan);
+  background: linear-gradient(135deg, rgba(0,207,255,0.10), rgba(0,229,160,0.06));
+}
+.hunt.active {
+  border-style: solid;
+  border-color: var(--cyan);
+  background: linear-gradient(135deg, rgba(0,207,255,0.18), rgba(0,229,160,0.12));
+  box-shadow: 0 6px 0 rgba(0,80,100,0.55), 0 0 24px rgba(0,207,255,0.45);
+}
+.hunt .nodeSats { color: var(--cyan); }
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 6px 0 rgba(120,55,0,0.55), 0 0 16px rgba(247,147,26,0.35); }
+  50%     { box-shadow: 0 6px 0 rgba(120,55,0,0.55), 0 0 32px rgba(247,147,26,0.65); }
+}
+
+.nodeEmoji { font-size: 24px; line-height: 1; }
+.nodeSats  { color: var(--muted); font-size: 9px; font-weight: 800; }
+.active .nodeSats { color: var(--yellow); }
+.done   .nodeSats { color: var(--green); }
+
+/* The player avatar that sits on top of the active node */
+.player {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: bob 1.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  z-index: 3;
+  pointer-events: none;
+}
+@keyframes bob {
+  0%, 100% { transform: translate(-50%, 0) rotate(-3deg); }
+  50%      { transform: translate(-50%, -6px) rotate(3deg); }
+}
+
+/* Title card next to the node */
+.nodeInfo {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px;
+  pointer-events: none;
+}
+.infoRight {
+  left: 100%;
+  margin-left: 12px;
+  text-align: left;
+}
+.infoLeft {
+  right: 100%;
+  margin-right: 12px;
+  text-align: right;
+}
+.nodeChapter {
+  color: var(--muted);
+  font-size: 9px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.nodeTitle       { color: var(--muted2); font-size: 11px; line-height: 1.35; margin-top: 2px; }
+.nodeTitleActive { color: var(--text); font-weight: 800; }
+
+/* Start / finish flags at the ends of the lane */
+.startFlag, .finishFlag {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text);
+  z-index: 2;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+  white-space: nowrap;
+}
+.finishFlag {
+  background: linear-gradient(135deg, rgba(255,214,10,0.25), rgba(247,147,26,0.18));
+  border-color: var(--yellow);
+  color: var(--yellow);
+}

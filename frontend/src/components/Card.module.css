@@ -1,0 +1,91 @@
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 78px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.14s cubic-bezier(.34,1.56,.64,1), border-color 0.14s, background 0.14s, box-shadow 0.14s;
+  position: relative;
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+}
+
+/* Orange top stripe for picture cards */
+.img  { border-top: 2.5px solid rgba(247,147,26,0.55); }
+/* Purple top stripe for word/meaning cards */
+.word { border-top: 2.5px solid rgba(168,85,247,0.55); }
+
+/* Match number badge — top-right corner, same number on both matched cards */
+.matchBadge {
+  position: absolute;
+  top: 4px; right: 5px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  font-size: 10px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+
+.card:hover:not(:disabled) {
+  border-color: rgba(153,69,255,0.45);
+  background: rgba(153,69,255,0.08);
+  transform: scale(1.04);
+}
+.img:hover:not(:disabled)  { border-color: rgba(247,147,26,0.6);  background: rgba(247,147,26,0.07); }
+.word:hover:not(:disabled) { border-color: rgba(168,85,247,0.6);  background: rgba(168,85,247,0.07); }
+
+/* Selected state */
+.selected {
+  transform: scale(1.06);
+}
+.img.selected  {
+  border-color: var(--orange);
+  background: rgba(247,147,26,0.13);
+  box-shadow: 0 0 22px rgba(247,147,26,0.35);
+}
+.word.selected {
+  border-color: var(--purple);
+  background: rgba(168,85,247,0.13);
+  box-shadow: 0 0 22px rgba(168,85,247,0.35);
+}
+
+/* Matched state — colour overridden via inline style from matchColor */
+.matched {
+  cursor: default;
+  border-top-width: 2.5px;
+}
+
+/* Wrong state */
+.wrong {
+  border-color: var(--red) !important;
+  background: rgba(255,68,68,0.1) !important;
+  animation: shake 0.38s ease;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-7px); }
+  60%      { transform: translateX(7px); }
+  80%      { transform: translateX(-4px); }
+}
+
+.emoji { font-size: 26px; line-height: 1; }
+.label {
+  color: var(--text);
+  font-size: 10.5px; font-weight: 700;
+  text-align: center; line-height: 1.3;
+}
+/* Picture cards have very short labels — make them even smaller and lighter */
+.img .label {
+  font-size: 10px;
+  color: var(--muted2);
+  font-weight: 600;
+}
+.matched .label { opacity: 0.8; }

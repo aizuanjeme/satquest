@@ -1,0 +1,43 @@
+/*
+  SatQuest — vibrant arcade palette
+  Brighter, more saturated colors for a more "playful game" vibe
+*/
+:root {
+  --bg:        #0b0030;
+  --surface:   rgba(184, 69, 255, 0.08);
+  --surface2:  rgba(184, 69, 255, 0.16);
+  --border:    rgba(255, 255, 255, 0.12);
+
+  /* Brand colors — bumped saturation and brightness */
+  --orange:    #FF9500;   /* juicy neon orange */
+  --yellow:    #FFE600;   /* electric yellow */
+  --purple:    #B845FF;   /* electric purple */
+  --green:     #00FFB3;   /* hot mint */
+  --pink:      #FF2D92;   /* arcade pink */
+  --cyan:      #00E5FF;   /* bright cyan */
+  --red:       #FF5670;   /* coral red */
+
+  --text:      #FFF7FF;
+  --muted:     #7A5DC9;
+  --muted2:    #B095E8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  color: var(--text);
+}
+
+button { font-family: inherit; }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--orange), var(--pink));
+  border-radius: 3px;
+}

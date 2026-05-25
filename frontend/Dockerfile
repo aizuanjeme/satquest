@@ -1,0 +1,29 @@
+# ── Stage 1: build ────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY index.html vite.config.js ./
+COPY public ./public
+COPY src ./src
+COPY scripts ./scripts
+
+RUN npm run build
+# dist/ now contains the static site ready to serve
+
+# ── Stage 2: nginx production server ──────────────────────────────────────────
+FROM nginx:1.27-alpine AS runner
+
+RUN rm -rf /usr/share/nginx/html/*
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# nginx.conf is NOT baked in — it is bind-mounted from the server at runtime
+# so it can be updated without rebuilding the image.
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

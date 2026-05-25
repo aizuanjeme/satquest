@@ -1,0 +1,24 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+import { HealthController } from './health/health.controller';
+import { DatabaseModule } from './database/database.module';
+import { ProfileModule } from './profile/profile.module';
+import { ProgressModule } from './progress/progress.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import { LightningModule } from './lightning/lightning.module';
+import { RewardsModule } from './rewards/rewards.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    ProfileModule,
+    ProgressModule,
+    LeaderboardModule,
+    LightningModule,
+    RewardsModule,
+  ],
+  controllers: [HealthController],
+})
+export class AppModule {}

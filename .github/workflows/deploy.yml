@@ -1,0 +1,46 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            cd /opt/satquest
+
+            # Pull latest source from prod branch
+            git pull origin prod
+
+            # Ensure secrets file exists on server
+            if [ -f .production.env ]; then
+              cp .production.env .env
+            else
+              echo "Missing .production.env file on server"
+              exit 1
+            fi
+
+            # Install deps and build inside running containers
+            docker compose exec -T backend npm install
+            docker compose exec -T backend npm run build
+
+            docker compose exec -T frontend npm install
+            docker compose exec -T frontend npm run build
+
+            # Restart all services to pick up new build
+            docker compose restart
+
+            # Clean up dangling images
+            docker image prune -f
