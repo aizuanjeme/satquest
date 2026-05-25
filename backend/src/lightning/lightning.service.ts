@@ -1,5 +1,3 @@
-import * as path from 'node:path';
-import * as fs from 'node:fs';
 import {
   BadRequestException,
   Injectable,
@@ -15,9 +13,11 @@ import { ConfigService } from '@nestjs/config';
 // `exports` field which requires moduleResolution: "node16" / "bundler".
 import {
   BreezSdk,
-  connect,
+  createPostgresConnectionPool,
   defaultConfig,
   Network,
+  PostgresConnectionPool,
+  SdkBuilder,
   type Config,
   type ReceivePaymentMethod,
   type SdkEvent,
@@ -67,7 +67,7 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
 
   private apiKey?: string;
   private network!: Network;
-  private storageRoot!: string;
+  private pgPool?: PostgresConnectionPool;
   private enabled = false;
   private serverMnemonic?: string;
   private serverSdkInstance?: BreezSdk;
@@ -100,7 +100,6 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
   onModuleInit(): void {
     this.apiKey = this.config.get<string>('BREEZ_API_KEY');
     this.network = (this.config.get<string>('BREEZ_NETWORK') ?? 'mainnet') as Network;
-    this.storageRoot = this.config.get<string>('BREEZ_STORAGE_DIR') ?? './.breez';
 
     if (!this.apiKey) {
       this.logger.warn(
@@ -109,6 +108,19 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
       );
       return;
     }
+
+    const dbUrl = this.config.get<string>('DATABASE_URL');
+    if (!dbUrl) {
+      this.logger.error('DATABASE_URL is not set — Lightning service cannot start');
+      return;
+    }
+
+    this.pgPool = createPostgresConnectionPool({
+      connectionString: dbUrl,
+      maxPoolSize: 5,
+      createTimeoutSecs: 10,
+      recycleTimeoutSecs: 60,
+    });
 
     this.serverMnemonic = this.config.get<string>('BREEZ_SERVER_MNEMONIC');
     if (!this.serverMnemonic) {
@@ -119,11 +131,8 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
 
     this.lnurlDomain = this.config.get<string>('BREEZ_LNURL_DOMAIN');
 
-    fs.mkdirSync(this.storageRoot, { recursive: true });
     this.enabled = true;
-    this.logger.log(
-      `Lightning service ready (network=${this.network}, storage=${this.storageRoot})`,
-    );
+    this.logger.log(`Lightning service ready (network=${this.network}, storage=postgres)`);
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -149,6 +158,8 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
     this.sdkByUser.clear();
     this.serverSdkInstance = undefined;
     this.events$.complete();
+    this.pgPool?.free();
+    this.pgPool = undefined;
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -299,20 +310,18 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
     }
     if (this.serverSdkInstance) return this.serverSdkInstance;
 
-    const storageDir = path.join(this.storageRoot, '_server');
-    fs.mkdirSync(storageDir, { recursive: true });
-
     const config: Config = {
       ...defaultConfig(this.network),
       apiKey: this.apiKey,
     };
 
     this.logger.log('Connecting server reward wallet…');
-    this.serverSdkInstance = await connect({
-      config,
-      seed: { type: 'mnemonic', mnemonic: this.serverMnemonic },
-      storageDir,
-    });
+    this.serverSdkInstance = await SdkBuilder.new(config, {
+      type: 'mnemonic',
+      mnemonic: this.serverMnemonic,
+    })
+      .withPostgresConnectionPool(this.pgPool!)
+      .build();
     await this.subscribeEvents(this.serverSdkInstance, '__server__');
     return this.serverSdkInstance;
   }
@@ -329,8 +338,6 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
     if (cached) return cached;
 
     const mnemonic = await this.profiles.getMnemonic(username); // throws 404 if profile missing
-    const storageDir = path.join(this.storageRoot, key);
-    fs.mkdirSync(storageDir, { recursive: true });
 
     const config: Config = {
       ...defaultConfig(this.network),
@@ -340,11 +347,9 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
 
     try {
       this.logger.log(`Connecting wallet for "${username}"…`);
-      const sdk = await connect({
-        config,
-        seed: { type: 'mnemonic', mnemonic },
-        storageDir,
-      });
+      const sdk = await SdkBuilder.new(config, { type: 'mnemonic', mnemonic })
+        .withPostgresConnectionPool(this.pgPool!)
+        .build();
       this.sdkByUser.set(key, sdk);
       await this.subscribeEvents(sdk, username);
 
