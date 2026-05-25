@@ -378,6 +378,19 @@ export function useGame() {
   const goToLeaderboard = useCallback(() => setPhase('leaderboard'), [])
   const goToProfile     = useCallback(() => setPhase('profile'), [])
 
+  // Award 2 sats for sharing a level on social media.
+  // Idempotent: only earns once per level (tracked in localStorage by ShareEarn).
+  // Also persists and syncs to backend so the leaderboard and wallet see the bonus.
+  const earnShareSats = useCallback(() => {
+    setSats(s => s + 2)
+    if (profile && hydratedRef.current) {
+      const current = loadProgress()
+      const updated = { ...current, sats: (current.sats || 0) + 2 }
+      saveProgress(updated)
+      syncProgress(updated, profile).catch(() => {})
+    }
+  }, [profile])
+
   /* =========================================================================
      Persist progress whenever sats/unlocked change
      (Only after hydration is complete, to avoid overwriting saved data with zeros)
@@ -438,7 +451,7 @@ export function useGame() {
     sats, unlockedUpTo, lastEarned,
     goNext, jumpTo, chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
     goToMap, goToWallet, goToHome, goToLeaderboard, goToProfile,
-    goToCelebrate, closeCelebrate,
+    goToCelebrate, closeCelebrate, earnShareSats,
 
     // match game
     matched, selImg, selWord, wrongFlash,

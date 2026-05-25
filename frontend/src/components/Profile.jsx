@@ -2,11 +2,20 @@ import { useState } from 'react'
 import Avatar from './Avatar'
 import ProfileEditor from './ProfileEditor'
 import BackupSeed from './BackupSeed'
+import { sfx } from '../lib/sfx'
 import s from './Profile.module.css'
 
 export default function Profile({ avatar, username, onUpdateProfile, onReset }) {
   const [editing, setEditing]     = useState(false)
   const [backingUp, setBackingUp] = useState(false)
+  const [soundOn, setSoundOn]     = useState(() => sfx.isEnabled())
+
+  const toggleSound = () => {
+    const next = !soundOn
+    sfx.setEnabled(next)
+    setSoundOn(next)
+    if (next) sfx.ding() // preview the sound when turning on
+  }
 
   return (
     <div className={s.body}>
@@ -37,6 +46,25 @@ export default function Profile({ avatar, username, onUpdateProfile, onReset }) 
           </p>
           <button className={s.actionBtn} onClick={() => setBackingUp(true)}>
             Show recovery words →
+          </button>
+        </div>
+      </div>
+
+      {/* Sound effects */}
+      <div className={s.section}>
+        <div className={s.sectionIcon}>🔊</div>
+        <div className={s.sectionBody}>
+          <p className={s.sectionTitle}>Sound effects</p>
+          <p className={s.sectionSub}>
+            Taps, chimes, and fanfares when you play.
+          </p>
+          <button
+            className={`${s.toggle} ${soundOn ? s.toggleOn : ''}`}
+            onClick={toggleSound}
+            aria-pressed={soundOn}
+          >
+            <span className={s.toggleThumb} />
+            <span className={s.toggleLabel}>{soundOn ? 'On' : 'Off'}</span>
           </button>
         </div>
       </div>

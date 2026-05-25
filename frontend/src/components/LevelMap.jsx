@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { LEVELS } from '../data/levels'
 import Avatar from './Avatar'
+import { sfx } from '../lib/sfx'
 import s from './LevelMap.module.css'
 
 /*
@@ -185,7 +186,7 @@ export default function LevelMap({
               >
                 <button
                   className={`${s.node} ${done ? s.done : ''} ${active ? s.active : ''} ${locked ? s.locked : ''} ${lv.type === 'wordhunt' ? s.hunt : ''}`}
-                  onClick={() => unlocked && onSelect(i)}
+                  onClick={() => { if (unlocked) { sfx.select(); onSelect(i) } }}
                   disabled={locked}
                   aria-label={`Level ${lv.id}: ${lv.title}`}
                 >

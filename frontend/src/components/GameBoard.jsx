@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Card from './Card'
 import Avatar from './Avatar'
+import { sfx } from '../lib/sfx'
 import s from './GameBoard.module.css'
 
 const MATCH_COLORS = [
@@ -28,6 +29,17 @@ export default function GameBoard({ game, onMapPress }) {
   useEffect(() => {
     if (selImg && selWord) tryMatch(selImg, selWord)
   }, [selImg, selWord, tryMatch])
+
+  // Sound: ding on each new correct match, buzz on wrong flash
+  const prevMatchedCount = useRef(0)
+  useEffect(() => {
+    if (matchedCount > prevMatchedCount.current) sfx.ding()
+    prevMatchedCount.current = matchedCount
+  }, [matchedCount])
+
+  useEffect(() => {
+    if (wrongFlash) sfx.buzz()
+  }, [wrongFlash])
 
   const getImgState = (id) => {
     if (matched[id]) return 'matched'

@@ -1,8 +1,9 @@
 import { LEVELS } from '../data/levels'
 import Avatar from './Avatar'
+import ShareEarn from './ShareEarn'
 import s from './Reveal.module.css'
 
-export default function Reveal({ level, levelIdx, sats, avatar, lastEarned, onNext, onMap }) {
+export default function Reveal({ level, levelIdx, sats, avatar, username, lastEarned, onNext, onMap, onShareEarn }) {
   const isLast   = levelIdx === LEVELS.length - 1
   const isHunt   = level.type === 'wordhunt'
   const earned   = lastEarned ?? level.sats
@@ -69,6 +70,13 @@ export default function Reveal({ level, levelIdx, sats, avatar, lastEarned, onNe
             {huntLost ? 'better luck next hunt' : 'sent via Lightning'}
           </p>
         </div>
+
+        <ShareEarn
+          level={level}
+          levelIdx={levelIdx}
+          username={username}
+          onEarn={onShareEarn}
+        />
 
         <button className={s.btn} onClick={onNext}>
           {isLast ? 'You are done! Play again' : 'Next Level'}

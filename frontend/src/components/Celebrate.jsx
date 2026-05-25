@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
+import { sfx } from '../lib/sfx'
 import s from './Celebrate.module.css'
 
 /*
@@ -34,7 +35,8 @@ const CONFETTI_COLORS = [
 const SPARKS = ['✨', '⚡', '🟠', '⭐', '💫', '🌟']
 
 export default function Celebrate({ levelTitle, earnedSats, onDone }) {
-  const audioRef = useRef(null)
+  // Play win fanfare on mount
+  useEffect(() => { sfx.win() }, [])
 
   // Pick one praise line per mount
   const praise = useMemo(

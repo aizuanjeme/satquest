@@ -1,3 +1,4 @@
+import { sfx } from '../lib/sfx'
 import s from './BottomNav.module.css'
 
 const TABS = [
@@ -16,7 +17,7 @@ export default function BottomNav({ phase, onTab }) {
           <button
             key={tab.id}
             className={`${s.tab} ${active ? s.active : ''}`}
-            onClick={() => onTab(tab.id)}
+            onClick={() => { sfx.tap(); onTab(tab.id) }}
           >
             {active && <span className={s.indicator} />}
             <span className={s.icon}>{tab.icon}</span>

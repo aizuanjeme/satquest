@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react'
 import Avatar from './Avatar'
+import { sfx } from '../lib/sfx'
 import s from './WordHuntBoard.module.css'
 
 export default function WordHuntBoard({ game, onMapPress }) {
@@ -14,6 +16,22 @@ export default function WordHuntBoard({ game, onMapPress }) {
     huntTimeLeft <= 5 ? 'var(--red)' :
     huntTimeLeft <= 10 ? 'var(--orange)' :
     'var(--green)'
+
+  // Sound: ding/buzz when a word is tapped, tick on low timer
+  const prevPicked = useRef({})
+  useEffect(() => {
+    const entries = Object.entries(huntPicked)
+    entries.forEach(([word, result]) => {
+      if (!prevPicked.current[word]) {
+        result === 'right' ? sfx.ding() : sfx.buzz()
+      }
+    })
+    prevPicked.current = huntPicked
+  }, [huntPicked])
+
+  useEffect(() => {
+    if (huntRunning && huntTimeLeft <= 5 && huntTimeLeft > 0) sfx.tick()
+  }, [huntTimeLeft, huntRunning])
 
   return (
     <div>

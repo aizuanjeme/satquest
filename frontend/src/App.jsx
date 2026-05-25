@@ -20,7 +20,7 @@ export default function App() {
     level, levelIdx, sats, unlockedUpTo, lastEarned,
     chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
     jumpTo, goToMap, goToWallet, goToLeaderboard, goToProfile,
-    goToCelebrate, closeCelebrate,
+    goToCelebrate, closeCelebrate, earnShareSats,
   } = game
 
   const showNav = ['map', 'wallet', 'leaderboard', 'profile'].includes(phase)
@@ -109,9 +109,11 @@ export default function App() {
               levelIdx={levelIdx}
               sats={sats}
               avatar={avatar}
+              username={username}
               lastEarned={lastEarned}
               onNext={goToCelebrate}
               onMap={goToMap}
+              onShareEarn={earnShareSats}
             />
           </div>
         )}
