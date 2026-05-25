@@ -21,6 +21,9 @@ FROM node:20-alpine AS runner
 # Non-root user for security
 RUN addgroup -S satquest && adduser -S satquest -G satquest
 
+# Create persistent storage dir and give ownership to the app user before switching
+RUN mkdir -p /data/breez && chown -R satquest:satquest /data/breez
+
 WORKDIR /app
 
 COPY --from=builder --chown=satquest:satquest /app/node_modules ./node_modules
