@@ -6,6 +6,7 @@ import { RewardsService } from './rewards.service';
  *
  * GET  /api/rewards/:username          — list unclaimed sats
  * POST /api/rewards/:username/claim    — trigger Lightning payout for all unclaimed sats
+ * POST /api/rewards/:username/share    — add +2 sat pending reward for social share bonus
  */
 @Controller('rewards/:username')
 export class RewardsController {
@@ -20,5 +21,12 @@ export class RewardsController {
   @HttpCode(200)
   async claim(@Param('username') username: string) {
     return this.rewards.claim(username);
+  }
+
+  @Post('share')
+  @HttpCode(200)
+  async addShareBonus(@Param('username') username: string) {
+    await this.rewards.addPending(username, 'share', 2);
+    return { ok: true };
   }
 }

@@ -5,7 +5,7 @@ import {
   loadProgress, saveProgress, recordLevelResult, syncProgress,
   pullProgress, onOnline,
 } from '../lib/storage'
-import { profileApi } from '../lib/api'
+import { profileApi, rewardsApi } from '../lib/api'
 
 export function useGame() {
   // Read from localStorage synchronously on first render so initial state is correct.
@@ -388,6 +388,8 @@ export function useGame() {
       const updated = { ...current, sats: (current.sats || 0) + 2 }
       saveProgress(updated)
       syncProgress(updated, profile).catch(() => {})
+      // Create a pending reward row so the +2 sats are included in Lightning claim
+      rewardsApi.addShare(profile.username).catch(() => {})
     }
   }, [profile])
 

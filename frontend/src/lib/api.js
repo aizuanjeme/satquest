@@ -57,9 +57,11 @@ export const progressApi = {
 /* ---------- Rewards (deferred Lightning payouts) ---------- */
 
 export const rewardsApi = {
-  pending: (username) => request(`/rewards/${encodeURIComponent(username)}`),
-  claim:   (username) =>
+  pending:  (username) => request(`/rewards/${encodeURIComponent(username)}`),
+  claim:    (username) =>
     request(`/rewards/${encodeURIComponent(username)}/claim`, { method: 'POST' }),
+  addShare: (username) =>
+    request(`/rewards/${encodeURIComponent(username)}/share`, { method: 'POST' }),
 }
 
 /* ---------- Lightning wallet (per player) ---------- */
