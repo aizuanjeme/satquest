@@ -1,0 +1,11 @@
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# Proxy all /api/* calls to the VPS backend (server-side — no CORS issues)
+[[redirects]]
+  from   = "/api/*"
+  to     = "http://158.220.127.210:3000/api/:splat"
+  status = 200
+  force  = true
