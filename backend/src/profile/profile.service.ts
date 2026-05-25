@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { generateMnemonic, validateMnemonic } from 'bip39';
@@ -21,7 +21,14 @@ export class ProfileService {
     const key = dto.username.toLowerCase();
     const existing = await this.repo.findOne({ where: { usernameKey: key } });
     if (existing) {
-      throw new ConflictException(`username "${dto.username}" is already taken`);
+      // Idempotent: treat re-registration as success so resuming from a new
+      // device or browser doesn't produce 409 errors. Update avatarId if it
+      // changed so the client stays in sync.
+      if (dto.avatarId && dto.avatarId !== existing.avatarId) {
+        existing.avatarId = dto.avatarId;
+        return this.repo.save(existing);
+      }
+      return existing;
     }
 
     const profile = this.repo.create({

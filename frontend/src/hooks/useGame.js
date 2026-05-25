@@ -79,9 +79,12 @@ export function useGame() {
     setTimeout(() => {
       setSats(s => s + earnedSats)
       setLastEarned(earnedSats)
+      // Unlock the next level immediately so progress is persisted even if
+      // the player navigates away before dismissing the Celebrate screen.
+      setUnlocked(u => Math.max(u, levelIdx + 1))
       setPhase('reveal')
     }, 450)
-  }, [level.sats])
+  }, [level.sats, levelIdx])
 
   const tryMatch = useCallback((imgId, wordId) => {
     if (imgId === wordId) {
