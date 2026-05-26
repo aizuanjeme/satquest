@@ -2,13 +2,15 @@ import { useState } from 'react'
 import Avatar from './Avatar'
 import ProfileEditor from './ProfileEditor'
 import BackupSeed from './BackupSeed'
+import Feedback from './Feedback'
 import { sfx } from '../lib/sfx'
 import s from './Profile.module.css'
 
 export default function Profile({ avatar, username, onUpdateProfile, onReset }) {
-  const [editing, setEditing]     = useState(false)
-  const [backingUp, setBackingUp] = useState(false)
-  const [soundOn, setSoundOn]     = useState(() => sfx.isEnabled())
+  const [editing, setEditing]       = useState(false)
+  const [backingUp, setBackingUp]   = useState(false)
+  const [feedbacking, setFeedbacking] = useState(false)
+  const [soundOn, setSoundOn]       = useState(() => sfx.isEnabled())
 
   const toggleSound = () => {
     const next = !soundOn
@@ -69,6 +71,20 @@ export default function Profile({ avatar, username, onUpdateProfile, onReset }) 
         </div>
       </div>
 
+      {/* Feedback */}
+      <div className={s.section}>
+        <div className={s.sectionIcon}>💬</div>
+        <div className={s.sectionBody}>
+          <p className={s.sectionTitle}>Send feedback</p>
+          <p className={s.sectionSub}>
+            Found a bug, have a feature idea, or just want to say hi? We read every message.
+          </p>
+          <button className={s.actionBtn} onClick={() => setFeedbacking(true)}>
+            Share your thoughts →
+          </button>
+        </div>
+      </div>
+
       {/* Reset */}
       <div className={s.section}>
         <div className={s.sectionIcon}>⚠️</div>
@@ -111,6 +127,10 @@ export default function Profile({ avatar, username, onUpdateProfile, onReset }) 
 
       {backingUp && (
         <BackupSeed username={username} onClose={() => setBackingUp(false)} />
+      )}
+
+      {feedbacking && (
+        <Feedback username={username} onClose={() => setFeedbacking(false)} />
       )}
     </div>
   )

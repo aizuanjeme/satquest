@@ -80,6 +80,14 @@ export const leaderboardApi = {
   top: (limit = 50) => request(`/leaderboard?limit=${limit}`),
 }
 
+/* ---------- Feedback ---------- */
+
+export const feedbackApi = {
+  submit: (dto) => request('/feedback', { method: 'POST', body: dto }),
+  list:   (username) =>
+    request(`/feedback${username ? `?username=${encodeURIComponent(username)}` : ''}`),
+}
+
 /* ---------- Health ---------- */
 
 export const healthApi = {

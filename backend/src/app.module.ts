@@ -8,6 +8,7 @@ import { ProgressModule } from './progress/progress.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { LightningModule } from './lightning/lightning.module';
 import { RewardsModule } from './rewards/rewards.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RewardsModule } from './rewards/rewards.module';
     LeaderboardModule,
     LightningModule,
     RewardsModule,
+    FeedbackModule,
   ],
   controllers: [HealthController],
 })
