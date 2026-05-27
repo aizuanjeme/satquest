@@ -22,7 +22,7 @@ export function useGame() {
   )
   const [profile, setProfile]       = useState(initialProfile)
   const [progress, setProgress]     = useState(initialProgress)
-  const [levelIdx, setLevelIdx]     = useState(initialProgress?.unlockedUpTo || 0)
+  const [levelIdx, setLevelIdx]     = useState(Math.min(initialProgress?.unlockedUpTo || 0, Math.max(0, LEVELS.length - 1)))
   const [sats, setSats]             = useState(initialProgress?.sats || 0)
   const [unlockedUpTo, setUnlocked] = useState(initialProgress?.unlockedUpTo || 0)
 
@@ -270,7 +270,7 @@ export function useGame() {
     setProgress(g)
     setSats(g.sats || 0)
     setUnlocked(g.unlockedUpTo || 0)
-    setLevelIdx(g.unlockedUpTo || 0)
+    setLevelIdx(Math.min(g.unlockedUpTo || 0, LEVELS.length - 1))
     hydratedRef.current = true
     setPhase('map')
 
@@ -332,7 +332,7 @@ export function useGame() {
     setProgress(merged)
     setSats(merged.sats)
     setUnlocked(merged.unlockedUpTo)
-    setLevelIdx(merged.unlockedUpTo)
+    setLevelIdx(Math.min(merged.unlockedUpTo, LEVELS.length - 1))
     hydratedRef.current = true
     setPhase('map')
   }, [])
