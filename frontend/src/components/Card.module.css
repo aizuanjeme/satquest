@@ -15,7 +15,7 @@
   transition: transform 0.14s cubic-bezier(.34,1.56,.64,1), border-color 0.14s, background 0.14s, box-shadow 0.14s;
   position: relative;
   font-family: inherit;
-  backdrop-filter: blur(6px);
+  color: var(--text);
 }
 
 /* Orange top stripe for picture cards */
