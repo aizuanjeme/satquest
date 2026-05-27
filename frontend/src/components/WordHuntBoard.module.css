@@ -1,6 +1,6 @@
 /* Reuse the same topbar styling as GameBoard so it feels consistent */
 .topbar {
-  background: linear-gradient(135deg, rgba(153,69,255,0.15) 0%, rgba(247,147,26,0.08) 100%);
+  background: linear-gradient(135deg, rgba(30,10,70,0.97) 0%, rgba(20,5,55,0.97) 100%);
   border-bottom: 1px solid var(--border);
   padding: 10px 14px;
   display: flex;
@@ -9,7 +9,6 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  backdrop-filter: blur(12px);
 }
 .mapBtn {
   background: var(--surface);
@@ -111,7 +110,6 @@
   font-size: 13px;
   font-weight: 800;
   transition: transform 0.14s cubic-bezier(.34,1.56,.64,1), border-color 0.14s, background 0.14s, box-shadow 0.14s;
-  backdrop-filter: blur(6px);
 }
 .wordCard:hover:not(:disabled) {
   border-color: rgba(0,229,160,0.55);
