@@ -93,7 +93,7 @@ export const LEVELS = [
     title: 'What is Bitcoin?',
     story: 'Bitcoin is money. But not the kind you keep in a bank. Let us start small.',
     hint: 'Match the picture to the meaning',
-    hintColor: '#F7931A', sats: 5,
+    hintColor: '#F7931A', sats: 1,
     pairs: [
       { id: 'money',  imgEmoji: '💰', imgLabel: 'Money',     wordEmoji: '🪙', wordLabel: 'Bitcoin is money' },
       { id: 'phone',  imgEmoji: '📱', imgLabel: 'Phone',     wordEmoji: '💸', wordLabel: 'You keep it on your phone' },
@@ -114,7 +114,7 @@ export const LEVELS = [
     title: 'Bitcoin vs Naira',
     story: 'Naira is money you can touch. Bitcoin is money you cannot touch. But both can buy things.',
     hint: 'Match the kind of money',
-    hintColor: '#FF4444', sats: 5,
+    hintColor: '#FF4444', sats: 1,
     pairs: [
       { id: 'naira',   imgEmoji: '💵', imgLabel: 'Paper',     wordEmoji: '🇳🇬', wordLabel: 'Naira, money you touch' },
       { id: 'bitcoin', imgEmoji: '📲', imgLabel: 'Digital',   wordEmoji: '🟠', wordLabel: 'Bitcoin, money on a screen' },
@@ -135,7 +135,7 @@ export const LEVELS = [
     title: 'Small small money',
     story: '1 naira is made of 100 kobo. In the same way, 1 Bitcoin is made of millions of tiny pieces called sats. You do not have to buy a full Bitcoin, you can just buy sats.',
     hint: 'Match the small things',
-    hintColor: '#00E5A0', sats: 10,
+    hintColor: '#00E5A0', sats: 1,
     pairs: [
       { id: 'kobo', imgEmoji: '🪙', imgLabel: 'Kobo',      wordEmoji: '💴', wordLabel: '100 kobo make 1 naira' },
       { id: 'sat',  imgEmoji: '🔬', imgLabel: 'Sats',      wordEmoji: '🟠', wordLabel: 'Sats are the kobo of Bitcoin' },
@@ -156,7 +156,7 @@ export const LEVELS = [
     title: 'Why Bitcoin matters',
     story: 'Mama Titi saved 100,000 naira last year. This year it buys less. Nobody stole. The money just got weaker. Bitcoin is different.',
     hint: 'Match the problem to the picture',
-    hintColor: '#FF4444', sats: 10,
+    hintColor: '#FF4444', sats: 1,
     pairs: [
       { id: 'weak',   imgEmoji: '📉', imgLabel: 'Going down',    wordEmoji: '💸', wordLabel: 'Naira gets weaker every year' },
       { id: 'print',  imgEmoji: '🖨️', imgLabel: 'Printer',       wordEmoji: '😤', wordLabel: 'Government prints more naira' },
@@ -179,7 +179,7 @@ export const LEVELS = [
     title: 'Your Bitcoin wallet',
     story: 'A wallet is an app on your phone. It is where your Bitcoin lives. It is free and takes 2 minutes to set up.',
     hint: 'Match wallet basics',
-    hintColor: '#9945FF', sats: 10,
+    hintColor: '#9945FF', sats: 1,
     pairs: [
       { id: 'app',     imgEmoji: '📱', imgLabel: 'App',       wordEmoji: '👜', wordLabel: 'Your wallet is just an app' },
       { id: 'free',    imgEmoji: '🆓', imgLabel: 'Free',      wordEmoji: '✅', wordLabel: 'It costs nothing to download' },
@@ -202,7 +202,7 @@ export const LEVELS = [
     title: 'Who owns your money?',
     story: 'When your naira is in the bank, the bank owns it. They can freeze your account anytime. With Bitcoin in your wallet, only you control it.',
     hint: 'Who is in charge of what?',
-    hintColor: '#FF4444', sats: 10,
+    hintColor: '#FF4444', sats: 1,
     pairs: [
       { id: 'bankown',  imgEmoji: '🏦', imgLabel: 'Bank',       wordEmoji: '🔐', wordLabel: 'Bank holds your naira' },
       { id: 'youown',   imgEmoji: '🙋', imgLabel: 'You',         wordEmoji: '🔑', wordLabel: 'You hold your Bitcoin' },
@@ -225,7 +225,7 @@ export const LEVELS = [
     title: 'Big words made small',
     story: 'Bitcoin people use big words. Do not panic. Each one has a tiny everyday meaning. Learn them once and you will sound like a pro.',
     hint: 'Match the big word to its simple meaning',
-    hintColor: '#00E5A0', sats: 15,
+    hintColor: '#00E5A0', sats: 2,
     pairs: [
       { id: 'wallet',     imgEmoji: '👜', imgLabel: 'Bag',           wordEmoji: '📱', wordLabel: 'Wallet = the app' },
       { id: 'address',    imgEmoji: '🏠', imgLabel: 'House',         wordEmoji: '📬', wordLabel: 'Address = where to send' },
@@ -250,7 +250,7 @@ export const LEVELS = [
     title: '12 magic words',
     story: 'Your wallet gives you 12 words when you first open it. These words are the most important thing in Bitcoin. Lose them and you lose everything.',
     hint: 'Match seed phrase rules',
-    hintColor: '#FF4444', sats: 15,
+    hintColor: '#FF4444', sats: 2,
     pairs: [
       { id: 'paper',  imgEmoji: '📝', imgLabel: 'Paper',         wordEmoji: '✏️', wordLabel: 'Write the 12 words on paper' },
       { id: 'hide',   imgEmoji: '🤫', imgLabel: 'Shh',           wordEmoji: '🚫', wordLabel: 'Never share them with anyone' },
@@ -275,7 +275,7 @@ export const LEVELS = [
     title: 'Sending money the smart way',
     story: 'Emeka wants to send 5000 naira to his sister in Aba. Bank takes hours. Bitcoin takes seconds. Same destination. Big difference.',
     hint: 'Match each method to how it feels',
-    hintColor: '#9945FF', sats: 15,
+    hintColor: '#9945FF', sats: 2,
     pairs: [
       { id: 'bank',     imgEmoji: '🐢', imgLabel: 'Slow',         wordEmoji: '🏦', wordLabel: 'Bank transfer can take hours' },
       { id: 'fee',      imgEmoji: '💸', imgLabel: 'Fees',         wordEmoji: '😤', wordLabel: 'Banks charge plenty for transfers' },
@@ -300,7 +300,7 @@ export const LEVELS = [
     title: 'Where Bitcoin comes from',
     story: 'Nobody prints Bitcoin. New Bitcoin is made by computers solving puzzles. The winners get paid in fresh Bitcoin. This is called mining.',
     hint: 'Match how mining works',
-    hintColor: '#F7931A', sats: 20,
+    hintColor: '#F7931A', sats: 2,
     pairs: [
       { id: 'mine',     imgEmoji: '⛏️', imgLabel: 'Pickaxe',       wordEmoji: '🖥️', wordLabel: 'Mining = computers doing work' },
       { id: 'puzzle',   imgEmoji: '🧩', imgLabel: 'Puzzle',        wordEmoji: '❓', wordLabel: 'They race to solve a hard puzzle' },
@@ -325,7 +325,7 @@ export const LEVELS = [
     title: 'How Bitcoin stays alive',
     story: 'Amina asked: if no company runs Bitcoin, why does it not die? Because thousands of computers all over the world run it together. No single point of failure.',
     hint: 'Match the parts of the network',
-    hintColor: '#00E5A0', sats: 20,
+    hintColor: '#00E5A0', sats: 2,
     pairs: [
       { id: 'node',     imgEmoji: '💻', imgLabel: 'Computer',       wordEmoji: '🌐', wordLabel: 'A node is a computer that runs Bitcoin' },
       { id: 'many',     imgEmoji: '🧑‍🤝‍🧑', imgLabel: 'Many people', wordEmoji: '🌍', wordLabel: 'Thousands of nodes worldwide' },
@@ -352,7 +352,7 @@ export const LEVELS = [
     title: 'How not to lose your Bitcoin',
     story: 'Bitcoin gives you full power over your money. That power comes with a price. You are now your own bank. So you are also your own security guard.',
     hint: 'Match the danger to its warning',
-    hintColor: '#FF4444', sats: 20,
+    hintColor: '#FF4444', sats: 2,
     pairs: [
       { id: 'fake',     imgEmoji: '🎭', imgLabel: 'Mask',          wordEmoji: '🌐', wordLabel: 'Fake websites that look real' },
       { id: 'check',    imgEmoji: '🔍', imgLabel: 'Search',        wordEmoji: '🔗', wordLabel: 'Always check the website link' },
@@ -379,7 +379,7 @@ export const LEVELS = [
     title: 'How to buy Bitcoin in Nigeria',
     story: 'You cannot buy Bitcoin at a regular bank in Nigeria. But there are easy ways. Most Nigerians use P2P apps and exchanges.',
     hint: 'Match the buying method',
-    hintColor: '#9945FF', sats: 20,
+    hintColor: '#9945FF', sats: 2,
     pairs: [
       { id: 'p2p',      imgEmoji: '🤝', imgLabel: 'Handshake',     wordEmoji: '📲', wordLabel: 'P2P, buy from another person directly' },
       { id: 'exchange', imgEmoji: '🏢', imgLabel: 'Office',        wordEmoji: '💱', wordLabel: 'Exchange, online shop for Bitcoin' },
@@ -406,7 +406,7 @@ export const LEVELS = [
     title: 'Keeping big amounts safe',
     story: 'Your phone wallet is great for daily use. But if you have a lot of Bitcoin, you need a stronger safe. This is called cold storage.',
     hint: 'Match the safety idea',
-    hintColor: '#00E5A0', sats: 25,
+    hintColor: '#00E5A0', sats: 3,
     pairs: [
       { id: 'hot',      imgEmoji: '🔥', imgLabel: 'Hot',           wordEmoji: '📱', wordLabel: 'Hot wallet = phone, easy but online' },
       { id: 'cold',     imgEmoji: '🧊', imgLabel: 'Cold',          wordEmoji: '🔌', wordLabel: 'Cold wallet = stays offline always' },
@@ -435,7 +435,7 @@ export const LEVELS = [
     title: 'Lightning: Bitcoin for small money',
     story: 'Regular Bitcoin is good for big amounts. Lightning is built on top of Bitcoin for tiny everyday payments like suya, transport, tips.',
     hint: 'Match Lightning ideas',
-    hintColor: '#F7931A', sats: 25,
+    hintColor: '#F7931A', sats: 3,
     pairs: [
       { id: 'tiny',     imgEmoji: '🍢', imgLabel: 'Suya',          wordEmoji: '⚡', wordLabel: 'Lightning is for tiny payments' },
       { id: 'invoice',  imgEmoji: '🧾', imgLabel: 'Receipt',       wordEmoji: '📲', wordLabel: 'Invoice = QR code you scan to pay' },
@@ -464,7 +464,7 @@ export const LEVELS = [
     title: 'Mining and the halving',
     story: 'Every 4 years, the Bitcoin reward for mining cuts in half. This is called the halving. It is built into Bitcoin and nobody can stop it.',
     hint: 'Match the mining ideas',
-    hintColor: '#F7931A', sats: 25,
+    hintColor: '#F7931A', sats: 3,
     pairs: [
       { id: 'halving',    imgEmoji: '✂️', imgLabel: 'Cut in half',  wordEmoji: '📅', wordLabel: 'Halving happens every 4 years' },
       { id: 'reward',     imgEmoji: '🎁', imgLabel: 'Reward',       wordEmoji: '📉', wordLabel: 'New Bitcoin reward keeps shrinking' },
@@ -493,7 +493,7 @@ export const LEVELS = [
     title: 'Money and freedom',
     story: 'Money is freedom. When someone else can stop your money, they can stop your life. Bitcoin returns that power to ordinary people.',
     hint: 'Match each freedom idea',
-    hintColor: '#9945FF', sats: 30,
+    hintColor: '#9945FF', sats: 3,
     pairs: [
       { id: 'censor',   imgEmoji: '🚫', imgLabel: 'No',            wordEmoji: '✅', wordLabel: 'Bitcoin payments cannot be blocked' },
       { id: 'border',   imgEmoji: '🛂', imgLabel: 'Customs',       wordEmoji: '🌍', wordLabel: 'No borders for Bitcoin' },
@@ -522,7 +522,7 @@ export const LEVELS = [
     title: 'Bitcoin and Nigeria',
     story: 'Nigeria is one of the top countries in the world for Bitcoin use. Not because we like risk. Because we know what broken money feels like.',
     hint: 'Match each Nigerian situation to its Bitcoin answer',
-    hintColor: '#00E5A0', sats: 30,
+    hintColor: '#00E5A0', sats: 3,
     pairs: [
       { id: 'remit',    imgEmoji: '✈️', imgLabel: 'Auntie',        wordEmoji: '⚡', wordLabel: 'Family abroad sends money via Lightning' },
       { id: 'dollar',   imgEmoji: '💵', imgLabel: 'Dollar',        wordEmoji: '🟠', wordLabel: 'Hold Bitcoin instead of chasing dollars' },
@@ -551,7 +551,7 @@ export const LEVELS = [
     title: 'The deep wisdom',
     story: 'You have come far. Now for the deeper truths. The things Bitcoiners learn after years of holding. Wisdom you carry for life.',
     hint: 'Match the deep ideas',
-    hintColor: '#A855F7', sats: 40,
+    hintColor: '#A855F7', sats: 4,
     pairs: [
       { id: 'sound',    imgEmoji: '🎵', imgLabel: 'Music',         wordEmoji: '💪', wordLabel: 'Sound money keeps its value over decades' },
       { id: 'time',     imgEmoji: '🌳', imgLabel: 'Tree',          wordEmoji: '⏳', wordLabel: 'Plant for the long term, sit in shade later' },
@@ -580,7 +580,7 @@ export const LEVELS = [
     title: 'You are ready',
     story: 'You have walked the whole journey. From "what is Bitcoin" to deep wisdom. Final round. Everything mixed. Show what you know.',
     hint: 'Final boss round',
-    hintColor: '#F7931A', sats: 60,
+    hintColor: '#F7931A', sats: 5,
     pairs: [
       { id: 'halving',  imgEmoji: '✂️', imgLabel: 'Halving',       wordEmoji: '📅', wordLabel: 'Every 4 years rewards cut in half' },
       { id: 'seed',     imgEmoji: '🌱', imgLabel: '12 words',      wordEmoji: '🔑', wordLabel: 'Guard them with your life' },
@@ -622,7 +622,7 @@ const WORD_HUNTS = [
     story: 'Find the real Bitcoin words. Skip the regular money words. You have 30 seconds.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#F7931A',
-    sats: 15,
+    sats: 2,
     timeLimit: 30,
     real:  ['Bitcoin', 'Sats', 'Satoshi'],
     decoy: ['Naira', 'Dollar', 'Pounds', 'Bank', 'Loan', 'Cheque'],
@@ -634,7 +634,7 @@ const WORD_HUNTS = [
     story: 'Some words are Bitcoin words. Others are regular bank words. Pick only the Bitcoin ones.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#9945FF',
-    sats: 20,
+    sats: 2,
     timeLimit: 30,
     real:  ['Wallet', 'Bitcoin', 'Sats', 'Address'],
     decoy: ['ATM', 'Debit Card', 'PIN', 'Branch', 'Teller', 'Savings Account', 'Overdraft'],
@@ -646,7 +646,7 @@ const WORD_HUNTS = [
     story: 'Plenty Bitcoin words now mixed with bank and crypto words. Pick only the real Bitcoin ones.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#00E5A0',
-    sats: 25,
+    sats: 3,
     timeLimit: 35,
     real:  ['Seed Phrase', 'Private Key', 'Block', 'Lightning', 'Address', 'Wallet'],
     decoy: ['Password', 'Username', 'IBAN', 'SWIFT', 'eNaira', 'Crypto', 'PayPal'],
@@ -658,7 +658,7 @@ const WORD_HUNTS = [
     story: 'Mining, nodes, hash. Spot the Bitcoin words hiding among finance jargon. Time is ticking.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#FF4444',
-    sats: 30,
+    sats: 3,
     timeLimit: 40,
     real:  ['Mining', 'Node', 'Halving', 'Block', 'Hash', 'Blockchain'],
     decoy: ['Interest Rate', 'Mortgage', 'Stock', 'Bond', 'Insurance', 'Dividend', 'Inflation', 'Tax'],
@@ -670,7 +670,7 @@ const WORD_HUNTS = [
     story: 'Deeper Bitcoin words mixed with crypto and bank words. Stay sharp.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#A855F7',
-    sats: 35,
+    sats: 4,
     timeLimit: 40,
     real:  ['Hardware Wallet', 'Cold Storage', 'Lightning', 'Multisig', 'Channel', 'Hot Wallet'],
     decoy: ['Ethereum', 'Dogecoin', 'NFT', 'Forex', 'Western Union', 'Visa', 'Mastercard', 'Wire Transfer'],
@@ -682,7 +682,7 @@ const WORD_HUNTS = [
     story: 'Final hunt before the boss round. Real Bitcoin words only. Ignore the finance noise.',
     hint: 'Tap Bitcoin words only',
     hintColor: '#F7931A',
-    sats: 40,
+    sats: 4,
     timeLimit: 45,
     real:  ['Halving', 'ASIC', 'HODL', 'Proof of Work', 'Satoshi', 'Genesis Block', 'Whitepaper', 'UTXO'],
     decoy: ['IPO', 'Hedge Fund', 'Pension', 'Mutual Fund', 'CBDC', 'Stablecoin', 'Altcoin'],
