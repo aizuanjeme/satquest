@@ -1,3 +1,16 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Reuse the same topbar styling as GameBoard so it feels consistent */
 .topbar {
   background: linear-gradient(135deg, rgba(30,10,70,0.97) 0%, rgba(20,5,55,0.97) 100%);
@@ -6,9 +19,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
+  flex-shrink: 0;
 }
 .mapBtn {
   background: var(--surface);

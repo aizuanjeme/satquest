@@ -34,7 +34,7 @@ export default function WordHuntBoard({ game, onMapPress }) {
   }, [huntTimeLeft, huntRunning])
 
   return (
-    <div>
+    <div className={s.game}>
       <div className={s.topbar}>
         <button className={s.mapBtn} onClick={onMapPress}>
           <Avatar avatar={avatar} size="sm" /> Map
@@ -46,6 +46,7 @@ export default function WordHuntBoard({ game, onMapPress }) {
         <span className={s.satPill}>+{level.sats}⚡</span>
       </div>
 
+      <div className={s.scrollArea}>
       <div className={s.progressWrap}>
         <div className={s.progressBar} style={{ width: pct + '%' }} />
       </div>
@@ -99,6 +100,7 @@ export default function WordHuntBoard({ game, onMapPress }) {
           ⏰ Time up! No sats this round. Try again next time.
         </div>
       )}
+      </div>
     </div>
   )
 }

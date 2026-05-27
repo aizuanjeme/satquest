@@ -94,12 +94,9 @@ export default function App() {
         )}
 
         {phase === 'playing' && (
-          <div className={s.scroll}>
-            {level.type === 'wordhunt'
-              ? <WordHuntBoard game={game} onMapPress={goToMap} />
-              : <GameBoard    game={game} onMapPress={goToMap} />
-            }
-          </div>
+          level.type === 'wordhunt'
+            ? <WordHuntBoard game={game} onMapPress={goToMap} />
+            : <GameBoard    game={game} onMapPress={goToMap} />
         )}
 
         {phase === 'reveal' && (
