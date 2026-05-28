@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* ─── Google Font ────────────────────────────────────── */
+@theme {
+  --font-family-sans: 'Nunito', sans-serif;
+}
+
+/* ─── Global reset ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  background-color: #0b0030;
+  font-family: 'Nunito', sans-serif;
+  color: #FFF7FF;
+  overflow-x: hidden;
+  line-height: 1.6;
+  height: 100%;
+}
+
+/* ─── Scroll-snap container ───────────────────────────── */
+.snap-container {
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+/* Each full-page snap section */
+.snap-page {
+  scroll-snap-align: start;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ─── Gradient text ───────────────────────────────────── */
+.grad-text {
+  background: linear-gradient(135deg, #FF9500 0%, #FF2D92 50%, #B845FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-text-green {
+  background: linear-gradient(135deg, #00FFB3 0%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Scroll reveal ───────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal-left.visible { opacity: 1; transform: none; }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal-right.visible { opacity: 1; transform: none; }
+
+/* ─── Skeleton loader ─────────────────────────────────── */
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+/* ─── Keyframes ────────────────────────────────────────── */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes float1 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(-8px); }
+  50%       { transform: translateY(8px); }
+}
+
+/* ─── Animation utility classes ───────────────────────── */
+.animate-fadein   { animation: fadein 0.8s ease both; }
+.animate-fadein-1 { animation: fadein 0.9s ease 0.1s both; }
+.animate-fadein-2 { animation: fadein 1.0s ease 0.2s both; }
+.animate-fadein-3 { animation: fadein 1.0s ease 0.3s both; }
+.animate-pulse-dot { animation: pulse-dot 2s infinite; }
+.animate-float1   { animation: float1 5.2s ease-in-out infinite; }
+.animate-float2   { animation: float2 5.6s ease-in-out infinite 0.5s; }
+
+/* Avatar card float animations (9 cards, staggered) */
+.float-1 { animation: float1 5.0s ease-in-out infinite; }
+.float-2 { animation: float2 5.5s ease-in-out infinite 0.4s; }
+.float-3 { animation: float1 4.8s ease-in-out infinite 0.8s; }
+.float-4 { animation: float2 5.2s ease-in-out infinite 0.2s; }
+.float-5 { animation: float1 5.7s ease-in-out infinite 0.6s; }
+.float-6 { animation: float2 4.9s ease-in-out infinite 1.0s; }
+.float-7 { animation: float1 5.3s ease-in-out infinite 0.3s; }
+.float-8 { animation: float2 5.1s ease-in-out infinite 0.7s; }
+.float-9 { animation: float1 5.4s ease-in-out infinite 0.5s; }
