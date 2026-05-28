@@ -28,6 +28,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Unregister any PWA service worker left over from a previous deployment
+      // (e.g. the frontend app). Without this, a soft-refresh serves the old SW cache.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          registrations.forEach(function (reg) { reg.unregister(); });
+        });
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
