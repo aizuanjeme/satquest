@@ -28,7 +28,9 @@ export class LeaderboardService {
           bestTotalTimeMs: levels.reduce((sum, l) => sum + (l.bestTimeMs || 0), 0),
         });
       })
-      .sort((a, b) => b.sats - a.sats || a.bestTotalTimeMs - b.bestTotalTimeMs)
+      .sort(
+        (a, b) => b.levelsCompleted - a.levelsCompleted || a.bestTotalTimeMs - b.bestTotalTimeMs,
+      )
       .slice(0, limit)
       .map((entry, i) => new LeaderboardEntryEntity({ ...entry, rank: i + 1 }));
   }
