@@ -15,7 +15,7 @@ services:
     depends_on:
       - satquest-backend
     ports:
-      - "80:80"
+      - "3003:3001"
     networks:
       - satquest-network
 
