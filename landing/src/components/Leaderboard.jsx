@@ -127,7 +127,7 @@ export default function Leaderboard() {
                         </div>
                       </td>
                       <td className="px-6 py-3.5 text-[#FFE600] font-extrabold">
-                        ⚡ {(r.sats ?? 0).toLocaleString()}
+                        ⚡ {(r.points ?? 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-[#00E5FF] font-bold">
                         {r.levelsCompleted ?? 0} / 26
