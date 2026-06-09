@@ -9,11 +9,13 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { LightningModule } from './lightning/lightning.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { AppConfigModule } from './app-config/app-config.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
+    AppConfigModule,
     ProfileModule,
     ProgressModule,
     LeaderboardModule,

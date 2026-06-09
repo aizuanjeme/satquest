@@ -4,6 +4,7 @@ import WelcomeIntro     from './components/WelcomeIntro'
 import LevelMap         from './components/LevelMap'
 import GameBoard        from './components/GameBoard'
 import WordHuntBoard    from './components/WordHuntBoard'
+import CrossoverQuizBoard from './components/CrossoverQuizBoard'
 import Reveal           from './components/Reveal'
 import Celebrate        from './components/Celebrate'
 import Wallet           from './components/Wallet'
@@ -94,9 +95,11 @@ export default function App() {
         )}
 
         {phase === 'playing' && (
-          level.type === 'wordhunt'
-            ? <WordHuntBoard game={game} onMapPress={goToMap} />
-            : <GameBoard    game={game} onMapPress={goToMap} />
+          level.type === 'crossover'
+            ? <CrossoverQuizBoard game={game} onMapPress={goToMap} />
+            : level.type === 'wordhunt'
+              ? <WordHuntBoard game={game} onMapPress={goToMap} />
+              : <GameBoard    game={game} onMapPress={goToMap} />
         )}
 
         {phase === 'reveal' && (

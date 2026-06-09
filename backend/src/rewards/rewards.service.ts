@@ -3,10 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PendingRewardEntity } from './entities/pending-reward.entity';
 import { LightningService } from '../lightning/lightning.service';
+import { AppConfigService } from '../app-config/app-config.service';
 
 export interface ClaimResult {
   username: string;
+  claimedPoints: number;
   claimedSats: number;
+  exchangeRate: number;   // pointsPerSat used at claim time
   paymentId: string;
   rewarded: PendingRewardEntity[];
 }
@@ -25,24 +28,25 @@ export class RewardsService {
     @InjectRepository(PendingRewardEntity)
     private readonly repo: Repository<PendingRewardEntity>,
     private readonly lightning: LightningService,
+    private readonly appConfig: AppConfigService,
   ) {}
 
   // ──────────────────────────────────────────────────────────────────────
   // Write
   // ──────────────────────────────────────────────────────────────────────
 
-  async addPending(username: string, levelId: string, amountSats: number): Promise<void> {
+  async addPending(username: string, levelId: string, amountPoints: number): Promise<void> {
     const key = username.toLowerCase();
     const row = this.repo.create({
       username,
       usernameKey: key,
       levelId,
-      amountSats,
+      amountPoints,
       claimed: false,
     });
     await this.repo.save(row);
     this.logger.log(
-      `+${amountSats} sats pending for "${username}" (level ${levelId}). Total pending: ${await this.totalUnclaimed(key)}`,
+      `+${amountPoints} points pending for "${username}" (level ${levelId}). Total pending: ${await this.totalUnclaimed(key)}`,
     );
   }
 
@@ -52,14 +56,15 @@ export class RewardsService {
 
   async getPending(
     username: string,
-  ): Promise<{ rewards: PendingRewardEntity[]; totalSats: number }> {
+  ): Promise<{ rewards: PendingRewardEntity[]; totalPoints: number; exchangeRate: number }> {
     const key = username.toLowerCase();
     const rewards = await this.repo.find({
       where: { usernameKey: key, claimed: false },
       order: { earnedAt: 'ASC' },
     });
-    const totalSats = rewards.reduce((acc, r) => acc + r.amountSats, 0);
-    return { rewards, totalSats };
+    const totalPoints = rewards.reduce((acc, r) => acc + r.amountPoints, 0);
+    const exchangeRate = await this.appConfig.getPointsPerSat();
+    return { rewards, totalPoints, exchangeRate };
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -73,10 +78,18 @@ export class RewardsService {
     });
 
     if (unclaimed.length === 0) {
-      return { username, claimedSats: 0, paymentId: '', rewarded: [] };
+      const exchangeRate = await this.appConfig.getPointsPerSat();
+      return { username, claimedPoints: 0, claimedSats: 0, exchangeRate, paymentId: '', rewarded: [] };
     }
 
-    const totalSats = unclaimed.reduce((acc, r) => acc + r.amountSats, 0);
+    const totalPoints = unclaimed.reduce((acc, r) => acc + r.amountPoints, 0);
+    const exchangeRate = await this.appConfig.getPointsPerSat();
+    const totalSats = Math.floor(totalPoints / exchangeRate);
+
+    if (totalSats === 0) {
+      const exchangeRate2 = exchangeRate;
+      return { username, claimedPoints: totalPoints, claimedSats: 0, exchangeRate: exchangeRate2, paymentId: '', rewarded: [] };
+    }
 
     // Send Lightning payment: server wallet → player wallet.
     const payment = await this.lightning.rewardPlayer(username, totalSats);
@@ -90,9 +103,9 @@ export class RewardsService {
     }
     await this.repo.save(unclaimed);
 
-    this.logger.log(`Claimed ${totalSats} sats for "${username}" (tx: ${payment.id})`);
+    this.logger.log(`Claimed ${totalPoints} points → ${totalSats} sats for "${username}" (rate: ${exchangeRate} pts/sat, tx: ${payment.id})`);
 
-    return { username, claimedSats: totalSats, paymentId: payment.id, rewarded: unclaimed };
+    return { username, claimedPoints: totalPoints, claimedSats: totalSats, exchangeRate, paymentId: payment.id, rewarded: unclaimed };
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -102,7 +115,7 @@ export class RewardsService {
   private async totalUnclaimed(key: string): Promise<number> {
     const { sum } = (await this.repo
       .createQueryBuilder('r')
-      .select('COALESCE(SUM(r.amountSats), 0)', 'sum')
+      .select('COALESCE(SUM(r.amountPoints), 0)', 'sum')
       .where('r.usernameKey = :key AND r.claimed = false', { key })
       .getRawOne()) ?? { sum: 0 };
     return Number(sum);

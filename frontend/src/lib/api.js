@@ -64,6 +64,15 @@ export const rewardsApi = {
     request(`/rewards/${encodeURIComponent(username)}/share`, { method: 'POST' }),
 }
 
+/* ---------- App Config (exchange rate etc.) ---------- */
+
+export const configApi = {
+  list:   ()          => request('/config'),
+  get:    (key)       => request(`/config/${encodeURIComponent(key)}`),
+  set:    (key, value) =>
+    request(`/config/${encodeURIComponent(key)}`, { method: 'PUT', body: { value: String(value) } }),
+}
+
 /* ---------- Lightning wallet (per player) ---------- */
 
 export const lightningApi = {

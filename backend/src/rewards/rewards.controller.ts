@@ -26,7 +26,7 @@ export class RewardsController {
   @Post('share')
   @HttpCode(200)
   async addShareBonus(@Param('username') username: string) {
-    await this.rewards.addPending(username, 'share', 2);
+    await this.rewards.addPending(username, 'share', 20);
     return { ok: true };
   }
 }

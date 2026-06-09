@@ -169,6 +169,117 @@ export function useGame() {
   }, [huntRunning, huntPicked, huntRealSet, huntRealTotal, level.sats, finishLevel])
 
   /* =========================================================================
+     CROSSOVER QUIZ (type === 'crossover')
+     level.questions: array of { q, options, answer (0-based index) }
+     level.timeLimit: seconds for the whole quiz
+     level.passMark:  0–1 fraction required to pass (e.g. 0.7)
+     ========================================================================= */
+  const [quizCurrent,  setQuizCurrent]  = useState(0)   // index of current question
+  const [quizAnswers,  setQuizAnswers]  = useState([])   // chosen option index per question
+  const [quizPicked,   setQuizPicked]   = useState(null) // last chosen option (for sound)
+  const [quizTimeLeft, setQuizTimeLeft] = useState(0)
+  const [quizRunning,  setQuizRunning]  = useState(false)
+  const [quizResult,   setQuizResult]   = useState(null) // 'pass' | 'fail' | null
+  const [quizCorrect,  setQuizCorrect]  = useState(0)
+  const quizTimerRef = useRef(null)
+
+  const quizTotal    = (level.questions || []).length
+  const quizPassMark = level.passMark || 0.7
+
+  // Start timer when entering a crossover level
+  useEffect(() => {
+    if (level.type !== 'crossover' || phase !== 'playing') {
+      if (quizTimerRef.current) clearInterval(quizTimerRef.current)
+      return
+    }
+    setQuizTimeLeft(level.timeLimit || 90)
+    setQuizRunning(true)
+    setQuizResult(null)
+    quizTimerRef.current = setInterval(() => {
+      setQuizTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(quizTimerRef.current)
+          setQuizRunning(false)
+          // Score whatever has been answered so far
+          setQuizResult(prev => {
+            // only resolve if not already resolved
+            if (prev) return prev
+            return 'timeout-resolve'
+          })
+          return 0
+        }
+        return t - 1
+      })
+    }, 1000)
+    return () => clearInterval(quizTimerRef.current)
+  }, [levelIdx, phase]) // eslint-disable-line
+
+  // When quizResult is 'timeout-resolve', compute pass/fail from answers so far
+  useEffect(() => {
+    if (quizResult !== 'timeout-resolve') return
+    const questions = level.questions || []
+    let correct = 0
+    quizAnswers.forEach((ans, idx) => {
+      if (ans === questions[idx]?.answer) correct++
+    })
+    const passing = Math.ceil(questions.length * quizPassMark)
+    const result  = correct >= passing ? 'pass' : 'fail'
+    setQuizCorrect(correct)
+    setQuizResult(result)
+    finishLevel(result === 'pass' ? level.sats : 0)
+  }, [quizResult]) // eslint-disable-line
+
+  const pickQuizAnswer = useCallback((optionIdx) => {
+    if (!quizRunning) return
+    const questions = level.questions || []
+    if (quizCurrent >= questions.length) return
+
+    const chosen  = optionIdx
+    const correct = questions[quizCurrent].answer
+    const isRight = chosen === correct
+
+    setQuizPicked(chosen)
+    const nextAnswers = [...quizAnswers, chosen]
+    setQuizAnswers(nextAnswers)
+    const nextCorrect = quizCorrect + (isRight ? 1 : 0)
+    setQuizCorrect(nextCorrect)
+    const nextIdx = quizCurrent + 1
+    setQuizCurrent(nextIdx)
+
+    // All questions answered — resolve
+    if (nextIdx >= questions.length) {
+      clearInterval(quizTimerRef.current)
+      setQuizRunning(false)
+      const passing = Math.ceil(questions.length * quizPassMark)
+      const result  = nextCorrect >= passing ? 'pass' : 'fail'
+      setQuizResult(result)
+      finishLevel(result === 'pass' ? level.sats : 0)
+    }
+  }, [quizRunning, quizCurrent, quizAnswers, quizCorrect, quizPassMark, level, finishLevel])
+
+  const retryQuiz = useCallback(() => {
+    setQuizCurrent(0)
+    setQuizAnswers([])
+    setQuizPicked(null)
+    setQuizCorrect(0)
+    setQuizResult(null)
+    setQuizTimeLeft(level.timeLimit || 90)
+    setQuizRunning(true)
+    clearInterval(quizTimerRef.current)
+    quizTimerRef.current = setInterval(() => {
+      setQuizTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(quizTimerRef.current)
+          setQuizRunning(false)
+          setQuizResult('timeout-resolve')
+          return 0
+        }
+        return t - 1
+      })
+    }, 1000)
+  }, [level])
+
+  /* =========================================================================
      Navigation
      ========================================================================= */
   const resetLevelState = () => {
@@ -181,6 +292,14 @@ export function useGame() {
     setHuntRunning(false)
     setHuntResult(null)
     if (huntTimerRef.current) clearInterval(huntTimerRef.current)
+    setQuizCurrent(0)
+    setQuizAnswers([])
+    setQuizPicked(null)
+    setQuizCorrect(0)
+    setQuizResult(null)
+    setQuizTimeLeft(0)
+    setQuizRunning(false)
+    if (quizTimerRef.current) clearInterval(quizTimerRef.current)
   }
 
   const goNext = useCallback(() => {
@@ -465,5 +584,10 @@ export function useGame() {
     huntWords, huntPicked, huntTimeLeft, huntRunning, huntResult,
     huntRealFound, huntRealTotal,
     pickHuntWord,
+
+    // crossover quiz
+    quizCurrent, quizAnswers, quizPicked, quizTimeLeft, quizRunning, quizResult,
+    quizCorrect, quizTotal, quizPassMark,
+    pickQuizAnswer, retryQuiz,
   }
 }

@@ -24,10 +24,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         //  - DATABASE_SSL=false → force off
         //  - unset              → auto-on for managed providers
         //                         (supabase, neon, rds, render, railway, etc.)
-        const hostedHints = /(supabase|neon|amazonaws|render|railway|fly\.dev|ondigitalocean|aiven)/i;
+        const hostedHints =
+          /(supabase|neon|amazonaws|render|railway|fly\.dev|ondigitalocean|aiven)/i;
         const sslRequired =
-          sslEnv === 'true' ||
-          (sslEnv !== 'false' && !!url && hostedHints.test(url));
+          sslEnv === 'true' || (sslEnv !== 'false' && !!url && hostedHints.test(url));
 
         return {
           type: 'postgres',

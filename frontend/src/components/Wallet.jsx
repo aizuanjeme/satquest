@@ -12,7 +12,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
   const [walletErr, setWalletErr]       = useState(null)
 
   // Pending rewards waiting to be claimed.
-  const [pending, setPending]           = useState({ rewards: [], totalSats: 0 })
+  const [pending, setPending]           = useState({ rewards: [], totalPoints: 0, exchangeRate: 100 })
   const [claiming, setClaiming]         = useState(false)
   const [claimResult, setClaimResult]   = useState(null)
   const [claimErr, setClaimErr]         = useState(null)
@@ -39,7 +39,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
     if (!username) return
     try {
       const p = await rewardsApi.pending(username)
-      setPending(p || { rewards: [], totalSats: 0 })
+      setPending(p || { rewards: [], totalPoints: 0, exchangeRate: 100 })
     } catch {
       // Silent — pending stays zero
     }
@@ -68,9 +68,12 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
 
   const lightningDisabled = walletErr?.status === 503
 
+  // Derived: sats the user would receive on claim now
+  const pendingSats = Math.floor((pending.totalPoints || 0) / (pending.exchangeRate || 100))
+
   // ── Claim all pending rewards ─────────────────────────────────────────
   const handleClaim = useCallback(async () => {
-    if (!username || pending.totalSats <= 0 || claiming) return
+    if (!username || pending.totalPoints <= 0 || claiming) return
     setClaiming(true)
     setClaimErr(null)
     try {
@@ -83,7 +86,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
     } finally {
       setClaiming(false)
     }
-  }, [username, pending.totalSats, claiming, loadWallet, loadPending])
+  }, [username, pending.totalPoints, claiming, loadWallet, loadPending])
 
   // ── Generate a top-up invoice ─────────────────────────────────────────
   const handleGenerateInvoice = useCallback(async () => {
@@ -131,19 +134,19 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         <Avatar avatar={avatar} size="md" className={s.ava} />
       </div>
 
-      {/* Balance card */}
+      {/* Balance card — shows lifetime points */}
       <div className={s.balCard}>
         <div className={s.balGlow} />
-        <p className={s.balLabel}>Your Balance</p>
+        <p className={s.balLabel}>Your Points</p>
         <div className={s.balRow}>
-          <span className={s.boltBig}>⚡</span>
+          <span className={s.boltBig}>🏆</span>
           <span className={s.balNum}>{sats}</span>
-          <span className={s.balUnit}>sats</span>
+          <span className={s.balUnit}>pts</span>
         </div>
         <div className={s.balBarWrap}>
           <div className={s.balBar} style={{ width: `${pct}%` }} />
         </div>
-        <p className={s.balPct}>{pct}% of {TOTAL_SATS} sats earned</p>
+        <p className={s.balPct}>{pct}% of {TOTAL_SATS} pts earned · Rate: {pending.exchangeRate} pts = 1 sat</p>
       </div>
 
       {/* Stats row */}
@@ -159,7 +162,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         </div>
         <div className={s.statDivider} />
         <div className={s.stat}>
-          <span className={s.statNum}>+{remainingSats}⚡</span>
+          <span className={s.statNum}>+{remainingSats}🏆</span>
           <span className={s.statLabel}>Still to earn</span>
         </div>
       </div>
@@ -289,13 +292,13 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         <p className={s.sectionTitle}>Transaction History</p>
 
         {completed.length === 0 && (
-          <p className={s.empty}>No transactions yet. Play a level to earn sats!</p>
+          <p className={s.empty}>No transactions yet. Play a level to earn points!</p>
         )}
 
         {completed.map((lv, i) => {
           const perf = progress?.levels?.[i]
           const seconds = perf?.bestTimeMs != null ? Math.round(perf.bestTimeMs / 1000) : null
-          const earned = perf?.sats ?? lv.sats
+          const earned = perf?.points ?? perf?.sats ?? lv.sats
           return (
             <div key={lv.id} className={s.tx} style={{ animationDelay: i * 0.05 + 's' }}>
               <div className={s.txIcon}>
@@ -310,7 +313,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
                 </p>
               </div>
               <div className={s.txAmt}>
-                <span className={s.txSats}>+{earned} ⚡</span>
+                <span className={s.txSats}>+{earned} 🏆</span>
                 <span className={s.txTag}>
                   {earned === 0 ? 'Skipped' : 'Earned'}
                 </span>
@@ -325,7 +328,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
             <p className={s.lockedTxt}>
               {remaining.length} more level{remaining.length > 1 ? 's' : ''} to unlock
             </p>
-            <span className={s.lockedSats}>+{remainingSats} ⚡</span>
+            <span className={s.lockedSats}>+{remainingSats} 🏆</span>
           </div>
         )}
       </div>

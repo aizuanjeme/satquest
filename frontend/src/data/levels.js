@@ -689,6 +689,86 @@ const WORD_HUNTS = [
   },
 ]
 
+/* ============================================================================
+   STAGE 1 CROSSOVER QUIZ — must score 70 % or above to cross into Stage 2
+   12 questions, 90-second timer, 70 % = 9/12 — but the threshold is 70 % of
+   however many questions there are, so you need ≥ 7 correct out of 10, or
+   ≥ 9 correct out of 12.  (Code uses Math.ceil(questions.length * 0.7))
+   ============================================================================ */
+export const STAGE1_CROSSOVER = {
+  type:      'crossover',
+  chapter:   'Stage 1 Final',
+  title:     'Stage 1 Crossover Quiz',
+  story:     'You have walked the whole journey of Stage 1. Now prove it. Answer 10 questions. Score 70% or above to unlock Stage 2.',
+  hint:      'Read carefully — only one answer is correct',
+  hintColor: '#F7931A',
+  sats:      10,
+  timeLimit: 90,   // seconds
+  passMark:  0.70, // 70 %
+  questions: [
+    {
+      q: 'What is the smallest unit of Bitcoin called?',
+      options: ['Kobo', 'Sats', 'Naira', 'Blocks'],
+      answer: 1,
+    },
+    {
+      q: 'How many sats make exactly 1 full Bitcoin?',
+      options: ['1,000', '1,000,000', '100,000,000', '21,000,000'],
+      answer: 2,
+    },
+    {
+      q: 'What is the maximum number of Bitcoin that will EVER exist?',
+      options: ['100 million', '21 million', '1 billion', 'No limit'],
+      answer: 1,
+    },
+    {
+      q: 'What is a "seed phrase"?',
+      options: ['Your ATM PIN', '12 backup words that restore your wallet', 'Your Bitcoin address', 'A password for an exchange'],
+      answer: 1,
+    },
+    {
+      q: 'What does the Lightning Network do?',
+      options: ['Mines new Bitcoin', 'Sends Bitcoin instantly for tiny fees', 'Stores Bitcoin offline', 'Prints more Bitcoin'],
+      answer: 1,
+    },
+    {
+      q: 'What is Bitcoin "mining"?',
+      options: ['Digging for coins underground', 'Computers solving puzzles to earn new Bitcoin', 'Buying Bitcoin from a seller', 'Printing Bitcoin with a machine'],
+      answer: 1,
+    },
+    {
+      q: 'What is a "cold wallet"?',
+      options: ['A wallet that freezes your funds', 'A wallet that stays offline always', 'An exchange account', 'A government-approved wallet'],
+      answer: 1,
+    },
+    {
+      q: '"Not your keys, not your coins" means:',
+      options: ['You need a physical key to access cash', 'If you don\'t hold the private key, you don\'t truly own the Bitcoin', 'Lost keys mean a frozen account', 'Keys are only for hardware wallets'],
+      answer: 1,
+    },
+    {
+      q: 'How often does the Bitcoin halving happen?',
+      options: ['Every year', 'Every 2 years', 'Every 4 years', 'Every 10 years'],
+      answer: 2,
+    },
+    {
+      q: 'What should you NEVER do with your 12 seed words?',
+      options: ['Write them on paper', 'Store them in a safe place', 'Send them on WhatsApp', 'Read them before backing up'],
+      answer: 2,
+    },
+    {
+      q: 'What is a Bitcoin "node"?',
+      options: ['A government server', 'A computer that runs and verifies Bitcoin', 'A hardware wallet device', 'A special mining machine'],
+      answer: 1,
+    },
+    {
+      q: 'How does Bitcoin protect your savings from inflation?',
+      options: ['The government controls its supply', 'It has a fixed supply of 21 million that nobody can increase', 'Banks back it with gold', 'New Bitcoin is printed every year to match demand'],
+      answer: 1,
+    },
+  ],
+}
+
 // Inject Word Hunt levels after every 3 match levels
 function buildLevels(matchLevels, hunts) {
   const out = []
@@ -705,6 +785,8 @@ function buildLevels(matchLevels, hunts) {
       })
     }
   })
+  // Append the Stage 1 Crossover Quiz as the very last level
+  out.push({ ...STAGE1_CROSSOVER })
   // Re-number and add badge based on final position
   return out.map((lv, idx) => ({
     ...lv,

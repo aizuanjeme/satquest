@@ -27,9 +27,9 @@ export class LevelResultEntity {
   @Column({ type: 'varchar', length: 16 })
   levelId!: string;
 
-  /** Sats awarded on the best run of this level */
+  /** Points awarded on the best run of this level */
   @Column({ type: 'int' })
-  sats!: number;
+  points!: number;
 
   /** Fastest completion time across all attempts (ms) */
   @Column({ type: 'int' })

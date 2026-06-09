@@ -23,9 +23,9 @@ export class ProgressEntity {
   @Index()
   usernameKey!: string;
 
-  /** Lifetime sats accumulated by the player */
+  /** Lifetime points accumulated by the player */
   @Column({ type: 'int', default: 0 })
-  sats!: number;
+  points!: number;
 
   /** Highest level index the player has unlocked (0-based) */
   @Column({ type: 'int', default: 0 })

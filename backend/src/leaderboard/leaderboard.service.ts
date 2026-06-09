@@ -10,7 +10,7 @@ export class LeaderboardService {
     private readonly profiles: ProfileService,
   ) {}
 
-  /** Top N players ranked by lifetime sats (best total time = tie-breaker). */
+  /** Top N players ranked by lifetime points (best total time = tie-breaker). */
   async topBySats(limit = 50): Promise<LeaderboardEntryEntity[]> {
     const [progressRows, profiles] = await Promise.all([this.progress.all(), this.profiles.list()]);
     const profileByKey = new Map(profiles.map((p) => [p.username.toLowerCase(), p]));
@@ -23,7 +23,7 @@ export class LeaderboardService {
           rank: 0, // assigned after sort
           username: p.username,
           avatarId: profile?.avatarId ?? 'av1',
-          sats: p.sats,
+          points: p.points,
           levelsCompleted: levels.length,
           bestTotalTimeMs: levels.reduce((sum, l) => sum + (l.bestTimeMs || 0), 0),
         });

@@ -185,13 +185,13 @@ export default function LevelMap({
                 style={{ left: `${xPct}%`, top: y }}
               >
                 <button
-                  className={`${s.node} ${done ? s.done : ''} ${active ? s.active : ''} ${locked ? s.locked : ''} ${lv.type === 'wordhunt' ? s.hunt : ''}`}
+                  className={`${s.node} ${done ? s.done : ''} ${active ? s.active : ''} ${locked ? s.locked : ''} ${lv.type === 'wordhunt' ? s.hunt : ''} ${lv.type === 'crossover' ? s.crossover : ''}`}
                   onClick={() => { if (unlocked) { sfx.select(); onSelect(i) } }}
                   disabled={locked}
                   aria-label={`Level ${lv.id}: ${lv.title}`}
                 >
                   <span className={s.nodeEmoji}>
-                    {done ? '✅' : locked ? '🔒' : (lv.type === 'wordhunt' ? '🧩' : lv.badge)}
+                    {done ? '✅' : locked ? '🔒' : (lv.type === 'crossover' ? '🏆' : lv.type === 'wordhunt' ? '🧩' : lv.badge)}
                   </span>
                   <span className={s.nodeSats}>+{lv.sats}⚡</span>
 

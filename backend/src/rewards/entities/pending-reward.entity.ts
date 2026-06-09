@@ -18,9 +18,9 @@ export class PendingRewardEntity {
   @Column({ type: 'varchar', length: 16 })
   levelId!: string;
 
-  /** Reward amount in sats */
+  /** Reward amount in points */
   @Column({ type: 'int' })
-  amountSats!: number;
+  amountPoints!: number;
 
   /** When the reward was earned (managed by TypeORM) */
   @CreateDateColumn({ type: 'timestamptz' })

@@ -14,8 +14,8 @@ export class LeaderboardEntryEntity {
   /** Avatar id (so the client can show the portrait next to the name) */
   avatarId!: string;
 
-  /** Lifetime sats earned */
-  sats!: number;
+  /** Lifetime points earned */
+  points!: number;
 
   /** Number of levels the player has finished at least once */
   levelsCompleted!: number;

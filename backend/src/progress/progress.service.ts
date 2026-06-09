@@ -29,7 +29,7 @@ export class ProgressService {
       progress = this.progressRepo.create({
         username: dto.username,
         usernameKey: key,
-        sats: 0,
+        points: 0,
         unlockedUpTo: 0,
         levels: [],
       });
@@ -53,14 +53,14 @@ export class ProgressService {
           this.levelRepo.create({
             usernameKey: key,
             levelId,
-            sats: incoming.sats,
+            points: incoming.sats,
             bestTimeMs: incoming.bestTimeMs,
             attempts: incoming.attempts,
             completedAt: incoming.completedAt,
           }),
         );
       } else if (incoming.completedAt > current.completedAt) {
-        current.sats = incoming.sats;
+        current.points = incoming.sats;
         current.bestTimeMs = incoming.bestTimeMs;
         current.attempts = incoming.attempts;
         current.completedAt = incoming.completedAt;
@@ -79,7 +79,7 @@ export class ProgressService {
       merged.push(leftover);
     }
 
-    progress.sats = Math.max(progress.sats ?? 0, dto.sats);
+    progress.points = Math.max(progress.points ?? 0, dto.sats);
     progress.unlockedUpTo = Math.max(progress.unlockedUpTo ?? 0, dto.unlockedUpTo);
     progress.deviceId = dto.deviceId ?? progress.deviceId;
     progress.levels = merged;
