@@ -106,17 +106,17 @@ function PostCard({ post, index }) {
 export default function Blog() {
   const [posts, setPosts] = useState(STATIC_POSTS);
 
-  // Try to refresh with live data in the background — static posts stay visible
-  // if the fetch fails (CORS proxy down, network issues, etc.)
+  // Try to refresh with live data via the backend proxy — static posts stay visible
+  // if the fetch fails.
   useEffect(() => {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://medium.com/feed/@bitcoinloverhq')}`;
-    fetch(url)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    fetch('/api/rss/medium', { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => {
-        const live = parseRSS(data.contents);
-        if (live.length > 0) setPosts(live);
-      })
-      .catch(() => {/* keep static posts */});
+      .then((live) => { if (Array.isArray(live) && live.length > 0) setPosts(live); })
+      .catch(() => {/* keep static posts */})
+      .finally(() => clearTimeout(timeout));
+    return () => controller.abort();
   }, []);
 
   return (

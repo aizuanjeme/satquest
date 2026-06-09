@@ -8,6 +8,7 @@ import { useEffect } from 'react';
  */
 export function useScrollReveal() {
   useEffect(() => {
+    const scrollRoot = document.querySelector('.snap-container') ?? null;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -18,6 +19,7 @@ export function useScrollReveal() {
         });
       },
       {
+        root: scrollRoot,
         threshold: 0.04,
         // Trigger 8% before the element reaches the bottom edge of the viewport
         // so content is already visible when it snaps into view on mobile.

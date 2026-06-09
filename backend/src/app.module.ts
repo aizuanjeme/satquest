@@ -10,12 +10,14 @@ import { LightningModule } from './lightning/lightning.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AppConfigModule } from './app-config/app-config.module';
+import { RssModule } from './rss/rss.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     AppConfigModule,
+    RssModule,
     ProfileModule,
     ProgressModule,
     LeaderboardModule,

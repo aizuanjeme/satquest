@@ -127,10 +127,10 @@ export default function Leaderboard() {
                         </div>
                       </td>
                       <td className="px-6 py-3.5 text-[#FFE600] font-extrabold">
-                        ⚡ {r.sats.toLocaleString()}
+                        ⚡ {(r.sats ?? 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-[#00E5FF] font-bold">
-                        {r.levelsCompleted} / 26
+                        {r.levelsCompleted ?? 0} / 26
                       </td>
                       <td className="px-6 py-3.5 text-[#B095E8] text-[0.88rem]">{timeStr}</td>
                     </tr>
