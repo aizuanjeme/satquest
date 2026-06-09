@@ -54,10 +54,6 @@
   position: relative;
   padding-bottom: 72px; /* clear the fixed BottomNav */
 
-  /* 3-D perspective: stage the lane like a road that recedes into the distance */
-  perspective: 1400px;
-  perspective-origin: 50% 0%;
-
   /* Hide the scrollbar but keep scrolling enabled */
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* IE / old Edge */
@@ -68,33 +64,26 @@
   display: none;                  /* Chrome / Safari / Chromium */
 }
 
-/* The 3-D scene wrapper — the entire lane is tilted backward so distant
-   levels appear smaller and farther away. transform-origin pinned to the
-   BOTTOM so Level 1 ("Start") sits flush with the viewer and higher levels
-   recede into the distance. */
+/* Scene wrapper — flat layout; the circular sine-wave path gives the loop feel
+   without the perspective distortion that made far levels look tiny. */
 .scene {
   position: relative;
   width: 100%;
-  transform-style: preserve-3d;
-  transform-origin: 50% 100%;        /* tilt from the bottom */
-  transform: rotateX(14deg);          /* gentle tilt — adjust 8–22deg for taste */
-  will-change: transform;
 }
 
-/* On phones, lean the perspective tilt a little harder for more drama.
-   Nodes counter-rotate by the same amount so the circles stay round. */
 @media (max-width: 600px) {
-  .scroller { perspective: 1100px; }
-  .scene    { transform: rotateX(18deg); }
-  .nodeSlot { transform: translate(-50%, -50%) rotateX(-18deg); }
+  .nodeSlot { transform: translate(-50%, -50%); }
 }
 
 .lane {
   position: relative;
   width: 100%;
-  /* subtle vignette to feel like a road */
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+  /* space nebula background that repeats as the lane grows */
+  background:
+    radial-gradient(ellipse 60% 18% at 20% 15%, rgba(153,69,255,0.08) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 14% at 80% 38%, rgba(0,207,255,0.07) 0%, transparent 100%),
+    radial-gradient(ellipse 55% 16% at 35% 62%, rgba(247,147,26,0.06) 0%, transparent 100%),
+    radial-gradient(ellipse 48% 12% at 70% 82%, rgba(0,229,160,0.07) 0%, transparent 100%);
 }
 
 .laneSvg {
@@ -109,18 +98,14 @@
 /* --- Nodes --- */
 .nodeSlot {
   position: absolute;
-  /* Counter-rotate against the scene's 14° tilt so circles stay perfectly
-     round (not ovals). The scene is tilted on phones too (18°) — overridden
-     in the mobile media query at the bottom. */
-  transform: translate(-50%, -50%) rotateX(-14deg);
+  transform: translate(-50%, -50%);
   z-index: 2;
-  transform-style: preserve-3d;
 }
 
 .node {
-  width: 72px; height: 72px;
+  width: 80px; height: 80px;
   border-radius: 50%;
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   background: var(--surface);
   cursor: pointer;
   display: flex; flex-direction: column;
@@ -129,23 +114,27 @@
   transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), border-color 0.18s, box-shadow 0.18s;
   font-family: inherit;
   position: relative;
-  box-shadow: 0 6px 0 rgba(0,0,0,0.35);   /* candy-style chunky drop shadow */
+  /* candy-style chunky layered drop shadow */
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.45),
+    0 10px 20px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .node:hover:not(:disabled)  { transform: scale(1.10) translateY(-2px); }
 .node:active:not(:disabled) { transform: scale(0.95) translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
 
 .done {
   border-color: var(--green);
-  background: linear-gradient(135deg, rgba(0,229,160,0.22), rgba(0,229,160,0.06));
-  box-shadow: 0 6px 0 rgba(0,80,55,0.55), 0 0 16px rgba(0,229,160,0.25);
+  background: linear-gradient(135deg, rgba(0,229,160,0.28), rgba(0,229,160,0.08));
+  box-shadow: 0 8px 0 rgba(0,60,40,0.7), 0 0 20px rgba(0,229,160,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .active {
   border-color: var(--orange);
   background:
-    radial-gradient(circle at 50% 30%, rgba(255,214,10,0.35), transparent 70%),
-    linear-gradient(135deg, rgba(153,69,255,0.18), rgba(247,147,26,0.18));
+    radial-gradient(circle at 50% 30%, rgba(255,214,10,0.4), transparent 70%),
+    linear-gradient(135deg, rgba(153,69,255,0.22), rgba(247,147,26,0.22));
   animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 6px 0 rgba(120,55,0,0.55), 0 0 24px rgba(247,147,26,0.55);
+  box-shadow: 0 8px 0 rgba(100,40,0,0.7), 0 0 30px rgba(247,147,26,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .locked {
   opacity: 0.45;
@@ -186,10 +175,26 @@
   50%     { box-shadow: 0 6px 0 rgba(120,55,0,0.55), 0 0 32px rgba(247,147,26,0.65); }
 }
 
-.nodeEmoji { font-size: 24px; line-height: 1; }
+.nodeEmoji { font-size: 22px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.nodeBadge { font-size: 18px; font-weight: 900; color: var(--text); line-height: 1; }
 .nodeSats  { color: var(--muted); font-size: 9px; font-weight: 800; }
 .active .nodeSats { color: var(--yellow); }
 .done   .nodeSats { color: var(--green); }
+
+/* Level number badge in the bottom-right corner of every node */
+.nodeLvl {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  min-width: 22px; height: 22px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 900; color: var(--text);
+  padding: 0 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
 
 /* The player avatar that sits on top of the active node */
 .player {
@@ -233,7 +238,7 @@
 .nodeTitle       { color: var(--muted2); font-size: 11px; line-height: 1.35; margin-top: 2px; }
 .nodeTitleActive { color: var(--text); font-weight: 800; }
 
-/* Start / finish flags at the ends of the lane */
+/* Start / finish markers */
 .startFlag, .finishFlag {
   position: absolute;
   left: 50%;
@@ -253,4 +258,149 @@
   background: linear-gradient(135deg, rgba(255,214,10,0.25), rgba(247,147,26,0.18));
   border-color: var(--yellow);
   color: var(--yellow);
+}
+
+/* =====================================================
+   GROUND GROUPS
+   Each node gets a left strip (15%) and right strip (85%).
+   Everything — building, walker — stacks IN the flex
+   column ABOVE the strip, so it literally sits on ground.
+   ===================================================== */
+
+.groundGroup {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none;
+  /* gentle breathe so the terrain feels alive */
+  animation: groundBreathe calc(3.6s + var(--di, 0) * 0.19s) ease-in-out infinite;
+  animation-delay: calc(var(--di, 0) * 0.44s);
+}
+
+@keyframes groundBreathe {
+  0%,100% { transform: translate(-50%, -50%) scaleX(1)    scaleY(1);    }
+  50%     { transform: translate(-50%, -50%) scaleX(1.03) scaleY(1.02); }
+}
+
+/* Building base flush with the strip — scaled down */
+.bldgOnStrip {
+  margin-bottom: -2px;
+  transform: scale(0.6);
+  transform-origin: bottom center;
+  filter:
+    drop-shadow(0 8px 0 rgba(0,0,0,0.6))
+    drop-shadow(0 0 14px rgba(153,69,255,0.30));
+}
+
+/* Tree sits flush on the strip surface */
+.treeOnStrip {
+  margin-bottom: -3px;
+  filter: drop-shadow(0 8px 0 rgba(0,0,0,0.30));
+}
+
+/* Walker stands on the strip, paces left ↔ right */
+.walkerWrap {
+  margin-bottom: -1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: catPace calc(5s + var(--ci, 0) * 0.8s) ease-in-out infinite;
+  animation-delay: calc(var(--ci, 0) * 1.2s);
+}
+
+/* Walker portrait — circular, sits on ground, glows warmly */
+.walkerImg {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  border: 2.5px solid rgba(255,255,255,0.65);
+  box-shadow:
+    0 5px 0 rgba(0,0,0,0.35),
+    0 0 0 2px rgba(255,200,80,0.40);
+  animation:
+    catBob     0.52s ease-in-out infinite,
+    catGlowOrg 2.2s  ease-in-out infinite;
+}
+
+/* =====================================================
+   WALKERS — keyframes shared by walkerImg + walkerWrap
+   ===================================================== */
+
+/* ₿ coin held above the head */
+.catCoin {
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFD60A;
+  margin-bottom: 2px;
+  line-height: 1;
+  animation: coinHold 0.72s ease-in-out infinite;
+  text-shadow:
+    0 0  6px rgba(255,214, 10, 1.0),
+    0 0 18px rgba(247,147, 26, 0.9),
+    0 0 38px rgba(153, 69,255, 0.5);
+}
+
+/* ---- Keyframes ---- */
+
+/*
+  Pacing: walk right 32px → instant scaleX flip → walk back → instant flip.
+  44→46% and 98→99% are the ultra-short flip windows.
+*/
+@keyframes catPace {
+  0%   { transform: translateX(0px)  scaleX( 1); }
+  44%  { transform: translateX(32px) scaleX( 1); }
+  46%  { transform: translateX(32px) scaleX(-1); }
+  98%  { transform: translateX(0px)  scaleX(-1); }
+  99%  { transform: translateX(0px)  scaleX( 1); }
+  100% { transform: translateX(0px)  scaleX( 1); }
+}
+
+/* Walking bob — up/down + slight lean mimics a natural gait */
+@keyframes catBob {
+  0%, 100% { transform: translateY(0px)  rotate(-3deg); }
+  50%      { transform: translateY(-6px) rotate( 3deg); }
+}
+
+/* Coin floats opposite-phase — bounces as if being juggled on a palm */
+@keyframes coinHold {
+  0%, 100% { transform: translateY(-2px) rotate( 6deg) scale(1.06); }
+  50%      { transform: translateY( 3px) rotate(-6deg) scale(0.94); }
+}
+
+/* Orange energy glow — warm blazing aura matching the reference images */
+@keyframes catGlowOrg {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0  6px rgba(255,130, 20, 0.90))
+      drop-shadow(0 0 20px rgba(247, 80,  0, 0.65))
+      drop-shadow(0 0 40px rgba(200, 40,  0, 0.35));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 14px rgba(255,200, 60, 1.00))
+      drop-shadow(0 0 38px rgba(255,100,  0, 0.85))
+      drop-shadow(0 0 65px rgba(220, 60,  0, 0.50));
+  }
+}
+
+/* Gold-to-purple glow — bitcoin wizard look */
+@keyframes catGlowGld {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0  6px rgba(255,214, 10, 0.95))
+      drop-shadow(0 0 20px rgba(247,147, 26, 0.70))
+      drop-shadow(0 0 40px rgba(153, 69,255, 0.35));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 14px rgba(255,214, 10, 1.00))
+      drop-shadow(0 0 38px rgba(247,147, 26, 0.88))
+      drop-shadow(0 0 65px rgba(153, 69,255, 0.55));
+  }
 }
