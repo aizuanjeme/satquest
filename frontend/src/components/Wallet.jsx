@@ -213,9 +213,9 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
       <div className={s.claimBox}>
         <p className={s.claimTitle}>⚡ Claim your rewards</p>
         <p className={s.claimSub}>
-          {pending.totalSats > 0
-            ? `You have ${pending.totalSats} sats ready to claim into your wallet.`
-            : 'Pass a level to earn sats. They\u2019ll show up here ready to claim.'}
+          {pendingSats > 0
+            ? `You have ${pendingSats} sats ready to claim into your wallet.`
+            : 'Pass a level to earn sats. They’ll show up here ready to claim.'}
         </p>
 
         {claimResult && claimResult.claimedSats > 0 && (
@@ -232,12 +232,12 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         <button
           className={s.claimBtn}
           onClick={handleClaim}
-          disabled={pending.totalSats <= 0 || claiming || lightningDisabled}
+          disabled={pendingSats <= 0 || claiming || lightningDisabled}
         >
           {claiming
             ? 'Sending Lightning payment…'
-            : pending.totalSats > 0
-              ? `Claim ${pending.totalSats} sats →`
+            : pendingSats > 0
+              ? `Claim ${pendingSats} sats →`
               : 'Nothing to claim yet'}
         </button>
       </div>
