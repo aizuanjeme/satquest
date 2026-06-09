@@ -6,14 +6,19 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    volumes:
-      - breez-data:/data/breez
+    networks:
+      - satquest-network
+
+  satquest-frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - satquest-backend
+    ports:
+      - "80:80"
     networks:
       - satquest-network
 
 networks:
   satquest-network:
     driver: bridge
-
-volumes:
-  breez-data:

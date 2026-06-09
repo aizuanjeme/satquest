@@ -20,9 +20,7 @@ FROM nginx:1.27-alpine AS runner
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# nginx.conf is NOT baked in — it is bind-mounted from the server at runtime
-# so it can be updated without rebuilding the image.
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

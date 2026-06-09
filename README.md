@@ -2,7 +2,7 @@
 
 > Learn Bitcoin the fun way. Stack real sats.
 
-**SatQuest** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 26 progressive levels mixing match-the-pair puzzles with timed Word Hunt puzzles, and earn satoshis at every level.
+**SatQuest** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 26 progressive levels mixing match-the-pair puzzles, timed Word Hunt rounds, and a final Crossover Quiz, then stack satoshis they can actually withdraw.
 
 Plays fully offline. All progress is saved on the device. Ready for a backend sync when you plug one in.
 
@@ -23,16 +23,18 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 ## What's Inside
 
 - **26 levels** with a gentle teaching curve — starts with "Bitcoin is money" and ends with apex Bitcoin wisdom
-- **2 game modes**, rotated through the journey:
+- **3 game modes**, rotated through the journey:
   - **🎯 Match** — tap a picture, tap its meaning. Pure vocabulary teaching.
-  - **🧩 Word Hunt** — timed puzzle every 4th level. Spot real Bitcoin words mixed with regular finance words (bank, IBAN, SWIFT, etc.). Beat the clock to earn sats.
+  - **🧩 Word Hunt** — timed review rounds inserted through the journey. Spot real Bitcoin words mixed with regular finance words (bank, IBAN, SWIFT, etc.) and beat the clock to earn sats.
+  - **🏆 Crossover Quiz** — Stage 1 final test. Score at least 70% under timer pressure to pass and unlock the next stage.
+- **Sats-based rewards (not points)** — gameplay rewards are counted in sats from level one, and balances stay in sats across the app
 - **38 custom avatars** (19 sisters + 19 brothers) with username — players pick their character on first launch
 - **Welcome-back screen** — your sats and levels done are visible before you even tap Continue
 - **Edit profile any time** — username + avatar changeable from the Wallet screen
 - **Performance tracked** per level — fastest completion time and attempt count, ready for future leaderboards
 - **Plays offline** — installable as a PWA; full progress in `localStorage`
 - **Sync-ready** — storage layer designed for a backend (`syncProgress()` is a stub you swap in)
-- **Lightning Wallet page** — sats balance, transaction history with best time + attempts, claim-via-Lightning placeholder
+- **Lightning Wallet page** — sats balance, transaction history with best time + attempts, and real sats payout via Lightning
 - **No login** — username and avatar live only on your device until a backend is added
 - **Fully open source** under the MIT licence
 
@@ -194,7 +196,7 @@ avatar (signup) ────► map ────► playing ────► reve
    └─ Welcome-back screen reads from localStorage on first mount
 ```
 
-### Two game types
+### Three game types
 
 ```js
 // Match level (default)
@@ -208,7 +210,7 @@ avatar (signup) ────► map ────► playing ────► reve
   reveals: [ /* one per pair */ ],
 }
 
-// Word Hunt level (every 4th level)
+// Word Hunt level (inserted after each 3 match levels)
 {
   type: 'wordhunt',
   timeLimit: 30,                                // seconds
@@ -216,9 +218,17 @@ avatar (signup) ────► map ────► playing ────► reve
   decoy: ['Naira', 'Dollar', 'Bank', 'Loan'],   // skip these
   sats: 15,                                     // full reward if all found in time
 }
+
+// Stage 1 Crossover Quiz (final level)
+{
+  type: 'crossover',
+  timeLimit: 90,
+  passMark: 0.70, // must score at least 70%
+  sats: 10,
+}
 ```
 
-Word Hunts pull words from concepts taught in the preceding 3 match levels. Decoys are non-Bitcoin finance words so the puzzle teaches what is and isn't Bitcoin vocabulary.
+Word Hunts pull words from concepts taught in the preceding 3 match levels. Decoys are non-Bitcoin finance words so the puzzle teaches what is and isn't Bitcoin vocabulary. The Crossover Quiz closes Stage 1 with a timed exam and sats reward.
 
 ### Level data shape (match)
 
@@ -274,8 +284,6 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
   updatedAt: 1779080000000,
 }
 ```
-
-Legacy `omosats.*` keys are auto-migrated on first load so anyone who played the old build keeps their progress.
 
 ### Future backend (already wired)
 
@@ -335,7 +343,7 @@ Quick summary:
 - [x] Offline persistence + per-level performance tracking
 - [x] Welcome-back & edit-profile flows
 - [x] Real PNG home-screen icons (iOS + Android + maskable)
-- [ ] Real Lightning payouts via LNURL-withdraw
+- [x] Real Lightning payouts in sats
 - [ ] Yoruba, Igbo, and Hausa language support
 - [ ] Backend + global leaderboard (sats / fastest times)
 - [ ] Sound effects and haptic feedback
