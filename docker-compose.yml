@@ -19,6 +19,16 @@ services:
     networks:
       - satquest-network
 
+  satquest-landing:
+    build: ./landing
+    restart: always
+    depends_on:
+      - satquest-backend
+    ports:
+      - "3004:3002"
+    networks:
+      - satquest-network
+
 networks:
   satquest-network:
     driver: bridge
