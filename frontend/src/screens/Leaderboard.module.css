@@ -1,0 +1,57 @@
+.body {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  overflow-y: auto;
+  max-width: 540px;
+  margin: 0 auto;
+  width: 100%;
+  padding: calc(16px + env(safe-area-inset-top, 0)) 18px calc(110px + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+/* Stop the scroll column from squishing rows. */
+.body > * { flex-shrink: 0; }
+
+.header { display: flex; align-items: center; justify-content: space-between; }
+.kicker { font-family: var(--font-display); font-size: 0.66rem; letter-spacing: 0.4em; color: var(--text-lo); }
+.title {
+  font-family: var(--font-display); font-weight: 800; font-size: 1.7rem;
+  background: linear-gradient(120deg, #fff, #f7c948); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.empty { color: var(--text-lo); text-align: center; padding: 40px 0; font-size: 0.9rem; }
+
+.offline { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 20px; text-align: center; }
+.offTitle { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--text-hi); }
+.offSub { font-size: 0.86rem; color: var(--text-mid); max-width: 280px; line-height: 1.5; }
+
+.list { display: flex; flex-direction: column; gap: 8px; }
+.row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 16px;
+  background: var(--glass); border: 1px solid var(--glass-edge);
+  animation: sq-rise 0.4s ease backwards;
+}
+.podium { border-color: rgba(247, 201, 72, 0.32); background: linear-gradient(120deg, rgba(247, 201, 72, 0.08), var(--glass)); }
+.rowMe {
+  border-color: rgba(42, 216, 255, 0.55);
+  box-shadow: 0 0 24px -8px rgba(42, 216, 255, 0.5);
+  background: linear-gradient(120deg, rgba(42, 216, 255, 0.1), var(--glass));
+}
+
+.rank { min-width: 40px; text-align: center; font-size: 1.4rem; }
+.rankNum { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; color: var(--text-lo); }
+
+.info { flex: 1; min-width: 0; }
+.name { font-weight: 600; font-size: 0.98rem; color: var(--text-hi); display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.you {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 2px 7px; border-radius: 999px;
+  background: rgba(42, 216, 255, 0.2); color: var(--neon-blue-soft);
+}
+.meta { font-size: 0.74rem; color: var(--text-lo); margin-top: 1px; }
+
+.sats { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--gold-soft); }

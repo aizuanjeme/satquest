@@ -796,10 +796,203 @@ function buildLevels(matchLevels, hunts) {
 }
 
 const _RAW_LEVELS = LEVELS.slice()
-export const FINAL_LEVELS = buildLevels(_RAW_LEVELS, WORD_HUNTS)
+const _STAGE1_FINAL = buildLevels(_RAW_LEVELS, WORD_HUNTS)
 
-// Re-export LEVELS as the combined list
+/** Index of the first Stage 2 level (passed to QuestWorld for bridge positioning). */
+export const STAGE1_COUNT = _STAGE1_FINAL.length
+
+/* ============================================================================
+   STAGE 2 MATCH LEVELS
+   ============================================================================ */
+const STAGE2_MATCH = [
+  // S2 · L1 — Lightning intro
+  {
+    chapter: 'Stage 2 · Step 1', title: 'The Lightning Network',
+    story: 'Bitcoin on-chain can be slow and pricey. Lightning fixes this — instant, almost free, still your Bitcoin.',
+    hint: 'Match Lightning concepts', hintColor: '#F7C948', sats: 10,
+    pairs: [
+      { id: 'lightning', imgEmoji: '⚡', imgLabel: 'Lightning', wordEmoji: '🌐', wordLabel: 'Instant payment network' },
+      { id: 'channel',   imgEmoji: '🔌', imgLabel: 'Channel',   wordEmoji: '🤝', wordLabel: 'Private payment tunnel' },
+      { id: 'node',      imgEmoji: '📡', imgLabel: 'Node',      wordEmoji: '💻', wordLabel: 'Routes Lightning payments' },
+      { id: 'fee',       imgEmoji: '🔬', imgLabel: 'Fee',       wordEmoji: '💸', wordLabel: 'Almost zero cost' },
+    ],
+    reveals: [
+      { naija: '⚡', btc: '🌐', match: 'Lightning = instant payment web', def: 'A second layer on top of Bitcoin. Payments move in milliseconds with almost no fees.', funny: '😂 "Bitcoin for speed demons!"' },
+      { naija: '🔌', btc: '🤝', match: 'Channel = private money tunnel',  def: 'Open a channel with a friend or merchant. Payments happen privately and settle on Bitcoin later.', funny: '😂 "Like a private WhatsApp line but for money!"' },
+      { naija: '📡', btc: '💻', match: 'Node = payment router',           def: 'Lightning nodes route payments across the network. Run a node and earn tiny fees helping others pay.', funny: '😂 "Your phone becomes a mini bank router!"' },
+      { naija: '🔬', btc: '💸', match: 'Fee = almost nothing',            def: 'Lightning fees are measured in millisatoshis — fractions of a sat. Cheaper than any payment network on earth.', funny: '😂 "Cheaper than sending 50 naira on any app!"' },
+    ],
+  },
+
+  // S2 · L2 — Payment Channels
+  {
+    chapter: 'Stage 2 · Step 2', title: 'How Channels Work',
+    story: 'A Lightning channel is like a tab you keep open. You settle at the end instead of a new transaction every time.',
+    hint: 'Match channel concepts', hintColor: '#2AD8FF', sats: 10,
+    pairs: [
+      { id: 'open',    imgEmoji: '🔓', imgLabel: 'Open',    wordEmoji: '⛓️', wordLabel: 'Lock funds on-chain to start' },
+      { id: 'send',    imgEmoji: '➡️', imgLabel: 'Send',    wordEmoji: '⚡', wordLabel: 'Off-chain instant transfer' },
+      { id: 'balance', imgEmoji: '⚖️', imgLabel: 'Balance', wordEmoji: '💰', wordLabel: 'Split of channel funds' },
+      { id: 'close',   imgEmoji: '🔐', imgLabel: 'Close',   wordEmoji: '📦', wordLabel: 'Final balance settled on-chain' },
+    ],
+    reveals: [
+      { naija: '🔓', btc: '⛓️', match: 'Open = lock funds on-chain',     def: 'To open a Lightning channel, lock some Bitcoin in a shared wallet on the blockchain. Like a deposit.', funny: '😂 "Put your stake down. Now you can play Lightning!"' },
+      { naija: '➡️', btc: '⚡', match: 'Send = off-chain transfer',       def: 'Each payment updates the channel balance privately — no on-chain transaction needed. Instant.', funny: '😂 "Money moving without touching the blockchain. Magic!"' },
+      { naija: '⚖️', btc: '💰', match: 'Balance = shared split',         def: 'The channel has a total amount. Each payment shifts the split between you and the other side.', funny: '😂 "Like splitting suya money back and forth in seconds!"' },
+      { naija: '🔐', btc: '📦', match: 'Close = settle on-chain',        def: 'When you close a channel, the final balance is written permanently to the Bitcoin blockchain.', funny: '😂 "Tab closed. Bitcoin landed. Clean!"' },
+    ],
+  },
+
+  // S2 · L3 — Routing
+  {
+    chapter: 'Stage 2 · Step 3', title: 'Lightning Routing',
+    story: 'You do not need a direct channel with everyone. Lightning routes payments through the network automatically.',
+    hint: 'Match routing concepts', hintColor: '#9945FF', sats: 10,
+    pairs: [
+      { id: 'path',      imgEmoji: '🗺️', imgLabel: 'Route',     wordEmoji: '🔀', wordLabel: 'Hops between nodes' },
+      { id: 'liquidity', imgEmoji: '💧', imgLabel: 'Liquidity', wordEmoji: '🌊', wordLabel: 'Available funds to route' },
+      { id: 'invoice',   imgEmoji: '🧾', imgLabel: 'Invoice',   wordEmoji: '📲', wordLabel: 'Payment request with amount' },
+      { id: 'htlc',      imgEmoji: '🔒', imgLabel: 'HTLC',      wordEmoji: '⏳', wordLabel: 'Time-locked payment secret' },
+    ],
+    reveals: [
+      { naija: '🗺️', btc: '🔀', match: 'Route = hops between nodes',  def: 'Your payment hops from node to node to reach the recipient — like a chain of trusted middlemen.', funny: '😂 "Sats travel like Bolt driver across Lagos — efficient!"' },
+      { naija: '💧', btc: '🌊', match: 'Liquidity = available funds',  def: 'For payments to flow through a node, that node needs funds on both sides of its channels.', funny: '😂 "No water in the pipe, nothing comes out!"' },
+      { naija: '🧾', btc: '📲', match: 'Invoice = payment request',    def: 'Lightning uses invoices — a unique code with the exact amount embedded. No address guessing.', funny: '😂 "Like a suya seller giving you a specific price tag!"' },
+      { naija: '🔒', btc: '⏳', match: 'HTLC = timed payment secret', def: 'Hash Time-Locked Contracts ensure that if a payment fails at any hop, your money returns automatically.', funny: '😂 "Route fails, sats return. No wahala!"' },
+    ],
+  },
+
+  // S2 · L4 — Self Custody
+  {
+    chapter: 'Stage 2 · Step 4', title: 'Your Keys, Your Bitcoin',
+    story: '"Not your keys, not your coins" — this saying could save your life savings. Learn what it really means.',
+    hint: 'Match custody concepts', hintColor: '#F7C948', sats: 10,
+    pairs: [
+      { id: 'privatekey', imgEmoji: '🔑', imgLabel: 'Private Key', wordEmoji: '👑', wordLabel: 'Proves you own Bitcoin' },
+      { id: 'exchange',   imgEmoji: '🏦', imgLabel: 'Exchange',    wordEmoji: '⚠️', wordLabel: 'They hold your keys' },
+      { id: 'custody',    imgEmoji: '👤', imgLabel: 'Self',        wordEmoji: '🛡️', wordLabel: 'You hold your own keys' },
+      { id: 'seed',       imgEmoji: '📝', imgLabel: 'Seed',        wordEmoji: '🌱', wordLabel: '12 words = full backup' },
+    ],
+    reveals: [
+      { naija: '🔑', btc: '👑', match: 'Private key = ownership proof', def: 'A private key is a secret number. Whoever holds it can spend the Bitcoin. Guard it with your life.', funny: '😂 "Lose this key, cry forever. Protect am well!"' },
+      { naija: '🏦', btc: '⚠️', match: 'Exchange = they hold your keys', def: 'When you keep Bitcoin on an exchange, they own the keys. If they close, your Bitcoin is gone.', funny: '😂 "Exchange holds your Bitcoin like a bank. We don\'t trust banks, remember?"' },
+      { naija: '👤', btc: '🛡️', match: 'Self-custody = true ownership', def: 'With self-custody, you hold your own private keys. Nobody can freeze or seize your Bitcoin.', funny: '😂 "You be the bank. Full stop!"' },
+      { naija: '📝', btc: '🌱', match: 'Seed phrase = full backup',     def: '12 words generated when you first open a wallet. Write on paper, store offline. Lose them, lose everything.', funny: '😂 "12 words. Write them down. Not on WhatsApp!"' },
+    ],
+  },
+
+  // S2 · L5 — Hardware Wallets
+  {
+    chapter: 'Stage 2 · Step 5', title: 'Cold Storage',
+    story: 'A hardware wallet keeps your Bitcoin keys completely offline. Even a hacked laptop cannot touch your Bitcoin.',
+    hint: 'Match cold storage concepts', hintColor: '#00E5A0', sats: 11,
+    pairs: [
+      { id: 'cold',   imgEmoji: '❄️', imgLabel: 'Cold',   wordEmoji: '🔌', wordLabel: 'Never touches the internet' },
+      { id: 'hot',    imgEmoji: '🔥', imgLabel: 'Hot',    wordEmoji: '📱', wordLabel: 'Always connected wallet' },
+      { id: 'device', imgEmoji: '🔧', imgLabel: 'Device', wordEmoji: '🛡️', wordLabel: 'Hardware key keeper' },
+      { id: 'sign',   imgEmoji: '✍️', imgLabel: 'Sign',   wordEmoji: '🔑', wordLabel: 'Approves transactions offline' },
+    ],
+    reveals: [
+      { naija: '❄️', btc: '🔌', match: 'Cold = never online',        def: 'A cold wallet is completely offline. Keys are stored in a device that never touches the internet.', funny: '😂 "Cold like Harmattan. Hackers cannot reach it!"' },
+      { naija: '🔥', btc: '📱', match: 'Hot = always connected',     def: 'Your phone wallet is hot — always online. Convenient for spending but riskier for savings.', funny: '😂 "Hot wallet for daily. Cold wallet for savings. Wisdom!"' },
+      { naija: '🔧', btc: '🛡️', match: 'Device = hardware wallet',  def: 'A small USB-like device that signs transactions. Your keys never leave the device, even when connected.', funny: '😂 "Smaller than USB. Safer than Fort Knox!"' },
+      { naija: '✍️', btc: '🔑', match: 'Sign = offline approval',    def: 'The hardware wallet signs transactions offline and passes only the signature out. Keys stay safe.', funny: '😂 "Sign in the cold room. Broadcast safely. Professional!"' },
+    ],
+  },
+
+  // S2 · L6 — Multi-Signature
+  {
+    chapter: 'Stage 2 · Step 6', title: 'Multi-Signature Vaults',
+    story: 'Some Bitcoin is too valuable for one key. Multi-sig requires multiple keys — like needing two signatures on a cheque.',
+    hint: 'Match multisig concepts', hintColor: '#A855F7', sats: 11,
+    pairs: [
+      { id: 'multisig', imgEmoji: '👥', imgLabel: 'Multiple',    wordEmoji: '🔑', wordLabel: 'Many keys needed to spend' },
+      { id: '2of3',     imgEmoji: '2️⃣', imgLabel: '2-of-3',     wordEmoji: '🗳️', wordLabel: 'Any 2 of 3 keys can sign' },
+      { id: 'vault',    imgEmoji: '🏦', imgLabel: 'Vault',       wordEmoji: '🔒', wordLabel: 'Ultra-secure Bitcoin storage' },
+      { id: 'inherit',  imgEmoji: '🏛️', imgLabel: 'Inheritance', wordEmoji: '📜', wordLabel: 'Pass Bitcoin to family safely' },
+    ],
+    reveals: [
+      { naija: '👥', btc: '🔑', match: 'Multisig = many keys required', def: 'A multisig wallet needs multiple private keys to authorize spending. Compromise one — still safe.', funny: '😂 "Like needing two board members to open the safe!"' },
+      { naija: '2️⃣', btc: '🗳️', match: '2-of-3 = majority vote',       def: 'With 2-of-3, any 2 of 3 keys can spend. Lose one key — still safe. Thief gets one — still safe.', funny: '😂 "House of Reps voting but for your Bitcoin!"' },
+      { naija: '🏦', btc: '🔒', match: 'Vault = maximum security',      def: 'Multisig + hardware wallets + cold storage = Bitcoin vault. For serious hodlers with serious amounts.', funny: '😂 "Fort Knox but you control it yourself!"' },
+      { naija: '🏛️', btc: '📜', match: 'Inheritance = planned handover', def: 'Multisig enables inheritance: family can access your Bitcoin without all keys being together.', funny: '😂 "Leave your sats for your children. Smart planning!"' },
+    ],
+  },
+
+  // S2 · L7 — Bitcoin Upgrades
+  {
+    chapter: 'Stage 2 · Step 7', title: 'Bitcoin Upgrades',
+    story: 'Bitcoin upgrades carefully over time. Taproot (2021) made Bitcoin smarter, more private, and cheaper to use.',
+    hint: 'Match upgrade concepts', hintColor: '#2AD8FF', sats: 11,
+    pairs: [
+      { id: 'taproot', imgEmoji: '🌳', imgLabel: 'Taproot',  wordEmoji: '🔒', wordLabel: '2021 Bitcoin smart upgrade' },
+      { id: 'segwit',  imgEmoji: '⚡', imgLabel: 'SegWit',   wordEmoji: '📦', wordLabel: 'Smaller transactions, lower fees' },
+      { id: 'schnorr', imgEmoji: '✍️', imgLabel: 'Schnorr',  wordEmoji: '🔑', wordLabel: 'Efficient private signatures' },
+      { id: 'bip',     imgEmoji: '📜', imgLabel: 'BIP',      wordEmoji: '💡', wordLabel: 'Bitcoin Improvement Proposal' },
+    ],
+    reveals: [
+      { naija: '🌳', btc: '🔒', match: 'Taproot = Bitcoin\'s smart upgrade', def: 'Taproot (2021) made multisig look the same as regular transactions — more private, more efficient.', funny: '😂 "Bitcoin levelled up. Nobody even noticed. Smooth!"' },
+      { naija: '⚡', btc: '📦', match: 'SegWit = lighter transactions',      def: 'Segregated Witness separated signature data from transaction data. Smaller transactions, lower fees, Lightning enabled.', funny: '😂 "SegWit trimmed the fat. Bitcoin got fitter!"' },
+      { naija: '✍️', btc: '🔑', match: 'Schnorr = smarter signatures',      def: 'Schnorr signatures are shorter and can be combined from multiple keys into one. Privacy + efficiency.', funny: '😂 "Multiple signers, one tiny signature. Mathematics is beautiful!"' },
+      { naija: '📜', btc: '💡', match: 'BIP = upgrade proposal',             def: 'Anyone can write a Bitcoin Improvement Proposal. Community debates, nodes vote — only consensus changes go in.', funny: '😂 "No government decides. The people decide. That\'s Bitcoin!"' },
+    ],
+  },
+
+  // S2 · L8 — Sound Money
+  {
+    chapter: 'Stage 2 · Step 8', title: 'Bitcoin as Sound Money',
+    story: 'Gold was sound money because nobody could print more. Bitcoin applies this principle with mathematics — permanently.',
+    hint: 'Match sound money concepts', hintColor: '#F7C948', sats: 12,
+    pairs: [
+      { id: 'scarcity',  imgEmoji: '💎', imgLabel: 'Scarce',   wordEmoji: '🔒', wordLabel: 'Only 21 million ever' },
+      { id: 'halving',   imgEmoji: '✂️', imgLabel: 'Halving',  wordEmoji: '📅', wordLabel: 'Reward cuts every ~4 years' },
+      { id: 'deflation', imgEmoji: '📈', imgLabel: 'Goes up',  wordEmoji: '💰', wordLabel: 'Buying power increases over time' },
+      { id: 'gold',      imgEmoji: '🥇', imgLabel: 'Gold 2.0', wordEmoji: '🟠', wordLabel: 'Digital sound money' },
+    ],
+    reveals: [
+      { naija: '💎', btc: '🔒', match: 'Scarcity = 21 million hard cap', def: 'Only 21 million Bitcoin will ever exist. Not even the creator can change this. It is in the code forever.', funny: '😂 "CBN prints naira any time. Bitcoin? Never. Hard limit forever!"' },
+      { naija: '✂️', btc: '📅', match: 'Halving = reward gets cut',      def: 'Every 210,000 blocks (~4 years), miners earn half as many new Bitcoin. Less supply entering = more scarcity.', funny: '😂 "Farmer harvests less every 4 years. The wheat becomes gold!"' },
+      { naija: '📈', btc: '💰', match: 'Deflation = buying power grows', def: 'Fixed supply means your sats can buy more over time as adoption grows. Opposite of naira inflation.', funny: '😂 "Naira tomorrow buys less. Bitcoin tomorrow? More. Think!"' },
+      { naija: '🥇', btc: '🟠', match: 'Bitcoin = gold for the internet', def: 'Gold cannot be sent through the internet. Bitcoin is gold that moves at the speed of light, verified by math.', funny: '😂 "Gold had to travel by ship. Bitcoin travels by light. Winner!"' },
+    ],
+  },
+]
+
+/* Stage 2 word hunts */
+const STAGE2_HUNTS = [
+  {
+    title: 'Word Hunt: Lightning world',
+    story: 'Lightning Network has its own vocabulary. Find the real Lightning words — ignore the bank and crypto noise.',
+    hint: 'Tap Lightning words only', hintColor: '#F7C948', sats: 5, timeLimit: 35,
+    real:  ['Lightning', 'Channel', 'Node', 'Invoice', 'HTLC', 'Routing'],
+    decoy: ['Ethereum', 'Gas', 'Smart Contract', 'Visa', 'SWIFT', 'PayPal', 'Venmo'],
+  },
+  {
+    title: 'Word Hunt: Advanced Bitcoin',
+    story: 'Taproot, Schnorr, multisig — pick the real Bitcoin upgrade words from the noise.',
+    hint: 'Tap advanced Bitcoin words', hintColor: '#2AD8FF', sats: 5, timeLimit: 40,
+    real:  ['Taproot', 'SegWit', 'Multisig', 'Schnorr', 'Timelock', 'UTXO'],
+    decoy: ['Solana', 'NFT', 'Yield Farm', 'DeFi', 'Airdrop', 'Staking', 'Altcoin'],
+  },
+]
+
+function buildStage2(matchLevels, hunts, startOffset) {
+  const out = []
+  let huntIdx = 0
+  matchLevels.forEach((lv, i) => {
+    out.push({ ...lv, type: 'match', stage: 2 })
+    if ((i + 1) % 3 === 0 && huntIdx < hunts.length) {
+      const h = hunts[huntIdx++]
+      out.push({ type: 'wordhunt', chapter: 'Word Hunt · Stage 2', stage: 2, ...h })
+    }
+  })
+  return out.map((lv, i) => ({ ...lv, id: startOffset + i + 1, badge: String(startOffset + i + 1) }))
+}
+
+const _STAGE2_FINAL = buildStage2(STAGE2_MATCH, STAGE2_HUNTS, STAGE1_COUNT)
+
+// Combined level list (Stage 1 + Stage 2)
 LEVELS.length = 0
-FINAL_LEVELS.forEach(l => LEVELS.push(l))
+;[..._STAGE1_FINAL, ..._STAGE2_FINAL].forEach(l => LEVELS.push(l))
 
 export const TOTAL_SATS = LEVELS.reduce((sum, l) => sum + l.sats, 0)

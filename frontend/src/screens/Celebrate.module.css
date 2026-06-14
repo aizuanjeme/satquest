@@ -1,0 +1,173 @@
+/* Celebrate — full-screen confetti + neon congrats overlay */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 40%, rgba(153, 69, 255, 0.35), rgba(2, 3, 6, 0.88) 70%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  cursor: pointer;
+  animation: overlay-in 0.3s ease both;
+}
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Confetti ── */
+.confetti { position: absolute; inset: 0; pointer-events: none; }
+.piece {
+  position: absolute;
+  top: -24px;
+  border-radius: 3px;
+  animation: fall linear forwards;
+  box-shadow: 0 0 6px currentColor;
+}
+.sq  { border-radius: 3px; }
+.rect { border-radius: 2px; }
+
+@keyframes fall {
+  0%   { transform: translateY(-24px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.1; }
+}
+
+/* ── Spark ring ── */
+.sparkRing {
+  position: absolute;
+  width: 0; height: 0;
+  top: 42%; left: 50%;
+  pointer-events: none;
+}
+.spark {
+  position: absolute;
+  font-size: 22px;
+  transform: rotate(var(--angle)) translate(20px) scale(0.4);
+  animation: spark-burst 1.8s ease-out infinite;
+}
+@keyframes spark-burst {
+  0%   { opacity: 0;   transform: rotate(var(--angle)) translate(20px)  scale(0.4); }
+  35%  { opacity: 1; }
+  100% { opacity: 0;   transform: rotate(var(--angle)) translate(160px) scale(1.1); }
+}
+
+/* ── Card ── */
+.card {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 28px;
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.trophy {
+  font-size: 80px;
+  filter: drop-shadow(0 8px 28px rgba(247, 201, 72, 0.7));
+  animation: trophy-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes trophy-in {
+  from { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);     opacity: 1; }
+}
+
+.kicker {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin-top: 8px;
+}
+
+.praise {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 6px 0 10px;
+  background: linear-gradient(120deg, #2ad8ff, #9945ff, #f7c948);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: praise-in 0.5s ease both;
+  animation-delay: 0.15s;
+}
+@keyframes praise-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.levelLine {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.check { color: #2bd47a; font-weight: 900; margin-right: 4px; }
+
+.satsBadge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(247, 201, 72, 0.16), rgba(247, 201, 72, 0.04));
+  border: 1.5px solid rgba(247, 201, 72, 0.5);
+  border-radius: 999px;
+  padding: 10px 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 30px -8px rgba(247, 201, 72, 0.5);
+  animation: praise-in 0.5s ease both;
+  animation-delay: 0.3s;
+}
+.bolt { font-size: 1.3rem; }
+.satsNum {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--gold-soft);
+  line-height: 1;
+}
+.satsWord {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 232, 163, 0.7);
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  color: #020306;
+  background: linear-gradient(135deg, #2ad8ff, #9945ff);
+  box-shadow: 0 8px 32px -8px rgba(42, 216, 255, 0.6), 0 0 0 1px rgba(42, 216, 255, 0.3);
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: praise-in 0.5s ease both;
+  animation-delay: 0.45s;
+}
+.btn:active { transform: scale(0.97); }
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-lo);
+  margin-top: 12px;
+  animation: praise-in 0.5s ease both;
+  animation-delay: 0.55s;
+}
+

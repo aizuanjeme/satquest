@@ -3,40 +3,162 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SatQuest – Learn Bitcoin</title>
-    <meta name="description" content="SatQuest teaches Bitcoin and Lightning through fun, progressive levels. Pick a Nigerian avatar, earn sats, climb the global leaderboard." />
-    <meta property="og:title" content="SatQuest – Learn Bitcoin" />
-    <meta property="og:description" content="26 levels. 38 avatars. Real sats. Built for Nigerians, open to everyone." />
+
+    <!-- ── Primary SEO ─────────────────────────────────────────────── -->
+    <title>SatQuest — Learn Bitcoin &amp; Earn Sats | Free Bitcoin Education Game</title>
+    <meta name="description" content="SatQuest is a free, gamified Bitcoin learning experience. Master Bitcoin fundamentals through 26 interactive levels, earn real satoshis via Lightning Network, and climb the global leaderboard. The best way to learn Bitcoin online." />
+    <meta name="keywords" content="learn bitcoin, bitcoin education, bitcoin for beginners, earn bitcoin, stack sats, satoshis, lightning network, bitcoin game, bitcoin quiz, bitcoin learning app, cryptocurrency education, bitcoin course free, how to learn bitcoin, bitcoin fundamentals" />
+    <meta name="author" content="SatQuest" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://satquests.com/" />
+
+    <!-- ── Open Graph (Facebook / WhatsApp / LinkedIn) ────────────── -->
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#0b0030" />
+    <meta property="og:url" content="https://satquests.com/" />
+    <meta property="og:title" content="SatQuest — Learn Bitcoin &amp; Earn Real Sats" />
+    <meta property="og:description" content="26 interactive Bitcoin levels. Earn real satoshis. Climb the global leaderboard. The fun way to learn Bitcoin from scratch — free forever." />
+    <meta property="og:image" content="https://satquests.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SatQuest — Learn Bitcoin and earn sats" />
+    <meta property="og:site_name" content="SatQuest" />
+    <meta property="og:locale" content="en_US" />
 
-    <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml"  href="/icon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <!-- ── Twitter Card ───────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@satquest" />
+    <meta name="twitter:title" content="SatQuest — Learn Bitcoin &amp; Earn Real Sats" />
+    <meta name="twitter:description" content="26 interactive Bitcoin levels. Earn real satoshis via Lightning Network. The fun way to learn Bitcoin for free." />
+    <meta name="twitter:image" content="https://satquests.com/og-image.png" />
+    <meta name="twitter:image:alt" content="SatQuest Bitcoin Learning Game" />
 
-    <!-- iOS home-screen icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- ── App / PWA ──────────────────────────────────────────────── -->
+    <meta name="theme-color" content="#050505" />
+    <meta name="application-name" content="SatQuest" />
 
-    <!-- Android / general icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <!-- ── Structured Data (JSON-LD) ─────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://satquests.com/#website",
+          "url": "https://satquests.com/",
+          "name": "SatQuest",
+          "description": "Free gamified Bitcoin education. Learn Bitcoin and earn real satoshis.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://satquests.com/?s={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://satquests.com/#app",
+          "name": "SatQuest",
+          "url": "https://satquests.com/",
+          "description": "A free, gamified Bitcoin learning app with 26 progressive levels. Earn real satoshis via Lightning Network as you master Bitcoin fundamentals.",
+          "applicationCategory": "EducationApplication",
+          "applicationSubCategory": "Bitcoin Education",
+          "operatingSystem": "Any",
+          "browserRequirements": "Requires a modern web browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "26 progressive Bitcoin learning levels",
+            "Earn real satoshis via Lightning Network",
+            "Global leaderboard",
+            "38 unique avatars",
+            "Interactive Bitcoin quizzes",
+            "Bitcoin word hunt games"
+          ],
+          "screenshot": "https://satquests.com/og-image.png",
+          "about": {
+            "@type": "Thing",
+            "name": "Bitcoin",
+            "sameAs": "https://en.wikipedia.org/wiki/Bitcoin"
+          }
+        },
+        {
+          "@type": "Course",
+          "@id": "https://satquests.com/#course",
+          "name": "Bitcoin Fundamentals — Learn Bitcoin with SatQuest",
+          "description": "A free, gamified Bitcoin course covering 26 progressive levels — from Bitcoin basics to Lightning Network. Earn real satoshis as you learn.",
+          "url": "https://satquests.com/",
+          "provider": {
+            "@type": "Organization",
+            "name": "SatQuest",
+            "url": "https://satquests.com/"
+          },
+          "educationalLevel": "Beginner",
+          "isAccessibleForFree": true,
+          "inLanguage": "en",
+          "teaches": [
+            "Bitcoin basics",
+            "How Bitcoin works",
+            "Lightning Network",
+            "Satoshis and cryptocurrency",
+            "Bitcoin wallets",
+            "Bitcoin security"
+          ],
+          "hasCourseInstance": {
+            "@type": "CourseInstance",
+            "courseMode": "online",
+            "courseWorkload": "PT2H"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://satquests.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is SatQuest?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "SatQuest is a free, gamified Bitcoin learning platform. You progress through 26 interactive levels that teach Bitcoin fundamentals, and earn real satoshis (the smallest unit of Bitcoin) via the Lightning Network as rewards."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I learn Bitcoin with SatQuest?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Simply pick an avatar, start at Level 1, and work your way through match games, word hunts, and quizzes that teach Bitcoin concepts progressively. Each completed level earns you real sats."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is SatQuest free?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! SatQuest is completely free to play and learn. You can even earn real Bitcoin (satoshis) just by completing the educational levels."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is a satoshi?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A satoshi (sat) is the smallest unit of Bitcoin — 1 Bitcoin equals 100,000,000 satoshis. SatQuest rewards you with real satoshis via the Lightning Network as you complete Bitcoin learning levels."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      // Unregister any PWA service worker left over from a previous deployment
-      // (e.g. the frontend app). Without this, a soft-refresh serves the old SW cache.
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-          registrations.forEach(function (reg) { reg.unregister(); });
-        });
-      }
-    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

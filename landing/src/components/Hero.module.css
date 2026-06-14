@@ -1,0 +1,281 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 6% 80px;
+  overflow: hidden;
+}
+
+/* Decorative orbs */
+.orbBlue {
+  position: absolute;
+  top: -120px;
+  left: -100px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42,216,255,0.18) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: glow-pulse 5s ease-in-out infinite;
+}
+.orbPurple {
+  position: absolute;
+  top: 30%;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(153,69,255,0.15) 0%, transparent 70%);
+  filter: blur(70px);
+  pointer-events: none;
+  animation: glow-pulse 6s ease-in-out infinite 1s;
+}
+.orbGold {
+  position: absolute;
+  bottom: -80px;
+  left: 30%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247,201,72,0.10) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: glow-pulse 4s ease-in-out infinite 2s;
+}
+
+/* Scan line */
+.scanLine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(42, 216, 255, 0.025) 50%,
+    transparent 60%
+  );
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(42, 216, 255, 0.08);
+  border: 1px solid rgba(42, 216, 255, 0.28);
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--neon-blue-soft);
+  margin-bottom: 28px;
+  animation: fadein 0.5s ease both;
+}
+.badgeDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2bd47a;
+  box-shadow: 0 0 10px #2bd47a;
+  animation: glow-pulse 1.8s ease-in-out infinite;
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  margin-bottom: 22px;
+  animation: fadein 0.5s 0.1s ease both;
+}
+
+.sub {
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  color: var(--text-mid);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  animation: fadein 0.5s 0.2s ease both;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+  animation: fadein 0.5s 0.3s ease both;
+}
+.primaryBtn {
+  font-size: 0.85rem;
+  padding: 15px 34px;
+  box-shadow: 0 0 40px rgba(42,216,255,0.45), 0 8px 32px rgba(0,0,0,0.4);
+}
+.primaryBtn:hover {
+  box-shadow: 0 0 60px rgba(42,216,255,0.75), 0 12px 48px rgba(0,0,0,0.5);
+}
+.secondaryBtn {
+  font-size: 0.82rem;
+  padding: 14px 28px;
+}
+
+/* Trust strip */
+.trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  animation: fadein 0.5s 0.4s ease both;
+}
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-lo);
+}
+.trustDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.trustSep {
+  color: var(--text-lo);
+  font-size: 0.75rem;
+}
+
+/* Scroll cue */
+.scrollCue {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+  animation: fadein 1s 1.2s ease both;
+}
+.scrollLine {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--neon-blue));
+  animation: scan 2s linear infinite;
+}
+.scrollLabel {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  color: var(--neon-blue);
+  text-transform: uppercase;
+}
+
+/* ── Orbit ring of avatars ───────────────────────────────── */
+@keyframes orbit-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.orbitRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  border: 1px solid rgba(42, 216, 255, 0.07);
+  animation: orbit-spin 32s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.orbitItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform:
+    rotate(var(--angle))
+    translateX(320px)
+    rotate(calc(-1 * var(--angle)));
+  margin: -43px 0 0 -43px;
+}
+
+.orbitImg {
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  border: 2px solid rgba(42, 216, 255, 0.28);
+  box-shadow: 0 0 18px rgba(42, 216, 255, 0.18), 0 6px 22px rgba(0, 0, 0, 0.55);
+}
+
+/* Tournament teaser */
+.tournamentTeaser {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--neon-purple-soft);
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(153,69,255,0.35);
+  background: rgba(153,69,255,0.08);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  margin-top: -4px;
+}
+.tournamentTeaser:hover {
+  background: rgba(153,69,255,0.16);
+  border-color: rgba(153,69,255,0.6);
+  transform: translateY(-1px);
+}
+.teaserPulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neon-purple);
+  box-shadow: 0 0 10px var(--neon-purple);
+  animation: glow-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.teaserArrow {
+  margin-left: 2px;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.tournamentTeaser:hover .teaserArrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .orbitRing { width: 440px; height: 440px; }
+  .orbitItem {
+    transform:
+      rotate(var(--angle))
+      translateX(220px)
+      rotate(calc(-1 * var(--angle)));
+    margin: -32px 0 0 -32px;
+  }
+  .orbitImg { width: 58px !important; height: 58px !important; }
+}
+@media (max-width: 600px) {
+  .orbitRing { display: none; }
+}

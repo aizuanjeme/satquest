@@ -1,0 +1,76 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 26px;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-hi);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, filter 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.label { position: relative; z-index: 2; }
+
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.18) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+.btn:hover .sheen { transform: translateX(120%); }
+
+.full { width: 100%; }
+
+.blue {
+  background: linear-gradient(135deg, rgba(42, 216, 255, 0.22), rgba(42, 216, 255, 0.06));
+  border: 1px solid rgba(42, 216, 255, 0.5);
+  box-shadow: 0 0 0 0 rgba(42, 216, 255, 0);
+}
+.blue:hover {
+  box-shadow: 0 0 26px rgba(42, 216, 255, 0.5), inset 0 0 18px rgba(42, 216, 255, 0.18);
+  filter: brightness(1.1);
+}
+
+.purple {
+  background: linear-gradient(135deg, rgba(153, 69, 255, 0.24), rgba(153, 69, 255, 0.06));
+  border: 1px solid rgba(153, 69, 255, 0.55);
+}
+.purple:hover {
+  box-shadow: 0 0 26px rgba(153, 69, 255, 0.55), inset 0 0 18px rgba(153, 69, 255, 0.2);
+  filter: brightness(1.1);
+}
+
+.gold {
+  background: linear-gradient(135deg, rgba(247, 201, 72, 0.26), rgba(247, 201, 72, 0.06));
+  border: 1px solid rgba(247, 201, 72, 0.6);
+  color: #fff4d6;
+}
+.gold:hover {
+  box-shadow: 0 0 28px rgba(247, 201, 72, 0.5), inset 0 0 18px rgba(247, 201, 72, 0.2);
+  filter: brightness(1.08);
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(160, 180, 230, 0.18);
+  color: var(--text-mid);
+  text-transform: none;
+  font-family: var(--font-ui);
+  letter-spacing: 0.01em;
+}
+.ghost:hover { border-color: rgba(160, 200, 255, 0.4); color: var(--text-hi); }

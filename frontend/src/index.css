@@ -1,43 +1,271 @@
-/*
-  SatQuest — vibrant arcade palette
-  Brighter, more saturated colors for a more "playful game" vibe
-*/
-:root {
-  --bg:        #0b0030;
-  --surface:   rgba(184, 69, 255, 0.08);
-  --surface2:  rgba(184, 69, 255, 0.16);
-  --border:    rgba(255, 255, 255, 0.12);
+:root,
+[data-theme="dark"] {
+  /* Core palette — deep blacks + neon accents */
+  --bg-0: #050505;
+  --bg-1: #0a0a0c;
+  --bg-2: #101018;
 
-  /* Brand colors — bumped saturation and brightness */
-  --orange:    #FF9500;   /* juicy neon orange */
-  --yellow:    #FFE600;   /* electric yellow */
-  --purple:    #B845FF;   /* electric purple */
-  --green:     #00FFB3;   /* hot mint */
-  --pink:      #FF2D92;   /* arcade pink */
-  --cyan:      #00E5FF;   /* bright cyan */
-  --red:       #FF5670;   /* coral red */
+  --neon-blue: #2ad8ff;
+  --neon-blue-soft: #5fb8ff;
+  --neon-purple: #9945ff;
+  --neon-purple-soft: #b07bff;
+  --gold: #f7c948;
+  --gold-soft: #ffd86b;
 
-  --text:      #FFF7FF;
-  --muted:     #7A5DC9;
-  --muted2:    #B095E8;
+  --text-hi: #f4f7ff;
+  --text-mid: #aab2c8;
+  --text-lo: #6c7390;
+
+  --glass: rgba(20, 24, 38, 0.55);
+  --glass-edge: rgba(120, 160, 255, 0.14);
+  --glass-edge-hot: rgba(120, 200, 255, 0.42);
+
+  --shadow-deep: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  --glow-blue: 0 0 24px rgba(42, 216, 255, 0.45);
+  --glow-purple: 0 0 28px rgba(153, 69, 255, 0.45);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── LIGHT ── */
+[data-theme="light"] {
+  --bg-0: #eef1fb;
+  --bg-1: #e0e6f6;
+  --bg-2: #d2daf0;
 
-html, body {
-  height: 100%;
-  background: var(--bg);
-  font-family: 'Nunito', sans-serif;
+  --neon-blue: #0077cc;
+  --neon-blue-soft: #3399dd;
+  --neon-purple: #5522cc;
+  --neon-purple-soft: #7744dd;
+  --gold: #c07800;
+  --gold-soft: #e09000;
+
+  --text-hi: #0a0d1a;
+  --text-mid: #3a4268;
+  --text-lo: #7080a8;
+
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-edge: rgba(80, 120, 220, 0.22);
+  --glass-edge-hot: rgba(80, 120, 220, 0.55);
+
+  --shadow-deep: 0 20px 60px -20px rgba(0, 0, 80, 0.25);
+  --glow-blue: 0 0 20px rgba(0, 119, 204, 0.3);
+  --glow-purple: 0 0 22px rgba(85, 34, 204, 0.3);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
+}
+[data-theme="light"] body { background: var(--bg-0); }
+
+/* ── MARKET (trading terminal) ── */
+[data-theme="market"] {
+  --bg-0: #030803;
+  --bg-1: #060e06;
+  --bg-2: #0a160a;
+
+  --neon-blue: #00ff41;
+  --neon-blue-soft: #44ff77;
+  --neon-purple: #ff1744;
+  --neon-purple-soft: #ff5566;
+  --gold: #f7c948;
+  --gold-soft: #ffd86b;
+
+  --text-hi: #e8ffe8;
+  --text-mid: #70bb70;
+  --text-lo: #3a7a3a;
+
+  --glass: rgba(0, 20, 0, 0.65);
+  --glass-edge: rgba(0, 255, 65, 0.15);
+  --glass-edge-hot: rgba(0, 255, 65, 0.45);
+
+  --shadow-deep: 0 30px 80px -30px rgba(0, 0, 0, 0.95);
+  --glow-blue: 0 0 24px rgba(0, 255, 65, 0.5);
+  --glow-purple: 0 0 24px rgba(255, 23, 68, 0.5);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
+}
+
+/* ── BANK VAULT ── */
+[data-theme="bank"] {
+  --bg-0: #04060e;
+  --bg-1: #080e1c;
+  --bg-2: #0e162a;
+
+  --neon-blue: #c8a84b;
+  --neon-blue-soft: #dcc06a;
+  --neon-purple: #4a90d9;
+  --neon-purple-soft: #6aaae8;
+  --gold: #c8a84b;
+  --gold-soft: #dcc06a;
+
+  --text-hi: #f5f0e0;
+  --text-mid: #b8a870;
+  --text-lo: #786850;
+
+  --glass: rgba(8, 14, 28, 0.72);
+  --glass-edge: rgba(200, 168, 75, 0.18);
+  --glass-edge-hot: rgba(200, 168, 75, 0.5);
+
+  --shadow-deep: 0 30px 80px -30px rgba(0, 0, 0, 0.95);
+  --glow-blue: 0 0 24px rgba(200, 168, 75, 0.45);
+  --glow-purple: 0 0 24px rgba(74, 144, 217, 0.45);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
+}
+
+/* ── RAINY CITY ── */
+[data-theme="rainy"] {
+  --bg-0: #040810;
+  --bg-1: #080e18;
+  --bg-2: #0c1422;
+
+  --neon-blue: #4fc3f7;
+  --neon-blue-soft: #7dd4f8;
+  --neon-purple: #546e7a;
+  --neon-purple-soft: #78909c;
+  --gold: #80cbc4;
+  --gold-soft: #a5d6d1;
+
+  --text-hi: #e1f5fe;
+  --text-mid: #80aabc;
+  --text-lo: #4a6678;
+
+  --glass: rgba(6, 14, 26, 0.68);
+  --glass-edge: rgba(79, 195, 247, 0.14);
+  --glass-edge-hot: rgba(79, 195, 247, 0.45);
+
+  --shadow-deep: 0 30px 80px -30px rgba(0, 0, 0, 0.95);
+  --glow-blue: 0 0 24px rgba(79, 195, 247, 0.45);
+  --glow-purple: 0 0 24px rgba(84, 110, 122, 0.4);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
+}
+[data-theme="rainy"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    175deg,
+    transparent,
+    transparent 2px,
+    rgba(79, 195, 247, 0.03) 2px,
+    rgba(79, 195, 247, 0.03) 4px
+  );
+  animation: rain-streaks 1.8s linear infinite;
+}
+@keyframes rain-streaks {
+  from { background-position: 0 -200px; }
+  to   { background-position: 30px 200px; }
+}
+
+/* ── DISCO ── */
+[data-theme="disco"] {
+  --bg-0: #0c0010;
+  --bg-1: #12001a;
+  --bg-2: #18002a;
+
+  --neon-blue: #ff00ff;
+  --neon-blue-soft: #ff66ff;
+  --neon-purple: #00ffff;
+  --neon-purple-soft: #66ffff;
+  --gold: #ffff00;
+  --gold-soft: #ffff66;
+
+  --text-hi: #fff0ff;
+  --text-mid: #cc88cc;
+  --text-lo: #885588;
+
+  --glass: rgba(30, 0, 45, 0.6);
+  --glass-edge: rgba(255, 0, 255, 0.18);
+  --glass-edge-hot: rgba(255, 0, 255, 0.55);
+
+  --shadow-deep: 0 30px 80px -30px rgba(0, 0, 0, 0.95);
+  --glow-blue: 0 0 28px rgba(255, 0, 255, 0.55);
+  --glow-purple: 0 0 28px rgba(0, 255, 255, 0.55);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui: 'Sora', system-ui, sans-serif;
+}
+/* Disco rotating hue on accent elements */
+[data-theme="disco"] [class*="barFill"],
+[data-theme="disco"] [class*="neonBtn"],
+[data-theme="disco"] [class*="praise"] {
+  animation: disco-hue 3s linear infinite !important;
+}
+@keyframes disco-hue {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
-  color: var(--text);
 }
 
-button { font-family: inherit; }
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
 
-::-webkit-scrollbar { width: 3px; }
+body {
+  background: var(--bg-0);
+  color: var(--text-hi);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+  border: none;
+  background: none;
+}
+
+input, textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--orange), var(--pink));
-  border-radius: 3px;
+  background: rgba(120, 160, 255, 0.18);
+  border-radius: 8px;
+}
+
+/* Shared cinematic keyframes */
+@keyframes sq-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes sq-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes sq-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sq-scan {
+  from { background-position: 0 -200%; }
+  to { background-position: 0 200%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }

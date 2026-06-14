@@ -1,55 +1,63 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react'
+import s from './Stats.module.css'
 
-function StatCard({ value, label, colorClass, count, delay = '0s' }) {
-  const numRef = useRef(null);
+const STATS = [
+  { value: 37,   suffix: '',  label: 'Progressive Levels', col: '#2ad8ff', glow: 'rgba(42,216,255,0.4)',  delay: '0s'   },
+  { value: 38,   suffix: '',  label: 'Unique Avatars',     col: '#f7c948', glow: 'rgba(247,201,72,0.4)', delay: '0.1s' },
+  { value: null, display:'∞', label: 'Sats to Earn',       col: '#b07bff', glow: 'rgba(153,69,255,0.4)', delay: '0.2s' },
+  { value: 2,    suffix: '',  label: 'Game Modes',         col: '#2bd47a', glow: 'rgba(43,212,122,0.4)', delay: '0.3s' },
+]
+
+function StatCard({ value, display, suffix = '', label, col, glow, delay }) {
+  const numRef = useRef(null)
 
   useEffect(() => {
-    if (count === undefined || !numRef.current) return;
-    const el = numRef.current;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const duration = 1200;
-          const start = performance.now();
-          const update = (now) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const ease = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.round(ease * count);
-            if (progress < 1) requestAnimationFrame(update);
-          };
-          requestAnimationFrame(update);
-          observer.unobserve(el);
-        });
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [count]);
+    if (!value || !numRef.current) return
+    const el = numRef.current
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return
+        const dur = 1400
+        const start = performance.now()
+        const tick = (now) => {
+          const prog = Math.min((now - start) / dur, 1)
+          const ease = 1 - Math.pow(1 - prog, 3)
+          el.textContent = Math.round(ease * value) + suffix
+          if (prog < 1) requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+        io.unobserve(el)
+      })
+    }, { threshold: 0.6 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [value, suffix])
 
   return (
-    <div
-      className="bg-[rgba(184,69,255,0.08)] border border-white/10 rounded-[20px] p-6 text-center backdrop-blur-[10px] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(184,69,255,0.4)] hover:shadow-[0_12px_40px_rgba(184,69,255,0.15)]"
-      style={{ animation: 'fadein 0.45s ease both', animationDelay: delay }}
-    >
-      <div ref={numRef} className={`text-[2.4rem] font-black leading-none mb-1.5 ${colorClass}`}>
-        {value}
+    <div className={s.card} style={{ animationDelay: delay, '--glow': glow }}>
+      {/* Corner accent */}
+      <div className={s.corner} style={{ background: glow }} />
+      <div
+        ref={numRef}
+        className={s.num}
+        style={{ color: col, textShadow: `0 0 20px ${col}88` }}
+      >
+        {display ?? (value + suffix)}
       </div>
-      <div className="text-[0.85rem] text-[#B095E8] font-semibold">{label}</div>
+      <div className={s.label}>{label}</div>
+      {/* Bottom glow line */}
+      <div className={s.line} style={{ background: col }} />
     </div>
-  );
+  )
 }
 
 export default function Stats() {
   return (
-    <div id="stats" className="py-12 px-[5%] relative z-10">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-[900px] mx-auto">
-        <StatCard count={26} value="26" colorClass="grad-text"       label="Progressive Levels" delay="0s"   />
-        <StatCard count={38} value="38" colorClass="text-[#FFE600]"  label="Unique Avatars"     delay="0.1s" />
-        <StatCard count={2}  value="2"  colorClass="grad-text-green" label="Game Modes"          delay="0.2s" />
-        <StatCard           value="∞"  colorClass="text-[#FF9500]"  label="Sats to Earn"        delay="0.3s" />
+    <section id="stats" className={`section ${s.section}`}>
+      <p className="section-kicker" style={{ textAlign: 'center' }}>By the numbers</p>
+      <div className={s.grid}>
+        {STATS.map((st, i) => <StatCard key={i} {...st} />)}
       </div>
-    </div>
-  );
+    </section>
+  )
 }

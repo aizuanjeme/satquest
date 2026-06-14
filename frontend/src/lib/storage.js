@@ -155,6 +155,7 @@ import { progressApi } from './api'
  */
 export async function syncProgress(progress, profile) {
   if (!profile?.username) return progress
+  window.dispatchEvent(new CustomEvent('satquest:sync', { detail: 'start' }))
   try {
     const dto = {
       username: profile.username,
@@ -174,9 +175,11 @@ export async function syncProgress(progress, profile) {
       ),
     }
     await progressApi.upsert(dto)
+    window.dispatchEvent(new CustomEvent('satquest:sync', { detail: 'done' }))
     return progress
   } catch (e) {
     if (import.meta.env.DEV) console.warn('syncProgress failed', e)
+    window.dispatchEvent(new CustomEvent('satquest:sync', { detail: 'fail' }))
     return progress
   }
 }

@@ -1,12 +1,39 @@
-@import "tailwindcss";
+/* SatQuest Landing2 — frontend3 design system */
 
-/* ─── Google Font ────────────────────────────────────── */
-@theme {
-  --font-family-sans: 'Nunito', sans-serif;
+/* ── Design tokens ───────────────────────────────────────── */
+:root {
+  --bg-0: #050505;
+  --bg-1: #0a0a0c;
+  --bg-2: #101018;
+
+  --neon-blue:   #2ad8ff;
+  --neon-blue-soft: #5fb8ff;
+  --neon-purple: #9945ff;
+  --neon-purple-soft: #b07bff;
+  --gold:        #f7c948;
+  --gold-soft:   #ffd86b;
+
+  --text-hi:  #f4f7ff;
+  --text-mid: #aab2c8;
+  --text-lo:  #6c7390;
+
+  --glass:          rgba(20, 24, 38, 0.60);
+  --glass-edge:     rgba(120, 160, 255, 0.14);
+  --glass-edge-hot: rgba(42, 216, 255, 0.35);
+
+  --glow-blue:   0 0 28px rgba(42, 216, 255, 0.5);
+  --glow-purple: 0 0 32px rgba(153, 69, 255, 0.5);
+  --glow-gold:   0 0 28px rgba(247, 201, 72, 0.55);
+
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-ui:      'Sora', system-ui, sans-serif;
+
+  --rad-card: 20px;
+  --rad-pill: 999px;
 }
 
-/* ─── Global reset ────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   scroll-behavior: smooth;
@@ -14,150 +41,185 @@ html {
 }
 
 body {
-  background-color: #0b0030;
-  font-family: 'Nunito', sans-serif;
-  color: #FFF7FF;
+  font-family: var(--font-ui);
+  background: var(--bg-0);
+  color: var(--text-hi);
   overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 3-D background canvas ───────────────────────────────── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
   height: 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* ─── Scroll-snap container ───────────────────────────── */
-.snap-container {
-  height: 100dvh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+/* ── Layout wrapper ──────────────────────────────────────── */
+#app-root {
+  position: relative;
+  z-index: 1;
 }
 
-/* Each full-page snap section */
-.snap-page {
-  scroll-snap-align: start;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* ─── Gradient text ───────────────────────────────────── */
-.grad-text {
-  background: linear-gradient(135deg, #FF9500 0%, #FF2D92 50%, #B845FF 100%);
+/* ── Gradient text helpers ───────────────────────────────── */
+.grad-blue {
+  background: linear-gradient(120deg, var(--neon-blue) 0%, var(--neon-purple-soft) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.grad-text-green {
-  background: linear-gradient(135deg, #00FFB3 0%, #00E5FF 100%);
+.grad-gold {
+  background: linear-gradient(120deg, var(--gold) 0%, #ff9f43 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-purple {
+  background: linear-gradient(120deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ─── Scroll reveal ───────────────────────────────────── */
+/* ── Glass card base ─────────────────────────────────────── */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-radius: var(--rad-card);
+}
+.glass:hover {
+  border-color: var(--glass-edge-hot);
+}
+
+/* ── Section base ────────────────────────────────────────── */
+.section {
+  position: relative;
+  padding: 100px 6% 80px;
+  overflow: hidden;
+}
+
+.section-kicker {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.section-sub {
+  color: var(--text-mid);
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  max-width: 560px;
+  margin-bottom: 56px;
+}
+
+/* ── Neon button ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 30px;
+  border-radius: var(--rad-pill);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn-blue {
+  background: linear-gradient(135deg, rgba(42,216,255,0.18), rgba(42,216,255,0.08));
+  color: var(--neon-blue);
+  border: 1px solid rgba(42,216,255,0.45);
+  box-shadow: var(--glow-blue);
+}
+.btn-blue:hover { box-shadow: 0 0 44px rgba(42,216,255,0.7); }
+
+.btn-solid-blue {
+  background: linear-gradient(135deg, #1a9abf, #0d6e8a);
+  color: #fff;
+  border: 1px solid var(--neon-blue);
+  box-shadow: var(--glow-blue);
+}
+.btn-solid-blue:hover { box-shadow: 0 0 50px rgba(42,216,255,0.8); }
+
+.btn-gold {
+  background: linear-gradient(135deg, rgba(247,201,72,0.18), rgba(247,201,72,0.08));
+  color: var(--gold-soft);
+  border: 1px solid rgba(247,201,72,0.45);
+  box-shadow: var(--glow-gold);
+}
+.btn-gold:hover { box-shadow: 0 0 44px rgba(247,201,72,0.7); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-mid);
+  border: 1px solid var(--glass-edge);
+}
+.btn-ghost:hover { border-color: var(--glass-edge-hot); color: var(--text-hi); }
+
+/* ── Scroll-reveal ───────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.reveal.visible { opacity: 1; transform: none; }
-
-.reveal-left {
-  opacity: 0;
-  transform: translateX(-36px);
+  transform: translateY(24px);
   transition: opacity 0.55s ease, transform 0.55s ease;
 }
-.reveal-left.visible { opacity: 1; transform: none; }
-
-.reveal-right {
-  opacity: 0;
-  transform: translateX(36px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
-}
-.reveal-right.visible { opacity: 1; transform: none; }
-
-/* Mobile: drop the translate, just fade — avoids blank flash on snap scroll */
-@media (max-width: 640px) {
-  .reveal, .reveal-left, .reveal-right {
-    transform: none;
-    opacity: 0;
-    transition: opacity 0.32s ease;
-  }
-  .reveal.visible, .reveal-left.visible, .reveal-right.visible {
-    opacity: 1;
-  }
+.reveal.visible {
+  opacity: 1;
+  transform: none;
 }
 
-/* Respect reduced-motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal-left, .reveal-right {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes float-a {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-10px) rotate(1deg); }
 }
-
-/* ─── Skeleton loader ─────────────────────────────────── */
-.skeleton {
-  display: block;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.09) 50%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 6px;
+@keyframes float-b {
+  0%, 100% { transform: translateY(-6px) rotate(1deg); }
+  50%       { transform: translateY(6px) rotate(-1deg); }
 }
-
-/* ─── Keyframes ────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+@keyframes scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
 @keyframes fadein {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.7); }
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
 }
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+@keyframes counter-pulse {
+  0%, 100% { text-shadow: 0 0 12px rgba(42,216,255,0.6); }
+  50%       { text-shadow: 0 0 28px rgba(42,216,255,1); }
 }
-@keyframes float1 {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-14px); }
-}
-@keyframes float2 {
-  0%, 100% { transform: translateY(-8px); }
-  50%       { transform: translateY(8px); }
-}
-@keyframes float3 {
-  0%, 100% { transform: translateY(-5px) rotate(-2deg); }
-  50%       { transform: translateY(10px) rotate(2deg); }
-}
-@keyframes zoom-out-enter {
-  from { opacity: 0; transform: scale(1.35); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* ─── Animation utility classes ───────────────────────── */
-.animate-fadein   { animation: fadein 0.8s ease both; }
-.animate-fadein-1 { animation: fadein 0.9s ease 0.1s both; }
-.animate-fadein-2 { animation: fadein 1.0s ease 0.2s both; }
-.animate-fadein-3 { animation: fadein 1.0s ease 0.3s both; }
-.animate-pulse-dot { animation: pulse-dot 2s infinite; }
-.animate-float1   { animation: float1 5.2s ease-in-out infinite; }
-.animate-float2   { animation: float2 5.6s ease-in-out infinite 0.5s; }
-.animate-float3   { animation: float3 6.0s ease-in-out infinite 0.9s; }
-.animate-zoom-out { animation: zoom-out-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-/* Avatar card float animations (9 cards, staggered) */
-.float-1 { animation: float1 5.0s ease-in-out infinite; }
-.float-2 { animation: float2 5.5s ease-in-out infinite 0.4s; }
-.float-3 { animation: float1 4.8s ease-in-out infinite 0.8s; }
-.float-4 { animation: float2 5.2s ease-in-out infinite 0.2s; }
-.float-5 { animation: float1 5.7s ease-in-out infinite 0.6s; }
-.float-6 { animation: float2 4.9s ease-in-out infinite 1.0s; }
-.float-7 { animation: float1 5.3s ease-in-out infinite 0.3s; }
-.float-8 { animation: float2 5.1s ease-in-out infinite 0.7s; }
-.float-9 { animation: float1 5.4s ease-in-out infinite 0.5s; }

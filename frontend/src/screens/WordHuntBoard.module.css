@@ -1,0 +1,74 @@
+.timerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
+}
+.timerLabel { font-family: var(--font-display); font-size: 0.66rem; letter-spacing: 0.2em; color: var(--text-lo); }
+.timerVal {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--neon-blue);
+  filter: drop-shadow(0 0 8px rgba(42, 216, 255, 0.6));
+}
+.found { margin-left: auto; font-size: 0.78rem; color: var(--text-mid); }
+.warn .timerVal { color: var(--gold-soft); filter: drop-shadow(0 0 8px rgba(247, 201, 72, 0.7)); }
+.crit .timerVal { color: #ff5e6e; filter: drop-shadow(0 0 10px rgba(255, 94, 110, 0.8)); animation: sq-pulse 0.6s ease infinite; }
+.crit { border-color: rgba(255, 94, 110, 0.4); }
+
+.hint { text-align: center; font-size: 0.9rem; margin: 2px 0 12px; filter: drop-shadow(0 0 8px currentColor); opacity: 0.9; }
+
+.cloud {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 4px;
+}
+
+.chip {
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-hi);
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(12px);
+  animation: chipIn 0.4s ease backwards;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+@keyframes chipIn { from { opacity: 0; transform: translateY(14px) scale(0.9); } to { opacity: 1; transform: none; } }
+.chip:hover:not(:disabled) {
+  border-color: rgba(42, 216, 255, 0.5);
+  box-shadow: 0 0 22px -6px rgba(42, 216, 255, 0.6);
+  transform: translateY(-2px) scale(1.04);
+}
+.chip:disabled { cursor: default; }
+
+.right {
+  color: #bff7d8;
+  background: linear-gradient(135deg, rgba(43, 212, 122, 0.22), rgba(43, 212, 122, 0.06));
+  border-color: #2bd47a;
+  box-shadow: 0 0 22px -6px rgba(43, 212, 122, 0.7);
+}
+.wrong {
+  color: #ffb3bb;
+  background: linear-gradient(135deg, rgba(255, 94, 110, 0.2), rgba(255, 94, 110, 0.05));
+  border-color: rgba(255, 94, 110, 0.6);
+  opacity: 0.7;
+}
+.mark { font-weight: 800; }

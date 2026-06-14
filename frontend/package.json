@@ -1,6 +1,6 @@
 {
-  "name": "satquest",
-  "version": "2.0.0",
+  "name": "satquest-frontend3",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,11 @@
     "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
+    "gsap": "^3.15.0",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",

@@ -1,0 +1,41 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 3, 6, 0.7);
+  backdrop-filter: blur(6px);
+  animation: sq-rise 0.3s ease;
+}
+.sheet { width: 100%; max-width: 420px; padding: 22px; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.x {
+  width: 30px; height: 30px; border-radius: 8px;
+  color: var(--text-lo); font-size: 0.9rem;
+  border: 1px solid rgba(160, 180, 230, 0.16);
+}
+.x:hover { color: var(--text-hi); }
+.intro { color: var(--text-mid); font-size: 0.86rem; line-height: 1.5; margin-bottom: 16px; }
+.input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(5, 7, 13, 0.7);
+  border: 1px solid var(--glass-edge);
+  color: var(--text-hi);
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
+}
+.input:focus { border-color: rgba(153, 69, 255, 0.5); }
+.counter { text-align: right; color: var(--text-lo); font-size: 0.75rem; margin: 8px 0 4px; }
+.error { color: #ff7a88; font-size: 0.82rem; margin-bottom: 12px; }

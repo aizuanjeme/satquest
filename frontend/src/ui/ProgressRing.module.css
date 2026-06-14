@@ -1,0 +1,12 @@
+.wrap { position: relative; display: grid; place-items: center; }
+.svg { transform: rotate(-90deg); }
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-hi);
+}

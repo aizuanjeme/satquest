@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// SatQuest frontend3 — cinematic Three.js rebuild.
+// Keeps API compatibility: /api/* is proxied to the NestJS backend in dev,
+// and resolved relative to the host (or VITE_API_URL) in production.
 export default defineConfig({
   plugins: [
     react(),
@@ -19,9 +22,9 @@ export default defineConfig({
       manifest: {
         name: 'SatQuest – Learn Bitcoin',
         short_name: 'SatQuest',
-        description: 'Learn Bitcoin the fun way. Stack real sats.',
-        theme_color: '#FF9500',
-        background_color: '#0b0030',
+        description: 'A cinematic Bitcoin learning experience. Stack real sats.',
+        theme_color: '#050505',
+        background_color: '#050505',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
@@ -40,9 +43,6 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      // Forward /api/* to the NestJS backend during local dev so the frontend
-      // can fetch('/api/...') with no CORS hassle. Override the target with
-      // VITE_API_URL if your backend runs elsewhere.
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:3000',
         changeOrigin: true,

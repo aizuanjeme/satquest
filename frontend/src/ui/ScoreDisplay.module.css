@@ -1,0 +1,29 @@
+.wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(247, 201, 72, 0.16), rgba(247, 201, 72, 0.04));
+  border: 1px solid rgba(247, 201, 72, 0.4);
+  box-shadow: 0 0 18px -4px rgba(247, 201, 72, 0.5);
+}
+.compact { padding: 5px 11px; }
+
+.bolt { font-size: 0.95rem; filter: drop-shadow(0 0 6px rgba(247, 201, 72, 0.8)); }
+
+.num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #ffe8a3;
+  letter-spacing: 0.02em;
+}
+.compact .num { font-size: 0.9rem; }
+
+.unit {
+  font-size: 0.7rem;
+  color: rgba(255, 232, 163, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

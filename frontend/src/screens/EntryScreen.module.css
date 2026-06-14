@@ -1,0 +1,138 @@
+.body {
+  position: relative;
+  z-index: 10;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px calc(40px + env(safe-area-inset-bottom, 0));
+  gap: 18px;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.brand { animation: sq-rise 0.8s ease; }
+.kicker {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+  color: var(--neon-blue);
+  margin-bottom: 4px;
+  text-indent: 0.5em;
+  text-shadow: 0 0 14px rgba(42, 216, 255, 0.6);
+}
+.hero {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 12vw, 3.6rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff, #cfe2ff 55%, #8fb6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* NOTE: never use `filter: drop-shadow` here — it breaks
+     background-clip:text in Chromium and renders the text dark.
+     Use text-shadow for the glow instead. */
+  text-shadow: 0 0 34px rgba(95, 184, 255, 0.5);
+}
+.heroAccent {
+  background: linear-gradient(180deg, #7fe9ff, #2ad8ff 60%, #9945ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.tag { color: var(--text-mid); font-size: 0.9rem; margin-top: 10px; }
+
+.field { width: 100%; max-width: 340px; }
+.inputWrap {
+  display: flex;
+  align-items: center;
+  background: rgba(8, 10, 18, 0.6);
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
+  padding: 4px 14px 4px 4px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.inputWrap:focus-within {
+  border-color: rgba(42, 216, 255, 0.5);
+  box-shadow: 0 0 22px -6px rgba(42, 216, 255, 0.5);
+}
+.input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-hi);
+  font-size: 1rem;
+  padding: 12px;
+}
+.input::placeholder { color: var(--text-lo); }
+.suffix { color: var(--neon-blue-soft); font-weight: 600; font-size: 0.9rem; }
+.hint { color: var(--text-lo); font-size: 0.72rem; margin-top: 8px; }
+.err { color: #ff7a88; font-size: 0.76rem; margin-top: 8px; }
+
+.pickLabel {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--text-lo);
+  margin-top: 4px;
+}
+
+.carousel { display: flex; align-items: center; gap: 8px; }
+.arrow {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  font-size: 1.8rem;
+  color: var(--text-mid);
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+}
+.arrow:hover { color: var(--neon-blue); border-color: rgba(42, 216, 255, 0.4); box-shadow: var(--glow-blue); }
+.arrow:active { transform: scale(0.92); }
+
+.stage {
+  position: relative;
+  width: 180px; height: 180px;
+  display: grid; place-items: center;
+  animation: sq-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.halo {
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42, 216, 255, 0.25), transparent 65%);
+  animation: sq-pulse 3s ease-in-out infinite;
+}
+.count { color: var(--text-lo); font-size: 0.74rem; letter-spacing: 0.1em; }
+
+.actions { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.link {
+  color: var(--neon-blue-soft);
+  font-size: 0.82rem;
+  padding: 6px;
+  transition: color 0.2s ease;
+}
+.link:hover { color: var(--neon-blue); }
+.linkDim { color: var(--text-lo); font-size: 0.78rem; padding: 4px; }
+.linkDim:hover { color: var(--text-mid); }
+
+/* returning-player card */
+.backCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 340px;
+}
+.handle { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--text-hi); }
+.stat { color: var(--text-mid); font-size: 0.85rem; }

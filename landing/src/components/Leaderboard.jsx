@@ -1,140 +1,140 @@
-import { useState, useEffect } from 'react';
-import { avatarIdToSrc } from '../utils/avatar';
+import { useEffect, useState } from 'react'
+import s from './Leaderboard.module.css'
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
-function RankBadge({ rank }) {
-  const base = 'w-[30px] h-[30px] rounded-full inline-flex items-center justify-center text-[0.78rem] font-black';
-  if (rank === 1) return <span className={`${base} bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#1a0a00]`}>🥇</span>;
-  if (rank === 2) return <span className={`${base} bg-gradient-to-br from-[#C0C0C0] to-[#A0A0A0] text-[#1a1a1a]`}>🥈</span>;
-  if (rank === 3) return <span className={`${base} bg-gradient-to-br from-[#CD7F32] to-[#8B4513] text-white`}>🥉</span>;
-  return <span className={`${base} bg-[rgba(184,69,255,0.15)] text-[#B095E8]`}>#{rank}</span>;
+/* Fallback mock rows if API is unreachable */
+const MOCK = [
+  { username: 'nakamoto_fan',  avatarId: 'avM7',  points: 48250, levelsCompleted: 37, bestTotalTimeMs: 14820000 },
+  { username: 'sats_stacker',  avatarId: 'avF3',  points: 41100, levelsCompleted: 35, bestTotalTimeMs: 16200000 },
+  { username: 'hodl_queen',    avatarId: 'avF11', points: 36800, levelsCompleted: 32, bestTotalTimeMs: 18430000 },
+  { username: 'block_explorer',avatarId: 'avM2',  points: 29500, levelsCompleted: 29, bestTotalTimeMs: 21000000 },
+  { username: 'lightning_rod', avatarId: 'avM14', points: 24100, levelsCompleted: 26, bestTotalTimeMs: 24600000 },
+  { username: 'satoshi_student',avatarId:'avF8',  points: 19700, levelsCompleted: 22, bestTotalTimeMs: 28900000 },
+  { username: 'chain_watcher', avatarId: 'avM5',  points: 15200, levelsCompleted: 18, bestTotalTimeMs: 33100000 },
+  { username: 'utxo_hunter',   avatarId: 'avF19', points: 11600, levelsCompleted: 14, bestTotalTimeMs: 40200000 },
+  { username: 'mempool_hawk',  avatarId: 'avM9',  points:  8300, levelsCompleted: 10, bestTotalTimeMs: 52000000 },
+  { username: 'key_keeper',    avatarId: 'avF6',  points:  5100, levelsCompleted:  7, bestTotalTimeMs: 68000000 },
+]
+
+function fmtTime(ms) {
+  if (!ms) return '—'
+  const secs = Math.floor(ms / 1000)
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  const s = secs % 60
+  if (h) return `${h}h ${m}m`
+  return `${m}m ${s}s`
 }
 
-function SkeletonRows() {
-  return (
-    <div className="p-8 space-y-3">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="skeleton h-12 rounded-lg" />
-      ))}
-    </div>
-  );
+function avatarSrc(avatarId) {
+  if (!avatarId) return null
+  const m = avatarId.match(/^av([FM])(\d+)$/)
+  if (!m) return null
+  const gender = m[1] === 'F' ? 'female' : 'male'
+  const n = parseInt(m[2], 10)
+  return new URL(
+    `../avatars/Size_XXL__2048px______Avatar_${gender}_${n}_____Round_no.webp`,
+    import.meta.url,
+  ).href
+}
+
+function RankBadge({ rank }) {
+  if (rank === 1) return <span className={`${s.badge} ${s.gold}`}>🥇</span>
+  if (rank === 2) return <span className={`${s.badge} ${s.silver}`}>🥈</span>
+  if (rank === 3) return <span className={`${s.badge} ${s.bronze}`}>🥉</span>
+  return <span className={`${s.badge} ${s.plain}`}>#{rank}</span>
 }
 
 export default function Leaderboard() {
-  const [rows, setRows]   = useState(null);
-  const [error, setError] = useState(false);
+  const [rows, setRows] = useState(null)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch(`${API_BASE}/leaderboard?limit=10`)
-      .then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); })
+      .then((r) => { if (!r.ok) throw new Error(); return r.json() })
       .then(setRows)
-      .catch(() => setError(true));
-  }, []);
+      .catch(() => { setError(true); setRows(MOCK) })
+  }, [])
+
+  const data = rows ?? []
 
   return (
-    <section id="leaderboard" className="py-24 px-[5%] relative overflow-hidden">
-      {/* Blob */}
-      <div className="pointer-events-none absolute -top-20 -left-[60px] w-[400px] h-[400px] rounded-full blur-[80px] opacity-30 bg-[radial-gradient(circle,rgba(255,149,0,0.20),transparent_70%)]" />
+    <section id="leaderboard" className={`section ${s.section}`}>
+      {/* Accent blob */}
+      <div className={s.blob} />
 
-      <span className="block text-[0.8rem] font-extrabold tracking-[2px] uppercase text-[#FF9500] mb-3" style={{ animation: 'fadein 0.45s ease both', animationDelay: '0.1s' }}>
-        Live Rankings
-      </span>
-      <h2
-        className="text-[clamp(1.8rem,3.5vw,2.8rem)] font-black leading-[1.15] tracking-[-0.5px] mb-4"
-        style={{ animation: 'fadein 0.45s ease both', animationDelay: '0.2s' }}
-      >
-        🏆 Global <span className="grad-text">Leaderboard</span>
-      </h2>
-      <p
-        className="text-[#B095E8] text-[1.05rem] max-w-[560px] mb-12"
-        style={{ animation: 'fadein 0.45s ease both', animationDelay: '0.3s' }}
-      >
-        Top players ranked by lifetime sats earned. Speed is the tiebreaker — fastest total time wins.
-      </p>
+      <div className={s.head}>
+        <p className="section-kicker">Live Rankings</p>
+        <h2 className="section-title">
+          🏆 Global <span className="grad-gold">Leaderboard</span>
+        </h2>
+        <p className="section-sub" style={{ margin: '0 auto 48px' }}>
+          Top players ranked by lifetime sats earned. Fastest total time wins ties.
+        </p>
+      </div>
 
-      {/* Table card */}
-      <div
-        className="bg-[rgba(184,69,255,0.08)] border border-white/10 rounded-[28px] overflow-hidden backdrop-blur-[10px]"
-        style={{ animation: 'fadein 0.45s ease both', animationDelay: '0.4s' }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-7 py-5 bg-[rgba(184,69,255,0.08)] border-b border-white/10">
-          <span className="font-extrabold flex items-center gap-2 text-[#FFF7FF]">🏆 Top Players</span>
-          <span className="flex items-center gap-1.5 bg-[rgba(0,255,179,0.15)] border border-[rgba(0,255,179,0.3)] text-[#00FFB3] text-[0.72rem] font-extrabold px-2.5 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 bg-[#00FFB3] rounded-full animate-pulse-dot" />
+      <div className={s.tableWrap}>
+        {/* Table header */}
+        <div className={s.tableHead}>
+          <span className={s.live}>
+            <span className={s.liveDot} />
             Live
           </span>
+          <span className={s.tableTitle}>🏆 Top Players</span>
+          {error && <span className={s.mockNote}>Demo data</span>}
         </div>
 
-        {/* States */}
-        {!rows && !error && <SkeletonRows />}
-
-        {error && (
-          <div className="p-12 text-center text-[#7A5DC9]">
-            <div className="text-3xl mb-3">📡</div>
-            <div className="font-bold mb-1 text-[#FFF7FF]">Could not reach the API</div>
-            <div className="text-[0.82rem]">
-              Make sure the backend is running at{' '}
-              <code className="text-[#B845FF]">{API_BASE}</code>
-            </div>
+        {/* Loading skeleton */}
+        {!rows && (
+          <div className={s.skeletonWrap}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className={s.skeleton} />
+            ))}
           </div>
         )}
 
-        {rows && rows.length === 0 && (
-          <div className="p-12 text-center text-[#7A5DC9]">
-            No players yet — be the first to play! 🏆
-          </div>
-        )}
-
-        {rows && rows.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+        {/* Table */}
+        {rows && (
+          <div className={s.tableScroll}>
+            <table className={s.table}>
               <thead>
                 <tr>
-                  {['#', 'Player', '⚡ Sats', 'Levels', 'Best Time'].map((h) => (
-                    <th
-                      key={h}
-                      className="px-6 py-3.5 text-left text-[0.78rem] font-extrabold text-[#7A5DC9] uppercase tracking-[1px] border-b border-white/10"
-                    >
-                      {h}
-                    </th>
+                  {['#', 'Player', '⚡ Sats', 'Levels', 'Time'].map((h) => (
+                    <th key={h} className={s.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => {
-                  const src = avatarIdToSrc(r.avatarId);
-                  const ms = r.bestTotalTimeMs || 0;
-                  const timeStr = ms > 0 ? `${(ms / 1000).toFixed(1)}s` : '—';
-
+                {data.map((row, i) => {
+                  const rank = i + 1
+                  const src  = avatarSrc(row.avatarId)
+                  const isTop3 = rank <= 3
                   return (
-                    <tr
-                      key={r.rank}
-                      className="border-b border-white/[0.04] last:border-0 transition-colors duration-200 hover:bg-[rgba(184,69,255,0.06)]"
-                    >
-                      <td className="px-6 py-3.5">
-                        <RankBadge rank={r.rank} />
+                    <tr key={i} className={`${s.tr} ${isTop3 ? s.trTop : ''}`}>
+                      <td className={s.td}>
+                        <RankBadge rank={rank} />
                       </td>
-                      <td className="px-6 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-[34px] h-[34px] rounded-full overflow-hidden bg-[rgba(184,69,255,0.15)] flex-shrink-0 border-[1.5px] border-[rgba(184,69,255,0.3)]">
-                            {src
-                              ? <img src={src} alt={r.username} loading="lazy" className="w-full h-full object-cover object-top" />
-                              : <div className="w-full h-full flex items-center justify-center">👤</div>}
-                          </div>
-                          <span className="font-semibold text-[#FFF7FF]">@{r.username}</span>
+                      <td className={s.td}>
+                        <div className={s.player}>
+                          {src
+                            ? <img src={src} alt="" className={s.avatar} />
+                            : <div className={s.avatarFallback}>{row.username?.[0]?.toUpperCase()}</div>
+                          }
+                          <span className={s.username}>@{row.username}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-3.5 text-[#FFE600] font-extrabold">
-                        ⚡ {(r.points ?? 0).toLocaleString()}
+                      <td className={s.td}>
+                        <span className={s.sats}>⚡ {(row.points ?? 0).toLocaleString()}</span>
                       </td>
-                      <td className="px-6 py-3.5 text-[#00E5FF] font-bold">
-                        {r.levelsCompleted ?? 0} / 26
+                      <td className={s.td}>
+                        <span className={s.levels}>{row.levelsCompleted ?? 0}</span>
                       </td>
-                      <td className="px-6 py-3.5 text-[#B095E8] text-[0.88rem]">{timeStr}</td>
+                      <td className={s.td}>
+                        <span className={s.time}>{fmtTime(row.bestTotalTimeMs)}</span>
+                      </td>
                     </tr>
-                  );
+                  )
                 })}
               </tbody>
             </table>
@@ -142,5 +142,5 @@ export default function Leaderboard() {
         )}
       </div>
     </section>
-  );
+  )
 }

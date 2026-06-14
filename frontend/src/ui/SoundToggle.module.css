@@ -1,0 +1,20 @@
+.wrap { display: inline-flex; gap: 6px; }
+
+.btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(160, 180, 230, 0.16);
+  color: var(--text-lo);
+  transition: all 0.2s ease;
+}
+.btn:hover { border-color: rgba(160, 200, 255, 0.4); }
+.on {
+  color: var(--neon-blue);
+  border-color: rgba(42, 216, 255, 0.4);
+  box-shadow: 0 0 14px -2px rgba(42, 216, 255, 0.5);
+}

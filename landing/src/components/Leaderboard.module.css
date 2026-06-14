@@ -1,0 +1,187 @@
+.section { position: relative; }
+
+.blob {
+  position: absolute;
+  top: -60px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247,201,72,0.12), transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.head { text-align: center; }
+
+.tableWrap {
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  border-radius: 24px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.tableHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--glass-edge);
+  background: rgba(42,216,255,0.04);
+}
+.tableTitle {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-hi);
+}
+.live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(43,212,122,0.12);
+  border: 1px solid rgba(43,212,122,0.3);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #2bd47a;
+}
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2bd47a;
+  box-shadow: 0 0 8px #2bd47a;
+  animation: glow-pulse 1.6s ease-in-out infinite;
+}
+.mockNote {
+  font-size: 0.68rem;
+  color: var(--text-lo);
+  font-style: italic;
+}
+
+/* Skeleton */
+.skeletonWrap { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton {
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Table */
+.tableScroll { overflow-x: auto; }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.th {
+  padding: 12px 20px;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  border-bottom: 1px solid var(--glass-edge);
+  white-space: nowrap;
+}
+.tr {
+  transition: background 0.18s;
+}
+.tr:hover { background: rgba(42,216,255,0.04); }
+.trTop { background: rgba(247,201,72,0.03); }
+.td {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+
+/* Rank badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+.gold   { background: linear-gradient(135deg, #FFD700, #FFA500); }
+.silver { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); }
+.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+.plain  {
+  background: rgba(42,216,255,0.08);
+  border: 1px solid rgba(42,216,255,0.2);
+  color: var(--text-mid);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+}
+
+/* Player cell */
+.player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  border: 1.5px solid var(--glass-edge);
+  flex-shrink: 0;
+}
+.avatarFallback {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1.5px solid var(--glass-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--neon-blue);
+  flex-shrink: 0;
+}
+.username {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-hi);
+  white-space: nowrap;
+}
+
+.sats {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+.levels {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--neon-blue);
+}
+.time {
+  font-size: 0.82rem;
+  color: var(--text-mid);
+}
