@@ -91,7 +91,7 @@ export default function Celebrate({ levelTitle, earnedSats, onDone }) {
           <div className={s.satsBadge}>
             <span className={s.bolt}>⚡</span>
             <span className={s.satsNum}>+{earnedSats}</span>
-            <span className={s.satsWord}>sats</span>
+            <span className={s.satsWord}>pts</span>
           </div>
         )}
         <button className={s.btn} onClick={(e) => { e.stopPropagation(); onDone() }}>

@@ -120,7 +120,7 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
           <h3 className={s.cardTitle}>{lv.title || lv.chapter}</h3>
           {lv.story && <p className={s.cardStory}>{lv.story}</p>}
           <div className={s.cardFoot}>
-            <span className={s.cardSats}>⚡ {lv.sats} sats</span>
+            <span className={s.cardSats}>⚡ {lv.sats} pts</span>
             {selUnlocked ? (
               <NeonButton variant={selDone ? 'gold' : 'blue'} onClick={() => onSelect(selected)}>
                 {selDone ? 'Replay →' : 'Enter Quest →'}

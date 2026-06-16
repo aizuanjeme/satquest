@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import s from './Hero.module.css'
 
-const APP_URL = 'https://satquests.netlify.app'
+const APP_URL = 'https://app.satquests.com'
 
 /* Avatars that orbit the hero — 10 evenly spaced */
 const ORBIT = [

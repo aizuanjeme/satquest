@@ -8,7 +8,7 @@ export default function ScoreDisplay({ sats = 0, compact = false }) {
     <div className={`${s.wrap} ${compact ? s.compact : ''}`}>
       <span className={s.bolt}>⚡</span>
       <span className={s.num}>{sats.toLocaleString()}</span>
-      {!compact && <span className={s.unit}>sats</span>}
+      {!compact && <span className={s.unit}>pts</span>}
     </div>
   )
 }

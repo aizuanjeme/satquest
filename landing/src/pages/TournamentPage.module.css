@@ -72,7 +72,8 @@
 .page {
   min-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,6 +284,7 @@
     0 0 80px rgba(153, 69, 255, 0.25);
   animation: glitch-clip-a 4.7s steps(1) infinite;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 /* RGB ghost layers */
@@ -572,7 +574,12 @@
 
 @media (max-width: 640px) {
   .orbitRing { display: none; }
-  .title { font-size: clamp(2.2rem, 14vw, 4rem); }
-  .countdown { gap: 8px; }
-  .countUnit { padding: 10px 14px; }
+  .titleWrap { width: 100%; overflow: hidden; }
+  .title { font-size: clamp(1.6rem, 10vw, 2.8rem); letter-spacing: 0.03em; }
+  .countdown { gap: 6px; }
+  .countUnit { padding: 8px 10px; }
+  .countNum { font-size: 1.2rem; }
+  .center { padding-left: 16px; padding-right: 16px; }
+  .actions { gap: 10px; }
+  .howBtn, .discordPill { width: 100%; justify-content: center; }
 }

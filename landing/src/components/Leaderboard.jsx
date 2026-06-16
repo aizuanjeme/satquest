@@ -27,16 +27,19 @@ function fmtTime(ms) {
   return `${m}m ${s}s`
 }
 
+const avatarModules = import.meta.glob(
+  '../avatars/Size_XXL__2048px______Avatar_*_____Round_no.webp',
+  { eager: true, import: 'default' },
+)
+
 function avatarSrc(avatarId) {
   if (!avatarId) return null
   const m = avatarId.match(/^av([FM])(\d+)$/)
   if (!m) return null
   const gender = m[1] === 'F' ? 'female' : 'male'
   const n = parseInt(m[2], 10)
-  return new URL(
-    `../avatars/Size_XXL__2048px______Avatar_${gender}_${n}_____Round_no.webp`,
-    import.meta.url,
-  ).href
+  const key = `../avatars/Size_XXL__2048px______Avatar_${gender}_${n}_____Round_no.webp`
+  return avatarModules[key] ?? null
 }
 
 function RankBadge({ rank }) {

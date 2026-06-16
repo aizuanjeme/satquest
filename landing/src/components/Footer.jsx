@@ -1,6 +1,6 @@
 import s from './Footer.module.css'
 
-const APP_URL = 'https://satquests.netlify.app'
+const APP_URL = 'https://app.satquests.com'
 
 const NAV = [
   { href: '#how',       label: 'How It Works' },

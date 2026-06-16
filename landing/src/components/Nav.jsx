@@ -10,7 +10,7 @@ const ANCHOR_LINKS = [
   { href: '#community',   label: 'Community'     },
 ]
 
-const APP_URL = 'https://satquests.netlify.app'
+const APP_URL = 'https://app.satquests.com'
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)

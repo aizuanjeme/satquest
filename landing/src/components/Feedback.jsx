@@ -21,14 +21,17 @@ function timeAgo(str) {
   return `${Math.floor(d/30)}mo ago`
 }
 
+const avatarModules = import.meta.glob(
+  '../avatars/Size_XXL__2048px______Avatar_*_____Round_no.webp',
+  { eager: true, import: 'default' },
+)
+
 function avatarSrc(avatarId) {
   const m = avatarId?.match(/^av([FM])(\d+)$/)
   if (!m) return null
   const gender = m[1] === 'F' ? 'female' : 'male'
-  return new URL(
-    `../avatars/Size_XXL__2048px______Avatar_${gender}_${parseInt(m[2],10)}_____Round_no.webp`,
-    import.meta.url,
-  ).href
+  const key = `../avatars/Size_XXL__2048px______Avatar_${gender}_${parseInt(m[2], 10)}_____Round_no.webp`
+  return avatarModules[key] ?? null
 }
 
 const CAT_COLORS = { general: '#2ad8ff', bug: '#ff4d4d', suggestion: '#f7c948', other: '#9945ff' }

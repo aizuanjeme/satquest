@@ -28,24 +28,35 @@ export class FeedbackService {
   }
 
   /** List all feedback, newest first. Optionally filtered by username. */
-  async findAll(username?: string): Promise<FeedbackEntity[]> {
+  async findAll(username?: string): Promise<(FeedbackEntity & { avatarId?: string })[]> {
     const qb = this.repo
       .createQueryBuilder('f')
+      .leftJoin('f.profile', 'p')
+      .addSelect('p.avatarId', 'f_avatarId')
       .orderBy('f.createdAt', 'DESC');
 
     if (username) {
       const key = username.toLowerCase();
-      // Match against the lowercased username for case-insensitive filtering.
       qb.where('LOWER(f.username) = :key', { key });
     }
 
-    return qb.getMany();
+    const raw = await qb.getRawAndEntities();
+    return raw.entities.map((entity, i) => ({
+      ...entity,
+      avatarId: raw.raw[i]?.f_avatarId ?? undefined,
+    }));
   }
 
-  /** Fetch a single feedback entry by id. */
-  async findOne(id: string): Promise<FeedbackEntity> {
-    const entry = await this.repo.findOne({ where: { id } });
-    if (!entry) throw new NotFoundException(`feedback "${id}" not found`);
-    return entry;
+  /** Fetch a single feedback entry by id, including the author's avatarId. */
+  async findOne(id: string): Promise<FeedbackEntity & { avatarId?: string }> {
+    const raw = await this.repo
+      .createQueryBuilder('f')
+      .leftJoin('f.profile', 'p')
+      .addSelect('p.avatarId', 'f_avatarId')
+      .where('f.id = :id', { id })
+      .getRawAndEntities();
+
+    if (!raw.entities[0]) throw new NotFoundException(`feedback "${id}" not found`);
+    return { ...raw.entities[0], avatarId: raw.raw[0]?.f_avatarId ?? undefined };
   }
 }

@@ -88,7 +88,11 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
   const completed = LevelManager.all.slice(0, unlockedUpTo)
   const remaining = LevelManager.all.slice(unlockedUpTo)
   const remainingSats = remaining.reduce((a, l) => a + l.sats, 0)
-  const ratio = Math.max(0, Math.min(1, sats / TOTAL_SATS))
+  const totalEarned = completed.reduce((acc, lv, i) => {
+    const perf = progress?.levels?.[i]
+    return acc + (perf?.points ?? perf?.sats ?? lv.sats)
+  }, 0)
+  const ratio = Math.max(0, Math.min(1, totalEarned / TOTAL_SATS))
 
   return (
     <div className={s.body}>
@@ -112,8 +116,8 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
           <span className={s.ringPct}>{Math.round(ratio * 100)}%</span>
         </ProgressRing>
         <div className={s.balMeta}>
-          <p className={s.balLabel}>Points earned</p>
-          <p className={s.balNum}>{sats}<span className={s.balUnit}> pts</span></p>
+          <p className={s.balLabel}>Total pts earned</p>
+          <p className={s.balNum}>{totalEarned}<span className={s.balUnit}> pts</span></p>
           <p className={s.balRate}>{pending.exchangeRate} pts = 1 sat · of {TOTAL_SATS} total</p>
         </div>
       </GlassPanel>

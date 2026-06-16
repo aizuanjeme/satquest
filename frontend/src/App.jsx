@@ -144,7 +144,7 @@ function Game() {
             You are now more Bitcoin-literate than 90% of Nigerians. Share SatQuest with your people.
           </p>
           <div className={s.doneSats}>
-            <p className={s.doneSatNum}>⚡ {sats} sats earned</p>
+            <p className={s.doneSatNum}>⚡ {sats} pts earned</p>
             <p className={s.doneSatLbl}>across all {LevelManager.total} levels</p>
           </div>
           <NeonButton variant="gold" onClick={() => window.location.reload()}>Play again</NeonButton>
