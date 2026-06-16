@@ -1,16 +1,19 @@
 import { Controller, DefaultValuePipe, Get, ParseIntPipe, Query } from '@nestjs/common';
-import { LeaderboardService } from './leaderboard.service';
-import { LeaderboardEntryEntity } from './entities/leaderboard-entry.entity';
+import { LeaderboardService, LeaderboardPage } from './leaderboard.service';
 
 @Controller('leaderboard')
 export class LeaderboardController {
   constructor(private readonly leaderboard: LeaderboardService) {}
 
-  /** GET /api/leaderboard?limit=50 — top players ranked by sats */
+  /**
+   * GET /api/leaderboard?limit=20&page=1
+   * Returns { data, total, page, limit, totalPages }
+   */
   @Get()
   top(
-    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
-  ): Promise<LeaderboardEntryEntity[]> {
-    return this.leaderboard.topBySats(limit);
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('page',  new DefaultValuePipe(1),  ParseIntPipe) page:  number,
+  ): Promise<LeaderboardPage> {
+    return this.leaderboard.topBySats(limit, page);
   }
 }

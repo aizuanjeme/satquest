@@ -86,7 +86,7 @@ export const lightningApi = {
 /* ---------- Leaderboard ---------- */
 
 export const leaderboardApi = {
-  top: (limit = 50) => request(`/leaderboard?limit=${limit}`),
+  top: (limit = 20, page = 1) => request(`/leaderboard?limit=${limit}&page=${page}`),
 }
 
 /* ---------- Feedback ---------- */

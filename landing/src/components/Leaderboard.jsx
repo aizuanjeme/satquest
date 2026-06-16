@@ -54,9 +54,9 @@ export default function Leaderboard() {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    fetch(`${API_BASE}/leaderboard?limit=10`)
+    fetch(`${API_BASE}/leaderboard?limit=10&page=1`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json() })
-      .then(setRows)
+      .then((res) => { setRows(res?.data ?? res) })
       .catch(() => { setError(true); setRows(MOCK) })
   }, [])
 

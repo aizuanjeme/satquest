@@ -1,36 +1,76 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { leaderboardApi } from '../core/APIClient'
 import Avatar from '../ui/Avatar'
 import s from './Leaderboard.module.css'
 
 /*
-  Leaderboard — global ranks. Logic preserved: leaderboardApi.top(50),
-  online/offline handling. Cinematic re-skin.
+  Leaderboard — global ranks with infinite scroll.
+  Fetches 20 per page. Backend returns { data, total, page, limit, totalPages }.
+  Uses a callback ref on the sentinel so the observer attaches whenever the
+  sentinel enters the DOM (not just once on mount).
 */
-export default function Leaderboard({ username, avatar }) {
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [offline, setOffline] = useState(!navigator.onLine)
+const PAGE_SIZE = 20
 
-  const load = useCallback(async () => {
-    if (!navigator.onLine) { setLoading(false); return }
+export default function Leaderboard({ username, avatar }) {
+  const [rows, setRows]       = useState([])
+  const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [total, setTotal]     = useState(null)
+  const [offline, setOffline] = useState(!navigator.onLine)
+  const pageRef    = useRef(1)
+  const loadingRef = useRef(false)
+  const hasMoreRef = useRef(true)
+  const obsRef     = useRef(null)
+
+  const loadPage = useRef(async () => {
+    if (loadingRef.current || !hasMoreRef.current || !navigator.onLine) return
+    loadingRef.current = true
     setLoading(true)
-    try { setRows((await leaderboardApi.top(50)) || []) }
-    catch { /* silent */ }
-    finally { setLoading(false) }
-  }, [])
+    try {
+      const res = await leaderboardApi.top(PAGE_SIZE, pageRef.current)
+      const { data = [], totalPages = 1, total: tot = 0 } = res || {}
+      setTotal(tot)
+      if (pageRef.current >= totalPages) {
+        hasMoreRef.current = false
+        setHasMore(false)
+      }
+      pageRef.current += 1
+      setRows((prev) => {
+        const seen = new Set(prev.map((r) => r.username))
+        return [...prev, ...data.filter((r) => !seen.has(r.username))]
+      })
+    } catch { /* silent */ }
+    finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
+  }).current
+
+  // Initial load
+  useEffect(() => { loadPage() }, [loadPage])
+
+  // Callback ref — wires the IntersectionObserver whenever the sentinel mounts/unmounts
+  const sentinelRef = useCallback((node) => {
+    if (obsRef.current) { obsRef.current.disconnect(); obsRef.current = null }
+    if (!node) return
+    const obs = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) loadPage() },
+      { rootMargin: '300px' },
+    )
+    obs.observe(node)
+    obsRef.current = obs
+  }, [loadPage])
 
   useEffect(() => {
-    load()
     const goOffline = () => setOffline(true)
-    const goOnline = () => { setOffline(false); load() }
+    const goOnline  = () => { setOffline(false); if (pageRef.current === 1) loadPage() }
     window.addEventListener('offline', goOffline)
     window.addEventListener('online', goOnline)
     return () => {
       window.removeEventListener('offline', goOffline)
       window.removeEventListener('online', goOnline)
     }
-  }, [load])
+  }, [loadPage])
 
   return (
     <div className={s.body}>
@@ -48,12 +88,15 @@ export default function Leaderboard({ username, avatar }) {
           <p className={s.offTitle}>You're offline</p>
           <p className={s.offSub}>Reconnect to see how you rank against players worldwide.</p>
         </div>
-      ) : loading ? (
+      ) : rows.length === 0 && loading ? (
         <p className={s.empty}>Loading rankings…</p>
       ) : rows.length === 0 ? (
         <p className={s.empty}>No players yet — you could be first!</p>
       ) : (
         <div className={s.list}>
+          {total !== null && (
+            <p className={s.totalCount}>{total} player{total !== 1 ? 's' : ''} ranked</p>
+          )}
           {rows.map((entry, idx) => {
             const isMe = entry.username?.toLowerCase() === username?.toLowerCase()
             const medal = entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : null
@@ -68,10 +111,16 @@ export default function Leaderboard({ username, avatar }) {
                   <p className={s.name}>{entry.username}{isMe && <span className={s.you}>you</span>}</p>
                   <p className={s.meta}>{entry.levelsCompleted} levels cleared</p>
                 </div>
-                <span className={s.sats}>{entry.sats} ⚡</span>
               </div>
             )
           })}
+
+          <div ref={sentinelRef} className={s.sentinel}>
+            {loading && <p className={s.loadingMore}>Loading more…</p>}
+            {!hasMore && rows.length > 0 && (
+              <p className={s.endMsg}>All {rows.length} players shown 🏁</p>
+            )}
+          </div>
         </div>
       )}
     </div>
