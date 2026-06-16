@@ -2,9 +2,9 @@
 
 > Learn Bitcoin the fun way. Stack real sats.
 
-**SatQuest** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 26 progressive levels mixing match-the-pair puzzles, timed Word Hunt rounds, and a final Crossover Quiz, then stack satoshis they can actually withdraw.
+**SatQuest** is an open-source, mobile-first PWA that teaches Bitcoin and Lightning fundamentals through a Nigerian lens. Players pick an avatar, choose a username, work through 37 progressive levels across two stages — mixing match-the-pair puzzles, timed Word Hunt rounds, and a Crossover Quiz — then stack satoshis they can actually withdraw.
 
-Plays fully offline. All progress is saved on the device. Ready for a backend sync when you plug one in.
+Plays fully offline. All progress is saved on the device. A live NestJS backend handles profile sync, progress storage, Lightning payouts, and a global paginated leaderboard.
 
 ---
 
@@ -22,29 +22,35 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 
 ## What's Inside
 
-- **26 levels** with a gentle teaching curve — starts with "Bitcoin is money" and ends with apex Bitcoin wisdom
+- **37 levels** across 2 stages with a gentle teaching curve — starts with "Bitcoin is money" and ends with apex Bitcoin wisdom
+  - **Stage 1**: 27 levels (20 match + 6 word hunts + 1 crossover quiz)
+  - **Stage 2**: 10 levels (8 match + 2 word hunts)
 - **3 game modes**, rotated through the journey:
   - **🎯 Match** — tap a picture, tap its meaning. Pure vocabulary teaching.
-  - **🧩 Word Hunt** — timed review rounds inserted through the journey. Spot real Bitcoin words mixed with regular finance words (bank, IBAN, SWIFT, etc.) and beat the clock to earn sats.
-  - **🏆 Crossover Quiz** — Stage 1 final test. Score at least 70% under timer pressure to pass and unlock the next stage.
-- **Sats-based rewards (not points)** — gameplay rewards are counted in sats from level one, and balances stay in sats across the app
-- **38 custom avatars** (19 sisters + 19 brothers) with username — players pick their character on first launch
-- **Welcome-back screen** — your sats and levels done are visible before you even tap Continue
-- **Edit profile any time** — username + avatar changeable from the Wallet screen
-- **Performance tracked** per level — fastest completion time and attempt count, ready for future leaderboards
+  - **🧩 Word Hunt** — timed review rounds (8 total). Spot real Bitcoin words mixed with regular finance words and beat the clock to earn points.
+  - **🏆 Crossover Quiz** — Stage 1 final test. Score at least 70% under timer pressure to pass and unlock Stage 2.
+- **Points-based rewards** — gameplay rewards tracked as pts; sats payout happens via Lightning from the Wallet screen
+- **38 custom avatars** (19 sisters + 19 brothers) — pick your character on first launch from a scrollable horizontal strip
+- **Welcome-back screen** — your pts and levels done are visible before you even tap Continue
+- **Edit profile any time** — avatar changeable from the Profile screen (username is immutable, tied to your wallet)
+- **Performance tracked** per level — fastest completion time and attempt count
+- **Global leaderboard** — infinite-scroll ranked list, paginated from the backend (20 per page)
+- **Arcade audio** — 7 procedural music tracks (Afrobeat default) + full SFX set (tap, hover, correct, wrong, win); music toggles instantly from the Profile screen
 - **Plays offline** — installable as a PWA; full progress in `localStorage`
-- **Sync-ready** — storage layer designed for a backend (`syncProgress()` is a stub you swap in)
-- **Lightning Wallet page** — sats balance, transaction history with best time + attempts, and real sats payout via Lightning
-- **No login** — username and avatar live only on your device until a backend is added
-- **Fully open source** under the MIT licence
+- **Live backend** — NestJS + PostgreSQL handles profile sync, progress merge, Lightning payouts, and paginated leaderboard
+- **Landing page** — separate marketing site at `satquests.com` with hero, leaderboard, player feedback, and a Tournament coming-soon page
+- **No login friction** — username and avatar chosen once on first launch; synced to backend automatically
 
 ---
 
 ## Quick Look
 
-| Welcome | Map | Match level | Word Hunt | Wallet | Edit Profile |
+| Welcome | Map | Match level | Word Hunt | Wallet | Profile |
 |---|---|---|---|---|---|
-| Username + avatar | 26 zig-zag nodes (puzzles dashed) | Picture ↔ Meaning grid | Timed word grid with decoys | Sats + per-level stats | Bottom-sheet modal |
+| Username + avatar carousel | 37 zig-zag nodes across 2 stages | Picture ↔ Meaning grid | Timed word grid with decoys | pts + per-level stats | Avatar picker strip |
+
+Live app: **[app.satquests.com](https://app.satquests.com)**  
+Landing: **[satquests.com](https://satquests.com)**
 
 ---
 
@@ -55,12 +61,13 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 - Node.js 18+
 - npm 9+
 
-SatQuest is a **monorepo** with two top-level apps:
+SatQuest is a **monorepo** with three top-level apps:
 
 ```
 satquest/
 ├── frontend/    ← Vite + React PWA (the game itself)
-├── backend/     ← NestJS API (profile sync + leaderboard)
+├── backend/     ← NestJS API (profile sync, leaderboard, Lightning)
+├── landing/     ← Vite + React marketing site (satquests.com)
 ├── README.md
 ├── CONTRIBUTORS.md
 └── LICENSE
@@ -77,6 +84,9 @@ cd frontend && npm install && cd ..
 
 # Backend (NestJS API)
 cd backend  && npm install && cd ..
+
+# Landing page
+cd landing  && npm install && cd ..
 ```
 
 ### Run the frontend (the game)
@@ -97,6 +107,15 @@ npm run start:dev
 ```
 
 The API listens on `http://localhost:3000/api`. See [`backend/README.md`](backend/README.md) for the full endpoint list.
+
+### Run the landing page
+
+```bash
+cd landing
+npm run dev
+```
+
+Opens at `http://localhost:5174` by default.
 
 ### Regenerate home-screen icons
 
@@ -127,39 +146,75 @@ The [`frontend/dist/`](frontend/dist/ ) folder is a complete PWA with service wo
 satquest/
 ├── frontend/                          # ⚡ Vite + React PWA (the game)
 │   ├── public/
-│   │   ├── icon.svg                   # Source vector logo (SatQuest gradient + bolt)
+│   │   ├── icon.svg                   # Source vector logo
 │   │   ├── icon-192.png               # Android home-screen
 │   │   ├── icon-512.png               # Android splash
-│   │   ├── icon-maskable-512.png      # Android adaptive icon (safe-zone padded)
+│   │   ├── icon-maskable-512.png      # Android adaptive icon
 │   │   ├── apple-touch-icon.png       # iPhone home-screen (180×180)
-│   │   ├── favicon-16.png             # Browser tab
-│   │   └── favicon-32.png             # Browser tab retina
+│   │   ├── favicon-16.png
+│   │   └── favicon-32.png
 │   ├── scripts/
 │   │   └── gen-icons.mjs              # Regenerates all PNGs from icon.svg (uses sharp)
 │   ├── src/
-│   │   ├── avatars/                   # 38 character webp images
-│   │   ├── components/                # AvatarPick, LevelMap, GameBoard, Reveal, Wallet, …
-│   │   ├── hooks/useGame.js           # Full state machine + storage hydration
-│   │   ├── lib/storage.js             # localStorage layer + backend sync stub
-│   │   ├── data/levels.js             # All 20 match levels + 6 word-hunts
-│   │   ├── App.jsx                    # Phase router (avatar → intro → map → playing → …)
+│   │   ├── audio/
+│   │   │   └── SoundManager.js        # Procedural Web Audio — 7 music tracks + SFX
+│   │   ├── avatars/                   # 38 character webp images (19F + 19M)
+│   │   ├── core/
+│   │   │   ├── APIClient.js           # Typed wrappers for all backend endpoints
+│   │   │   ├── GameEngine.js
+│   │   │   └── LevelManager.js        # AVATARS, resolveAvatarId, TOTAL_SATS
+│   │   ├── data/levels.js             # 37 levels across 2 stages (match, wordhunt, crossover)
+│   │   ├── hooks/
+│   │   │   ├── useGame.js             # Full state machine + storage hydration
+│   │   │   └── useLightningEvents.js
+│   │   ├── lib/
+│   │   │   ├── api.js                 # leaderboardApi, profileApi, progressApi
+│   │   │   └── storage.js             # localStorage layer + backend sync
+│   │   ├── screens/
+│   │   │   ├── EntryScreen.jsx        # Onboarding: username + avatar carousel
+│   │   │   ├── LevelMap.jsx           # 26-node zig-zag map
+│   │   │   ├── Leaderboard.jsx        # Infinite-scroll global rankings
+│   │   │   ├── ProfileEditor.jsx      # Avatar picker (preview + horizontal strip)
+│   │   │   ├── Wallet.jsx             # pts balance + Lightning payout
+│   │   │   └── …
+│   │   ├── ui/                        # Avatar, NeonButton, GlassPanel, ScoreDisplay …
+│   │   ├── App.jsx                    # Phase router
 │   │   └── index.css                  # Brand palette as CSS variables
 │   ├── index.html
-│   ├── vite.config.js                 # Vite + vite-plugin-pwa
-│   ├── netlify.toml                   # Netlify build + SPA redirects
+│   ├── vite.config.js
+│   ├── netlify.toml
 │   └── package.json
-├── backend/                           # ⚡ NestJS API (profile sync + leaderboard)
+├── backend/                           # ⚡ NestJS + PostgreSQL API
 │   ├── src/
-│   │   ├── main.ts                    # Bootstrap, global /api prefix, ValidationPipe
+│   │   ├── main.ts                    # Bootstrap, /api prefix, ValidationPipe
 │   │   ├── app.module.ts
 │   │   ├── health/                    # GET  /api/health
 │   │   ├── profile/                   # POST / GET / PATCH /api/profile
-│   │   ├── progress/                  # PUT  / GET /api/progress  (merge logic)
-│   │   └── leaderboard/               # GET  /api/leaderboard
+│   │   ├── progress/                  # PUT  / GET /api/progress
+│   │   ├── leaderboard/               # GET  /api/leaderboard?page=1&limit=20
+│   │   ├── lightning/                 # Lightning payout endpoints
+│   │   ├── feedback/                  # Player feedback (avatarId included)
+│   │   └── rewards/
 │   ├── tsconfig.json
 │   ├── nest-cli.json
 │   ├── .env.example
 │   └── package.json
+├── landing/                           # ⚡ Vite + React marketing site
+│   ├── src/
+│   │   ├── avatars/                   # Mirror of frontend avatars for landing UI
+│   │   ├── components/
+│   │   │   ├── Nav.jsx                # Top nav with Play Now → app.satquests.com
+│   │   │   ├── Hero.jsx
+│   │   │   ├── Leaderboard.jsx        # Top-10 live leaderboard widget
+│   │   │   ├── Feedback.jsx           # Player quotes with real avatars
+│   │   │   └── Footer.jsx
+│   │   └── pages/
+│   │       └── TournamentPage.jsx     # Coming-soon page with CRT glitch effects
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── netlify.toml
+│   └── package.json
+├── docker-compose.yml
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -176,8 +231,10 @@ satquest/
 | Build | Vite 5 | Fast dev, small output |
 | Styling | CSS Modules | Scoped styles, no runtime overhead |
 | PWA | vite-plugin-pwa + Workbox | Auto service worker + manifest |
-| State | React hooks | [`useGame.js`](frontend/src/hooks/useGame.js ) is a complete state machine |
-| Persistence | localStorage | Offline-first, sync-ready |
+| State | React hooks | `useGame.js` is a complete state machine |
+| Persistence | localStorage + PostgreSQL | Offline-first, synced to backend |
+| Audio | Web Audio API | Procedural synthesis — no audio files |
+| Backend | NestJS + TypeORM | REST API, validation, PostgreSQL ORM |
 | Icon pipeline | sharp | SVG → PNG at home-screen sizes |
 | Fonts | Nunito (Google) | Rounded, friendly, legible on small screens |
 
@@ -185,13 +242,13 @@ satquest/
 
 ## Game Architecture
 
-### Phase state machine ([`useGame.js`](frontend/src/hooks/useGame.js ))
+### Phase state machine (`useGame.js`)
 
 ```
 avatar (signup) ────► map ────► playing ────► reveal ────► (next level or done)
    ▲                    ▲          │              │
    │                    └──────────┴──────────────┘
-   │                              wallet
+   │                         wallet / leaderboard / profile
    │
    └─ Welcome-back screen reads from localStorage on first mount
 ```
@@ -285,15 +342,18 @@ Word Hunts pull words from concepts taught in the preceding 3 match levels. Deco
 }
 ```
 
-### Future backend (already wired)
-
-[`storage.js`](frontend/src/lib/storage.js ) exposes a no-op `syncProgress(progress, profile)` you can swap with a real backend. The matching server is in [`backend/`](backend/) (NestJS). Endpoints already wired up:
+### Backend API (live)
 
 ```
-POST /api/profile         body: profile           -> 201
-PUT  /api/progress        body: progress          -> merged server-side
-GET  /api/progress        ?username=...           -> latest progress
-GET  /api/leaderboard     ?period=all|week        -> [{ username, avatarId, sats, ... }]
+GET  /api/health
+POST /api/profile                     body: { username, avatarId }
+GET  /api/profile?username=...
+PATCH /api/profile/:id                body: { avatarId }
+PUT  /api/progress                    body: progress object (merge logic)
+GET  /api/progress?username=...
+GET  /api/leaderboard?page=1&limit=20 → { data, total, page, limit, totalPages }
+GET  /api/feedback                    → [{ ... avatarId }]
+POST /api/lightning/...               Lightning payout endpoints
 ```
 
 Per-level `bestTimeMs` is already tracked, so a "fastest L7 completions" leaderboard is just a query away.
@@ -338,15 +398,19 @@ Quick summary:
 
 ## Roadmap
 
-- [x] 26 levels with two game modes (Match + Word Hunt)
-- [x] Username + custom avatars
+- [x] 37 levels across 2 stages with three game modes (Match, Word Hunt, Crossover Quiz)
+- [x] Username + 38 custom avatars
 - [x] Offline persistence + per-level performance tracking
 - [x] Welcome-back & edit-profile flows
 - [x] Real PNG home-screen icons (iOS + Android + maskable)
 - [x] Real Lightning payouts in sats
+- [x] Live NestJS + PostgreSQL backend
+- [x] Global leaderboard with infinite scroll (paginated)
+- [x] Arcade audio — Afrobeat music + full SFX set
+- [x] Landing page (satquests.com) with live leaderboard + player feedback
+- [x] Tournament page (coming soon)
 - [ ] Yoruba, Igbo, and Hausa language support
-- [ ] Backend + global leaderboard (sats / fastest times)
-- [ ] Sound effects and haptic feedback
+- [ ] Tournament mode (live bracket)
 - [ ] Share score card for social media
 - [ ] More game modes: timed flashcards, fill-in-the-blank, sentence shuffle
 
