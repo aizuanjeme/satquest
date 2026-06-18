@@ -45,11 +45,17 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
     })
     world.start()
 
-    // Auto-show bridge welcome once when Stage 2 first unlocked
+    // Auto-show bridge welcome once when Stage 2 first unlocked.
+    // Only show when unlockedUpTo is exactly at the boundary (just crossed over),
+    // not if the player is already deep in Stage 2 (key missing = cleared storage).
     const stage2Key = 'satquest.stage2welcomed'
     if (unlockedUpTo >= LevelManager.stage1Count && !localStorage.getItem(stage2Key)) {
       localStorage.setItem(stage2Key, '1')
-      setTimeout(() => setBridgeWelcome(true), 1200)
+      // Only pop the welcome if they just crossed the boundary, not if they
+      // already have many Stage 2 levels unlocked.
+      if (unlockedUpTo === LevelManager.stage1Count) {
+        setTimeout(() => setBridgeWelcome(true), 1200)
+      }
     }
 
     // Apply saved theme immediately

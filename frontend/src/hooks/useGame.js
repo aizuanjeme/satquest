@@ -77,14 +77,23 @@ export function useGame() {
   // Generic "level done" — pass earnedSats (defaults to full level.sats for matches)
   const finishLevel = useCallback((earnedSats = level.sats) => {
     setTimeout(() => {
-      setSats(s => s + earnedSats)
+      // On a replay, only award the difference above the previous best so
+      // the running total never inflates from re-playing completed levels.
+      const prevBest = progress?.levels?.[levelIdx]?.sats ?? null
+      const satsToAdd = prevBest === null
+        ? earnedSats                           // first clear — add full amount
+        : Math.max(0, earnedSats - prevBest)   // replay — only the improvement
+      setSats(s => {
+        const next = s + satsToAdd
+        return isNaN(next) ? s : next          // guard against NaN
+      })
       setLastEarned(earnedSats)
       // Unlock the next level immediately so progress is persisted even if
       // the player navigates away before dismissing the Celebrate screen.
       setUnlocked(u => Math.max(u, levelIdx + 1))
       setPhase('reveal')
     }, 450)
-  }, [level.sats, levelIdx])
+  }, [level.sats, levelIdx, progress])
 
   const tryMatch = useCallback((imgId, wordId) => {
     if (imgId === wordId) {
