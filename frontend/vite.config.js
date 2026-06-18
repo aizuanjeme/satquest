@@ -38,6 +38,12 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        // New SW takes over immediately without waiting for all tabs to close.
+        // Combined with the 'controllerchange' listener in main.jsx this gives
+        // seamless forced auto-updates: deploy → SW updates in background →
+        // page reloads with the new bundle automatically.
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
