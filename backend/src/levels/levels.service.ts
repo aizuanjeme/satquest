@@ -73,6 +73,15 @@ export class LevelsService {
     return { seeded: seedRows.length, replaced: current.length };
   }
 
+  /**
+   * Read-only preview of what {@link seed} would do, without modifying anything.
+   * `current` = rows in the DB now, `incoming` = rows in the bundled dataset.
+   */
+  async previewSeed(): Promise<{ current: number; incoming: number }> {
+    const current = await this.repo.count();
+    return { current, incoming: LEVELS_SEED.length };
+  }
+
   /** Build the full payload the frontend caches for offline play. */
   async getPayload(): Promise<LevelsPayload> {
     const rows = await this.repo.find({ order: { sortOrder: 'ASC' } });
