@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { LevelManager } from '../core/LevelManager'
+import { conceptLabel } from '../data/concepts'
+import { t } from '../i18n'
 import { sound } from '../audio/SoundManager'
 import Avatar from '../ui/Avatar'
 import NeonButton from '../ui/NeonButton'
@@ -8,11 +10,46 @@ import ShareEarn from './ShareEarn'
 import s from './Reveal.module.css'
 
 /*
+  RevealCard — one "secret" with optional nuance note + expandable deep-dive.
+  `note` adds a precise caveat (so we never teach a half-truth); `learnMore`
+  is hidden behind a tap so the recap stays skimmable.
+*/
+function RevealCard({ r, i }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className={s.revealCard} style={{ animationDelay: `${i * 0.07}s` }}>
+      <div className={s.icons}>
+        <span>{r.naija}</span>
+        <span className={s.arrow}>→</span>
+        <span>{r.btc}</span>
+      </div>
+      <div className={s.revealBody}>
+        <p className={s.match}>{r.match}</p>
+        <p className={s.def}>{r.def}</p>
+        {r.note && <p className={s.note}>⚠️ {r.note}</p>}
+        {r.funny && <p className={s.funny}>{r.funny}</p>}
+        {r.learnMore && (
+          <div className={s.learnWrap}>
+            <button
+              className={s.learnToggle}
+              onClick={() => { sound.tap(); setOpen(o => !o) }}
+            >
+              {open ? t('reveal.hideDetails') : t('reveal.learnMore')} {open ? '▴' : '▾'}
+            </button>
+            {open && <p className={s.learnBody}>{r.learnMore}</p>}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/*
   Reveal — cinematic post-level recap. Shows the "secrets" learned (reveals),
   the sats earned with an animated counter, a share-to-earn module, and CTAs.
   Logic/props match the original Reveal exactly.
 */
-export default function Reveal({ level, levelIdx, sats, avatar, username, lastEarned, onNext, onMap, onShareEarn }) {
+export default function Reveal({ level, levelIdx, sats, avatar, username, lastEarned, reviewConcepts = [], onNext, onMap, onShareEarn }) {
   const isLast = levelIdx === LevelManager.total - 1
   const isHunt = level.type === 'wordhunt'
   const earned = lastEarned ?? level.sats
@@ -72,19 +109,19 @@ export default function Reveal({ level, levelIdx, sats, avatar, username, lastEa
         ) : (
           <div className={s.reveals}>
             {(level.reveals || []).map((r, i) => (
-              <div key={i} className={s.revealCard} style={{ animationDelay: `${i * 0.07}s` }}>
-                <div className={s.icons}>
-                  <span>{r.naija}</span>
-                  <span className={s.arrow}>→</span>
-                  <span>{r.btc}</span>
-                </div>
-                <div className={s.revealBody}>
-                  <p className={s.match}>{r.match}</p>
-                  <p className={s.def}>{r.def}</p>
-                  <p className={s.funny}>{r.funny}</p>
-                </div>
-              </div>
+              <RevealCard key={i} r={r} i={i} />
             ))}
+          </div>
+        )}
+
+        {reviewConcepts.length > 0 && (
+          <div className={s.reviewBox}>
+            <p className={s.reviewHead}>{t('reveal.review')}</p>
+            <div className={s.reviewChips}>
+              {reviewConcepts.map((id) => (
+                <span key={id} className={s.reviewChip}>{conceptLabel(id)}</span>
+              ))}
+            </div>
           </div>
         )}
 
@@ -92,9 +129,9 @@ export default function Reveal({ level, levelIdx, sats, avatar, username, lastEa
 
         <div className={s.cta}>
           <NeonButton variant="gold" full onClick={() => { sound.success(); onNext() }}>
-            {isLast ? 'Play Again' : 'Continue →'}
+            {isLast ? t('reveal.playAgain') : t('reveal.continue')}
           </NeonButton>
-          <button className={s.backLink} onClick={() => { sound.tap(); onMap() }}>Back to map</button>
+          <button className={s.backLink} onClick={() => { sound.tap(); onMap() }}>{t('nav.backToMap')}</button>
         </div>
       </div>
     </div>

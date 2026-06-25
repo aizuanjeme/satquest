@@ -3,11 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProgressService } from './progress.service';
 import { ProgressController } from './progress.controller';
 import { RewardsModule } from '../rewards/rewards.module';
+import { LevelsModule } from '../levels/levels.module';
 import { ProgressEntity } from './entities/progress.entity';
 import { LevelResultEntity } from './entities/level-result.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProgressEntity, LevelResultEntity]), RewardsModule],
+  imports: [
+    TypeOrmModule.forFeature([ProgressEntity, LevelResultEntity]),
+    RewardsModule,
+    LevelsModule,
+  ],
   controllers: [ProgressController],
   providers: [ProgressService],
   exports: [ProgressService],

@@ -402,8 +402,7 @@
   text-decoration: none;
   padding: 13px 26px;
   border-radius: 8px;
-  background: #5865F2;
-  border: 1px solid rgba(255,255,255,0.15);
+  background: #2CA5E0;
   transition: filter 0.2s, transform 0.2s;
 }
 .discordPill:hover { filter: brightness(1.15); transform: translateY(-2px); }
@@ -547,9 +546,7 @@
   margin-top: 28px;
   padding: 14px 22px;
   border-radius: 10px;
-  background: #5865F2;
-  color: #fff;
-  font-family: var(--font-display);
+  background: #2CA5E0;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;

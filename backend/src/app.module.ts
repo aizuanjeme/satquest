@@ -11,6 +11,7 @@ import { RewardsModule } from './rewards/rewards.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AppConfigModule } from './app-config/app-config.module';
 import { RssModule } from './rss/rss.module';
+import { LevelsModule } from './levels/levels.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RssModule } from './rss/rss.module';
     DatabaseModule,
     AppConfigModule,
     RssModule,
+    LevelsModule,
     ProfileModule,
     ProgressModule,
     LeaderboardModule,

@@ -1,15 +1,17 @@
-import { LEVELS, AVATARS, TOTAL_SATS, resolveAvatarId, STAGE1_COUNT } from '../data/levels'
+import { LEVELS, AVATARS, TOTAL_SATS, resolveAvatarId, levelsMeta } from '../data/levels'
 
 /*
-  LevelManager — read-only helpers over the canonical LEVELS data (copied
-  verbatim from the original frontend). Pure derivations only; all mutable
-  game state lives in the useGame state machine.
+  LevelManager — read-only helpers over the canonical LEVELS data.
+
+  LEVELS is a single mutable array reference that is swapped in place when the
+  remote/cached question set loads (see data/levels.js applyLevels). The derived
+  values below are getters so they always reflect the currently-loaded set.
 */
 export const LevelManager = {
   all: LEVELS,
-  total: LEVELS.length,
-  totalSats: TOTAL_SATS,
-  stage1Count: STAGE1_COUNT,
+  get total() { return LEVELS.length },
+  get totalSats() { return levelsMeta.totalSats },
+  get stage1Count() { return levelsMeta.stage1Count },
 
   get: (idx) => LEVELS[idx],
 
@@ -23,6 +25,8 @@ export const LevelManager = {
     if (!lv) return ''
     if (lv.type === 'crossover') return 'FINAL TRIAL'
     if (lv.type === 'wordhunt') return 'WORD HUNT'
+    if (lv.type === 'scamspot') return 'SCAM SPOTTER'
+    if (lv.type === 'seedorder') return 'SEED PHRASE'
     return lv.chapter || `STEP ${idx + 1}`
   },
 

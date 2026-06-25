@@ -1,9 +1,11 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { LEVELS, AVATARS, shuffle, resolveAvatarId } from '../data/levels'
+import { topReviewConcepts } from '../data/concepts'
+import { pickSeedWords } from '../data/seedWords'
 import {
   loadProfile, saveProfile, clearProfile,
   loadProgress, saveProgress, recordLevelResult, syncProgress,
-  pullProgress, onOnline,
+  pullProgress, onOnline, mergeMissedConcepts, getDeviceId,
 } from '../lib/storage'
 import { profileApi, rewardsApi } from '../lib/api'
 
@@ -36,6 +38,14 @@ export function useGame() {
   // (Profile-creation/resume flow flips this to true; on first load it stays false
   // until the user signs in or continues, preventing zero-overwrite races.)
   const hydratedRef = useRef(false)
+
+  // Spaced repetition: concepts the player got wrong during the CURRENT level.
+  // Flushed into progress.missedConcepts when the level is recorded (reveal).
+  const missesRef = useRef({})
+  const bumpMisses = useCallback((concepts) => {
+    const list = Array.isArray(concepts) ? concepts : (concepts ? [concepts] : [])
+    list.forEach((c) => { if (c) missesRef.current[c] = (missesRef.current[c] || 0) + 1 })
+  }, [])
 
   // ---- Match game state ----
   const [matched, setMatched]       = useState({})
@@ -74,8 +84,8 @@ export function useGame() {
     setSelWord(prev => prev === id ? null : id)
   }, [matched])
 
-  // Generic "level done" — pass earnedSats (defaults to full level.sats for matches)
-  const finishLevel = useCallback((earnedSats = level.sats) => {
+  // Generic "level done" — pass earnedSats (defaults to the level's full point reward)
+  const finishLevel = useCallback((earnedSats = (level.points ?? level.sats)) => {
     setTimeout(() => {
       // On a replay, only award the difference above the previous best so
       // the running total never inflates from re-playing completed levels.
@@ -93,7 +103,7 @@ export function useGame() {
       setUnlocked(u => Math.max(u, levelIdx + 1))
       setPhase('reveal')
     }, 450)
-  }, [level.sats, levelIdx, progress])
+  }, [level.points, level.sats, levelIdx, progress])
 
   const tryMatch = useCallback((imgId, wordId) => {
     if (imgId === wordId) {
@@ -106,6 +116,7 @@ export function useGame() {
         finishLevel()
       }
     } else {
+      bumpMisses(level.concepts)
       setWrongFlash(imgId + '|' + wordId)
       setTimeout(() => {
         setWrongFlash(null)
@@ -247,6 +258,8 @@ export function useGame() {
     const correct = questions[quizCurrent].answer
     const isRight = chosen === correct
 
+    if (!isRight) bumpMisses(questions[quizCurrent].concept || level.concepts)
+
     setQuizPicked(chosen)
     const nextAnswers = [...quizAnswers, chosen]
     setQuizAnswers(nextAnswers)
@@ -289,6 +302,101 @@ export function useGame() {
   }, [level])
 
   /* =========================================================================
+     SCAM SPOTTER (type === 'scamspot')
+     level.scenarios: [{ id, prompt, emoji, answer: 'scam'|'safe', why }]
+     The player decides whether each situation is a SCAM or SAFE, then sees why.
+     ========================================================================= */
+  const [scamCurrent, setScamCurrent] = useState(0)
+  const [scamPicked,  setScamPicked]  = useState(null) // 'scam' | 'safe' | null (current scenario)
+  const [scamCorrect, setScamCorrect] = useState(0)
+  const [scamResult,  setScamResult]  = useState(null) // 'pass' | 'fail' | null
+  const scamTotal = (level.scenarios || []).length
+
+  const pickScamAnswer = useCallback((choice) => {
+    if (scamPicked) return
+    const sc = (level.scenarios || [])[scamCurrent]
+    if (!sc) return
+    setScamPicked(choice)
+    if (choice === sc.answer) setScamCorrect(c => c + 1)
+    else bumpMisses(level.concepts)
+  }, [scamPicked, scamCurrent, level, bumpMisses])
+
+  const advanceScam = useCallback(() => {
+    const scenarios = level.scenarios || []
+    const nextIdx = scamCurrent + 1
+    setScamPicked(null)
+    if (nextIdx >= scenarios.length) {
+      const passing = Math.ceil(scenarios.length * (level.passMark || 0.7))
+      const result = scamCorrect >= passing ? 'pass' : 'fail'
+      setScamResult(result)
+      finishLevel(result === 'pass' ? level.sats : 0)
+    } else {
+      setScamCurrent(nextIdx)
+    }
+  }, [scamCurrent, scamCorrect, level, finishLevel])
+
+  const retryScam = useCallback(() => {
+    setScamCurrent(0)
+    setScamPicked(null)
+    setScamCorrect(0)
+    setScamResult(null)
+  }, [])
+
+  /* =========================================================================
+     SEED ORDER (type === 'seedorder')
+     The player first READS a phrase (study phase), then taps the shuffled
+     words back into the same order. The target phrase is generated at random
+     from a word pool each play (unless level.seed pins a fixed phrase and
+     level.random is not set), so it stays fresh and teaches "order matters".
+     ========================================================================= */
+  const [seedStudying, setSeedStudying] = useState(true)  // read phase first
+  const [seedPlaced, setSeedPlaced] = useState([]) // words placed so far, in order
+  const [seedWrong,  setSeedWrong]  = useState(null) // word currently flashing wrong
+  const [seedResult, setSeedResult] = useState(null) // 'win' | null
+
+  // The correct ordered phrase for this attempt.
+  const seedTarget = useMemo(() => {
+    if (level.type !== 'seedorder') return []
+    const count = level.count || (level.seed ? level.seed.length : 12)
+    if (level.seed && !level.random) return level.seed
+    return pickSeedWords(count)
+  }, [levelIdx]) // eslint-disable-line
+
+  const seedShuffled = useMemo(() => {
+    if (level.type !== 'seedorder') return []
+    return shuffle([...seedTarget])
+  }, [seedTarget])
+
+  const seedTotal = seedTarget.length
+
+  // Leave the read phase and begin arranging.
+  const startSeedArrange = useCallback(() => setSeedStudying(false), [])
+
+  const pickSeedWord = useCallback((word) => {
+    if (seedResult || seedStudying) return
+    const seq = seedTarget
+    if (seedPlaced.includes(word)) return
+    const expected = seq[seedPlaced.length]
+    if (word === expected) {
+      const next = [...seedPlaced, word]
+      setSeedPlaced(next)
+      if (next.length >= seq.length) {
+        setSeedResult('win')
+        finishLevel(level.sats)
+      }
+    } else {
+      bumpMisses(level.concepts)
+      setSeedWrong(word)
+      setTimeout(() => setSeedWrong(null), 450)
+    }
+  }, [seedPlaced, seedResult, seedStudying, seedTarget, level, finishLevel, bumpMisses])
+
+  const undoSeedWord = useCallback(() => {
+    if (seedResult) return
+    setSeedPlaced(prev => prev.slice(0, -1))
+  }, [seedResult])
+
+  /* =========================================================================
      Navigation
      ========================================================================= */
   const resetLevelState = () => {
@@ -309,6 +417,15 @@ export function useGame() {
     setQuizTimeLeft(0)
     setQuizRunning(false)
     if (quizTimerRef.current) clearInterval(quizTimerRef.current)
+    setScamCurrent(0)
+    setScamPicked(null)
+    setScamCorrect(0)
+    setScamResult(null)
+    setSeedPlaced([])
+    setSeedWrong(null)
+    setSeedResult(null)
+    setSeedStudying(true)
+    missesRef.current = {}
   }
 
   const goNext = useCallback(() => {
@@ -379,7 +496,7 @@ export function useGame() {
     // Fire-and-forget: backend creates the profile + mints a Lightning wallet.
     // 409 = username already taken on the server (handled silently).
     // Anything else (400/500/network) is logged loudly so it isn't missed.
-    profileApi.create({ username: uname, avatarId: av.id })
+    profileApi.create({ username: uname, avatarId: av.id, deviceId: getDeviceId() })
       .then(() => {
         if (import.meta.env.DEV) console.log('✅ profile saved to backend:', uname)
       })
@@ -405,7 +522,7 @@ export function useGame() {
     // Idempotent backend sync: if the profile already exists, the server
     // returns 409 — which we treat as success. If it doesn't (new device,
     // wiped DB), this re-creates it and mints a fresh Lightning wallet.
-    profileApi.create({ username: existing.username, avatarId: existing.avatarId })
+    profileApi.create({ username: existing.username, avatarId: existing.avatarId, deviceId: getDeviceId() })
       .then(() => {
         if (import.meta.env.DEV) console.log('✅ profile re-synced on resume')
       })
@@ -556,6 +673,13 @@ export function useGame() {
         sats: lastEarned,
         timeMs,
       })
+      // Spaced repetition: fold this level's misses + mastery decay in.
+      next.missedConcepts = mergeMissedConcepts(
+        base.missedConcepts,
+        missesRef.current,
+        level?.concepts,
+      )
+      missesRef.current = {}
       saveProgress(next)
       // Fire-and-forget upstream sync; backend will record a pending reward
       // for any newly-completed level.
@@ -598,5 +722,17 @@ export function useGame() {
     quizCurrent, quizAnswers, quizPicked, quizTimeLeft, quizRunning, quizResult,
     quizCorrect, quizTotal, quizPassMark,
     pickQuizAnswer, retryQuiz,
+
+    // scam spotter
+    scamCurrent, scamPicked, scamCorrect, scamResult, scamTotal,
+    pickScamAnswer, advanceScam, retryScam,
+
+    // seed order
+    seedShuffled, seedPlaced, seedWrong, seedResult, seedTotal,
+    seedStudying, seedTarget, startSeedArrange,
+    pickSeedWord, undoSeedWord,
+
+    // spaced repetition
+    reviewConcepts: topReviewConcepts(progress?.missedConcepts, 3),
   }
 }

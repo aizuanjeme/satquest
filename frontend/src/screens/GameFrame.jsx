@@ -66,7 +66,7 @@ export default function GameFrame({
             <p className={s.briefStory}>{level.story}</p>
             <div className={s.briefReward}>
               <span>Reward</span>
-              <strong>⚡ {level.sats} pts</strong>
+              <strong>⚡ {level.points ?? level.sats} pts</strong>
             </div>
             <NeonButton variant="blue" full onClick={() => { sound.select(); setBriefing(false) }}>
               Begin →

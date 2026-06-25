@@ -112,10 +112,17 @@
 .resultSub { color: var(--text-mid); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; }
 .breakdown { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
 .breakRow {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; flex-direction: column; gap: 5px;
   padding: 9px 12px; border-radius: 10px; font-size: 0.82rem;
 }
-.breakRow > span:first-child { font-weight: 800; flex-shrink: 0; }
+.breakTop { display: flex; align-items: center; gap: 10px; }
+.breakTop > span:first-child { font-weight: 800; flex-shrink: 0; }
 .bRight { background: rgba(43, 212, 122, 0.08); color: #bff7d8; }
 .bWrong { background: rgba(255, 94, 110, 0.08); color: #ffb3bb; }
 .breakQ { color: var(--text-mid); }
+.breakWhy {
+  margin: 0 0 0 24px;
+  color: #ffcf86;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}

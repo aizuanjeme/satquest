@@ -47,12 +47,21 @@ export class ProfileEntity {
    * `select: false` — must be loaded explicitly via .addSelect() so it never
    * leaks into casual finds. NEVER expose through a controller response.
    *
-   * SECURITY NOTE: stored as plaintext for the MVP. In production you MUST
-   * encrypt this column at rest (e.g. AES-GCM with a server key in a KMS,
-   * libsodium secretbox, or pgcrypto column-level encryption).
+   * Encrypted at rest with AES-256-GCM when `PROFILE_ENC_KEY` is set (see
+   * `mnemonic-crypto.ts`). Legacy rows may still hold plaintext; decryption
+   * transparently handles both.
    */
   @Column({ type: 'text', nullable: true, select: false })
   mnemonic?: string;
+
+  /**
+   * SHA-256 of the normalised mnemonic. Lets `restore` look up a wallet by its
+   * seed without querying on (non-deterministic) ciphertext. `select: false`
+   * so it never leaks into casual finds.
+   */
+  @Index()
+  @Column({ type: 'varchar', length: 64, nullable: true, select: false })
+  mnemonicHash?: string;
 
   constructor(partial: Partial<ProfileEntity> = {}) {
     Object.assign(this, partial);

@@ -10,6 +10,33 @@
   overflow: hidden;
 }
 
+/* Boot splash shown while the question set loads from the DB / offline cache. */
+.boot {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #050505;
+  color: #e8f4ff;
+}
+.bootBolt {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 24px rgba(42, 216, 255, 0.6));
+  animation: sq-boot-pulse 1.2s ease-in-out infinite;
+}
+.bootText {
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+@keyframes sq-boot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+
 .done {
   position: relative;
   z-index: 10;

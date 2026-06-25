@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "gen:levels": "node content/generate-seed.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

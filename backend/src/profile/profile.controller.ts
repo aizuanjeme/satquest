@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -40,12 +40,16 @@ export class ProfileController {
 
   /**
    * GET /api/profile/:username/seed — reveal the BIP-39 mnemonic so the user
-   * can back up their wallet. SECURITY: keep this behind auth in production.
-   * For MVP it's open so the in-app "Back up wallet" screen works.
+   * can back up their wallet. Requires the `x-device-id` header to match the
+   * device bound to the account, so a known (public) username alone can't be
+   * used to steal the recovery phrase.
    */
   @Get(':username/seed')
-  revealSeed(@Param('username') username: string) {
-    return this.profiles.revealSeed(username);
+  revealSeed(
+    @Param('username') username: string,
+    @Headers('x-device-id') deviceId?: string,
+  ) {
+    return this.profiles.revealSeed(username, deviceId);
   }
 
   /**

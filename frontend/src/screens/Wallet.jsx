@@ -87,10 +87,10 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
 
   const completed = LevelManager.all.slice(0, unlockedUpTo)
   const remaining = LevelManager.all.slice(unlockedUpTo)
-  const remainingSats = remaining.reduce((a, l) => a + l.sats, 0)
+  const remainingSats = remaining.reduce((a, l) => a + (l.points ?? l.sats ?? 0), 0)
   const totalEarned = completed.reduce((acc, lv, i) => {
     const perf = progress?.levels?.[i]
-    return acc + (perf?.points ?? perf?.sats ?? lv.sats)
+    return acc + (perf?.points ?? perf?.sats ?? lv.points ?? lv.sats)
   }, 0)
   const ratio = Math.max(0, Math.min(1, totalEarned / TOTAL_SATS))
 
@@ -202,7 +202,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
         {completed.map((lv, i) => {
           const perf = progress?.levels?.[i]
           const seconds = perf?.bestTimeMs != null ? Math.round(perf.bestTimeMs / 1000) : null
-          const earned = perf?.points ?? perf?.sats ?? lv.sats
+          const earned = perf?.points ?? perf?.sats ?? lv.points ?? lv.sats
           return (
             <div key={lv.id} className={s.tx} style={{ animationDelay: `${i * 0.04}s` }}>
               <span className={s.txIcon}>{lv.type === 'wordhunt' ? '⚡' : lv.type === 'crossover' ? '★' : '◆'}</span>

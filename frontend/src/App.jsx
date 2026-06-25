@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useGame } from './hooks/useGame'
 import { sound } from './audio/SoundManager'
 import { SceneProvider, useScene } from './components3d/SceneBackground'
@@ -9,6 +9,8 @@ import LevelMap from './screens/LevelMap'
 import MatchBoard from './screens/MatchBoard'
 import WordHuntBoard from './screens/WordHuntBoard'
 import CrossoverQuizBoard from './screens/CrossoverQuizBoard'
+import ScamSpotterBoard from './screens/ScamSpotterBoard'
+import SeedOrderBoard from './screens/SeedOrderBoard'
 import Reveal from './screens/Reveal'
 import Celebrate from './screens/Celebrate'
 import Wallet from './screens/Wallet'
@@ -18,6 +20,8 @@ import BottomNav from './ui/BottomNav'
 import NeonButton from './ui/NeonButton'
 import NetworkStatus from './ui/NetworkStatus'
 import { LevelManager } from './core/LevelManager'
+import { ensureLevels } from './lib/levelsSync'
+import { t } from './i18n'
 import s from './App.module.css'
 
 // Map each game phase to a cinematic camera mood.
@@ -115,7 +119,11 @@ function Game() {
           ? <CrossoverQuizBoard game={game} onMapPress={goToMap} />
           : level.type === 'wordhunt'
             ? <WordHuntBoard game={game} onMapPress={goToMap} />
-            : <MatchBoard game={game} onMapPress={goToMap} />
+            : level.type === 'scamspot'
+              ? <ScamSpotterBoard game={game} onMapPress={goToMap} />
+              : level.type === 'seedorder'
+                ? <SeedOrderBoard game={game} onMapPress={goToMap} />
+                : <MatchBoard game={game} onMapPress={goToMap} />
       )}
 
       {phase === 'reveal' && (
@@ -126,6 +134,7 @@ function Game() {
           avatar={avatar}
           username={username}
           lastEarned={lastEarned}
+          reviewConcepts={game.reviewConcepts}
           onNext={goToCelebrate}
           onMap={goToMap}
           onShareEarn={earnShareSats}
@@ -158,6 +167,40 @@ function Game() {
 }
 
 export default function App() {
+  // Load the question set (from the backend DB on first launch, then the
+  // offline IndexedDB cache) BEFORE mounting the game, since useGame reads the
+  // levels synchronously on its first render.
+  const [levelsReady, setLevelsReady] = useState(false)
+  const [retry, setRetry] = useState(0)
+  useEffect(() => {
+    let alive = true
+    setLevelsReady(false)
+    ensureLevels(true).finally(() => { if (alive) setLevelsReady(true) })
+    return () => { alive = false }
+  }, [retry])
+
+  if (!levelsReady) {
+    return (
+      <div className={s.boot}>
+        <span className={s.bootBolt}>⚡</span>
+        <p className={s.bootText}>{t('boot.loading')}</p>
+      </div>
+    )
+  }
+
+  // No bundled levels ship with the app anymore — the question set comes from
+  // the backend on first launch, then plays offline from cache. If a brand-new
+  // user opens the app offline (nothing cached yet), ask them to connect once.
+  if (LevelManager.total === 0) {
+    return (
+      <div className={s.boot}>
+        <span className={s.bootBolt}>📡</span>
+        <p className={s.bootText}>{t('boot.offline')}</p>
+        <NeonButton variant="gold" onClick={() => setRetry((n) => n + 1)}>{t('boot.retry')}</NeonButton>
+      </div>
+    )
+  }
+
   return (
     <ThemeProvider>
       <SceneProvider>

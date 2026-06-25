@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Sse } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Param, Post, Sse } from '@nestjs/common';
 import { Observable, filter, map, merge, of } from 'rxjs';
 
 import { LightningService } from './lightning.service';
@@ -35,9 +35,13 @@ export class LightningController {
   /** POST /api/lightning/:username/send — pay an invoice / address */
   @Post('send')
   @HttpCode(HttpStatus.OK)
-  send(@Param('username') username: string, @Body() dto: SendPaymentDto): Promise<PaymentEntity> {
+  send(
+    @Param('username') username: string,
+    @Body() dto: SendPaymentDto,
+    @Headers('x-device-id') deviceId?: string,
+  ): Promise<PaymentEntity> {
     this.lightning.assertAmountForBitcoin(dto);
-    return this.lightning.sendPayment(username, dto);
+    return this.lightning.sendPayment(username, dto, deviceId);
   }
 
   /**

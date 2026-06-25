@@ -1,9 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
+
+  // Lock CORS to known origins when CORS_ORIGINS is set (comma-separated).
+  // Falls back to reflecting any origin in dev, with a loud warning.
+  const allowed = (config.get<string>('CORS_ORIGINS') ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  app.enableCors(allowed.length ? { origin: allowed, credentials: false } : {});
+
+  if (!allowed.length) {
+    Logger.warn(
+      'CORS_ORIGINS is not set — allowing all origins. Set it in production.',
+      'Bootstrap',
+    );
+  }
 
   // Global API prefix → all routes are mounted under /api
   app.setGlobalPrefix('api');

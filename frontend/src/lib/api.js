@@ -12,10 +12,13 @@ function url(path) {
   return `${BASE}/api${path}`
 }
 
-async function request(path, { method = 'GET', body, signal } = {}) {
+async function request(path, { method = 'GET', body, signal, headers } = {}) {
   const res = await fetch(url(path), {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(headers || {}),
+    },
     body: body ? JSON.stringify(body) : undefined,
     signal,
   })
@@ -34,15 +37,21 @@ function safeJson(text) {
   try { return JSON.parse(text) } catch { return null }
 }
 
+/** Stable per-browser device id (mirrors the key written by lib/storage.js). */
+function deviceId() {
+  try { return localStorage.getItem('satquest.deviceId') || '' } catch { return '' }
+}
+
 /* ---------- Profile ---------- */
 
 export const profileApi = {
-  create: (dto) => request('/profile', { method: 'POST', body: dto }),
+  create: (dto) => request('/profile', { method: 'POST', body: { deviceId: deviceId(), ...dto } }),
   get:    (username) => request(`/profile/${encodeURIComponent(username)}`),
   update: (username, patch) =>
     request(`/profile/${encodeURIComponent(username)}`, { method: 'PATCH', body: patch }),
-  /** Reveal the 12-word mnemonic so the user can back it up. */
-  seed:    (username) => request(`/profile/${encodeURIComponent(username)}/seed`),
+  /** Reveal the 12-word mnemonic so the user can back it up (device-gated). */
+  seed:    (username) =>
+    request(`/profile/${encodeURIComponent(username)}/seed`, { headers: { 'x-device-id': deviceId() } }),
   /** Restore an account on a new device using its 12-word mnemonic. */
   restore: (mnemonic) => request('/profile/restore', { method: 'POST', body: { mnemonic } }),
 }
@@ -80,7 +89,11 @@ export const lightningApi = {
   invoice: (username, dto) =>
     request(`/lightning/${encodeURIComponent(username)}/invoice`, { method: 'POST', body: dto }),
   send: (username, dto) =>
-    request(`/lightning/${encodeURIComponent(username)}/send`, { method: 'POST', body: dto }),
+    request(`/lightning/${encodeURIComponent(username)}/send`, {
+      method: 'POST',
+      body: dto,
+      headers: { 'x-device-id': deviceId() },
+    }),
 }
 
 /* ---------- Leaderboard ---------- */
@@ -101,4 +114,11 @@ export const feedbackApi = {
 
 export const healthApi = {
   ping: () => request('/health'),
+}
+
+/* ---------- Levels (questions synced for offline play) ---------- */
+
+export const levelsApi = {
+  /** Full ordered level set + a content `version` for cache busting. */
+  all: (signal) => request('/levels', { signal }),
 }

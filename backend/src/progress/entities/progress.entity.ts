@@ -35,6 +35,14 @@ export class ProgressEntity {
   @Column({ type: 'varchar', length: 128, nullable: true })
   deviceId?: string;
 
+  /**
+   * Spaced-repetition signal: map of concept id → outstanding "miss" weight.
+   * Wrong answers raise a concept's weight; clean clears decay it. Used to
+   * surface what the player should review.
+   */
+  @Column({ type: 'jsonb', default: {} })
+  missedConcepts!: Record<string, number>;
+
   /** Last server-side write (managed by TypeORM) */
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;

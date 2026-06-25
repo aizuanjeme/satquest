@@ -76,8 +76,11 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
                 const correct = quizAnswers[idx] === q.answer
                 return (
                   <div key={idx} className={`${s.breakRow} ${correct ? s.bRight : s.bWrong}`}>
-                    <span>{correct ? '✓' : '✕'}</span>
-                    <span className={s.breakQ}>{q.q}</span>
+                    <div className={s.breakTop}>
+                      <span>{correct ? '✓' : '✕'}</span>
+                      <span className={s.breakQ}>{q.q}</span>
+                    </div>
+                    {!correct && q.explain && <p className={s.breakWhy}>{q.explain}</p>}
                   </div>
                 )
               })}

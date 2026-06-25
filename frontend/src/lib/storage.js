@@ -86,6 +86,7 @@ const emptyProgress = () => ({
   sats: 0,
   unlockedUpTo: 0,
   levels: {},
+  missedConcepts: {},
   deviceId: getDeviceId(),
   updatedAt: Date.now(),
 })
@@ -139,6 +140,26 @@ export function recordLevelResult(progress, levelIdx, performance) {
   }
 }
 
+/*
+  Spaced repetition: fold a level's session misses into the player's running
+  review map. Concepts answered wrong gain weight; concepts the player just
+  practiced cleanly (and didn't miss) decay by one toward mastery.
+*/
+export function mergeMissedConcepts(prev = {}, sessionMisses = {}, practicedConcepts = []) {
+  const out = { ...(prev || {}) }
+  for (const [concept, n] of Object.entries(sessionMisses || {})) {
+    if (!concept) continue
+    out[concept] = (out[concept] || 0) + n
+  }
+  for (const concept of practicedConcepts || []) {
+    if (!sessionMisses?.[concept] && out[concept]) {
+      out[concept] = Math.max(0, out[concept] - 1)
+      if (out[concept] === 0) delete out[concept]
+    }
+  }
+  return out
+}
+
 /* ---------- Cloud sync (NestJS backend) ----------
    - syncProgress: PUT the local progress; backend merges and queues rewards
                    for any newly-completed level.
@@ -173,6 +194,7 @@ export async function syncProgress(progress, profile) {
           },
         ]),
       ),
+      missedConcepts: progress.missedConcepts || {},
     }
     await progressApi.upsert(dto)
     window.dispatchEvent(new CustomEvent('satquest:sync', { detail: 'done' }))

@@ -37,4 +37,9 @@ export class UpsertProgressDto {
   @IsOptional()
   @IsString()
   deviceId?: string;
+
+  /** Map of concept id → outstanding review weight (spaced repetition). */
+  @IsOptional()
+  @IsObject()
+  missedConcepts?: Record<string, number>;
 }
