@@ -211,7 +211,11 @@ export class LightningService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async sendPayment(username: string, dto: SendPaymentDto, deviceId?: string): Promise<PaymentEntity> {
+  async sendPayment(
+    username: string,
+    dto: SendPaymentDto,
+    deviceId?: string,
+  ): Promise<PaymentEntity> {
     // Outgoing payments move real funds — only the device that owns this
     // account may authorise them (a public username alone is not enough).
     await this.profiles.assertDeviceOwner(username, deviceId);

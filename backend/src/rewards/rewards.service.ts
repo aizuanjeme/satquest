@@ -9,7 +9,7 @@ export interface ClaimResult {
   username: string;
   claimedPoints: number;
   claimedSats: number;
-  exchangeRate: number;   // pointsPerSat used at claim time
+  exchangeRate: number; // pointsPerSat used at claim time
   paymentId: string;
   rewarded: PendingRewardEntity[];
 }
@@ -79,7 +79,14 @@ export class RewardsService {
 
     if (unclaimed.length === 0) {
       const exchangeRate = await this.appConfig.getPointsPerSat();
-      return { username, claimedPoints: 0, claimedSats: 0, exchangeRate, paymentId: '', rewarded: [] };
+      return {
+        username,
+        claimedPoints: 0,
+        claimedSats: 0,
+        exchangeRate,
+        paymentId: '',
+        rewarded: [],
+      };
     }
 
     const totalPoints = unclaimed.reduce((acc, r) => acc + r.amountPoints, 0);
@@ -88,7 +95,14 @@ export class RewardsService {
 
     if (totalSats === 0) {
       const exchangeRate2 = exchangeRate;
-      return { username, claimedPoints: totalPoints, claimedSats: 0, exchangeRate: exchangeRate2, paymentId: '', rewarded: [] };
+      return {
+        username,
+        claimedPoints: totalPoints,
+        claimedSats: 0,
+        exchangeRate: exchangeRate2,
+        paymentId: '',
+        rewarded: [],
+      };
     }
 
     // Send Lightning payment: server wallet → player wallet.
@@ -103,9 +117,18 @@ export class RewardsService {
     }
     await this.repo.save(unclaimed);
 
-    this.logger.log(`Claimed ${totalPoints} points → ${totalSats} sats for "${username}" (rate: ${exchangeRate} pts/sat, tx: ${payment.id})`);
+    this.logger.log(
+      `Claimed ${totalPoints} points → ${totalSats} sats for "${username}" (rate: ${exchangeRate} pts/sat, tx: ${payment.id})`,
+    );
 
-    return { username, claimedPoints: totalPoints, claimedSats: totalSats, exchangeRate, paymentId: payment.id, rewarded: unclaimed };
+    return {
+      username,
+      claimedPoints: totalPoints,
+      claimedSats: totalSats,
+      exchangeRate,
+      paymentId: payment.id,
+      rewarded: unclaimed,
+    };
   }
 
   // ──────────────────────────────────────────────────────────────────────

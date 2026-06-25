@@ -20,12 +20,17 @@ function parseRSS(xml: string): RssPost[] {
     const block = match[1];
 
     const guid = block.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)?.[1]?.trim() ?? String(Math.random());
-    const title = block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1]?.trim()
-      ?? block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim() ?? '';
-    const link = block.match(/<link>([\s\S]*?)<\/link>/)?.[1]?.trim()
-      ?? block.match(/<link\s*\/>[\s\S]*?<([^>]+)>(https?:\/\/[^<]+)<\/\1>/)?.[2]?.trim() ?? '';
+    const title =
+      block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1]?.trim() ??
+      block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim() ??
+      '';
+    const link =
+      block.match(/<link>([\s\S]*?)<\/link>/)?.[1]?.trim() ??
+      block.match(/<link\s*\/>[\s\S]*?<([^>]+)>(https?:\/\/[^<]+)<\/\1>/)?.[2]?.trim() ??
+      '';
     const pubDate = block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1]?.trim() ?? '';
-    const content = block.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/)?.[1] ?? '';
+    const content =
+      block.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/)?.[1] ?? '';
     const imgMatch = content.match(/<img[^>]+src="([^"]+)"/);
     const thumbnail = imgMatch?.[1] ?? null;
     const categories: string[] = [];

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Param, Post, Sse } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Sse,
+} from '@nestjs/common';
 import { Observable, filter, map, merge, of } from 'rxjs';
 
 import { LightningService } from './lightning.service';
@@ -73,7 +83,7 @@ export class LightningController {
 
     const live = this.lightning.events.pipe(
       filter((e) => e.username.toLowerCase() === key || e.username === '__server__'),
-      map((e) => ({ data: e } as MessageEvent)),
+      map((e) => ({ data: e }) as MessageEvent),
     );
 
     return merge(hello, live);

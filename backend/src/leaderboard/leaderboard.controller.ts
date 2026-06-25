@@ -12,7 +12,7 @@ export class LeaderboardController {
   @Get()
   top(
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('page',  new DefaultValuePipe(1),  ParseIntPipe) page:  number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
   ): Promise<LeaderboardPage> {
     return this.leaderboard.topBySats(limit, page);
   }

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -45,10 +55,7 @@ export class ProfileController {
    * used to steal the recovery phrase.
    */
   @Get(':username/seed')
-  revealSeed(
-    @Param('username') username: string,
-    @Headers('x-device-id') deviceId?: string,
-  ) {
+  revealSeed(@Param('username') username: string, @Headers('x-device-id') deviceId?: string) {
     return this.profiles.revealSeed(username, deviceId);
   }
 

@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { LevelResultEntity } from './level-result.entity';
 
 /**

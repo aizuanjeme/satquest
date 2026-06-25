@@ -37,20 +37,20 @@ the entities on startup.
 Configured entirely through `.env` (see [`.env.example`](.env.example) for the
 full annotated list). Key variables:
 
-| Variable | Purpose |
-| --- | --- |
-| `PORT` | Port to listen on (default `3000`) |
-| `DATABASE_URL` | Postgres connection string (or use the discrete `DB_*` vars) |
-| `DATABASE_SSL` | `true` for managed providers (Supabase / Neon / RDS / Render / Railway / Fly). Auto-detected for known hosts |
-| `DB_SYNCHRONIZE` | Auto-sync schema from entities. Handy in dev, **never** in production — use migrations |
-| `DB_LOGGING` | Log every SQL statement |
-| `CORS_ORIGINS` | Comma-separated allowed browser origins. **Unset = reflect any origin (dev only)** |
-| `PROFILE_ENC_KEY` | Key for at-rest mnemonic encryption (AES-256-GCM). 64 hex chars, 32-byte base64, or a passphrase (scrypt-stretched). **Unset = plaintext (dev only)** |
-| `BREEZ_API_KEY` | Breez SDK key. Without it the Lightning endpoints return `503` and the rest of the API keeps working |
-| `BREEZ_NETWORK` | `mainnet` or `regtest` |
-| `BREEZ_STORAGE_DIR` | Where per-wallet SDK state is persisted (a subdir per username) |
-| `BREEZ_SERVER_MNEMONIC` | BIP-39 mnemonic for the **server reward wallet** that funds reward payouts on `/claim` |
-| `BREEZ_LNURL_DOMAIN` | LNURL-pay domain for each player's Lightning Address (default `breez.tips`) |
+| Variable                | Purpose                                                                                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                  | Port to listen on (default `3000`)                                                                                                                    |
+| `DATABASE_URL`          | Postgres connection string (or use the discrete `DB_*` vars)                                                                                          |
+| `DATABASE_SSL`          | `true` for managed providers (Supabase / Neon / RDS / Render / Railway / Fly). Auto-detected for known hosts                                          |
+| `DB_SYNCHRONIZE`        | Auto-sync schema from entities. Handy in dev, **never** in production — use migrations                                                                |
+| `DB_LOGGING`            | Log every SQL statement                                                                                                                               |
+| `CORS_ORIGINS`          | Comma-separated allowed browser origins. **Unset = reflect any origin (dev only)**                                                                    |
+| `PROFILE_ENC_KEY`       | Key for at-rest mnemonic encryption (AES-256-GCM). 64 hex chars, 32-byte base64, or a passphrase (scrypt-stretched). **Unset = plaintext (dev only)** |
+| `BREEZ_API_KEY`         | Breez SDK key. Without it the Lightning endpoints return `503` and the rest of the API keeps working                                                  |
+| `BREEZ_NETWORK`         | `mainnet` or `regtest`                                                                                                                                |
+| `BREEZ_STORAGE_DIR`     | Where per-wallet SDK state is persisted (a subdir per username)                                                                                       |
+| `BREEZ_SERVER_MNEMONIC` | BIP-39 mnemonic for the **server reward wallet** that funds reward payouts on `/claim`                                                                |
+| `BREEZ_LNURL_DOMAIN`    | LNURL-pay domain for each player's Lightning Address (default `breez.tips`)                                                                           |
 
 Generate a Breez key at <https://breez.technology/request-api-key/>.
 
@@ -116,32 +116,32 @@ caches in IndexedDB for offline play.
 
 ## Endpoints
 
-| Method | Path | Headers / Body | Purpose |
-| --- | --- | --- | --- |
-| GET | `/api/health` | — | Liveness probe |
-| GET | `/api/config` | — | List runtime config (e.g. `POINTS_PER_SAT`) |
-| GET | `/api/config/:key` | — | Fetch one config value |
-| PUT | `/api/config/:key` | `{ value }` | Update a config value |
-| GET | `/api/levels` | — | Ordered level set + content `version` for offline caching |
-| POST | `/api/profile` | `{ username, avatarId, deviceId? }` | Create a profile + mint a Lightning wallet |
-| GET | `/api/profile/:username` | — | Fetch a profile (mnemonic excluded) |
-| PATCH | `/api/profile/:username` | `{ avatarId?, deviceId? }` | Update avatar (username is immutable) |
-| GET | `/api/profile/:username/seed` | `x-device-id` | Reveal the BIP-39 mnemonic for backup (device-gated) |
-| POST | `/api/profile/restore` | `{ mnemonic }` | Re-import an account on a new device by seed phrase |
-| PUT | `/api/progress` | progress object (`username`, `levels`, …) | Upsert progress (merged server-side) |
-| GET | `/api/progress/:username` | — | Latest server progress |
-| GET | `/api/leaderboard` | `?page=1&limit=20` | Paginated top players by sats |
-| GET | `/api/rewards/:username` | — | Unclaimed points + exchange rate |
-| POST | `/api/rewards/:username/claim` | — | Pay all pending rewards over Lightning |
-| POST | `/api/rewards/:username/share` | — | Add a small share bonus |
-| GET | `/api/lightning/:username/info` | — | Wallet balance + identity pubkey |
-| POST | `/api/lightning/:username/invoice` | `{ description, amountSats?, expirySecs? }` | Generate a BOLT11 invoice |
-| POST | `/api/lightning/:username/send` | `{ paymentRequest, amountSats? }` + `x-device-id` | Pay an invoice / address (device-gated) |
-| GET | `/api/lightning/:username/events` | SSE | Real-time wallet event stream |
-| POST | `/api/feedback` | `{ username, message, rating?, category? }` | Submit player feedback |
-| GET | `/api/feedback` | `?username=` (optional) | List feedback, newest first |
-| GET | `/api/feedback/:id` | — | Fetch one feedback entry |
-| GET | `/api/rss/medium` | — | Proxy/parse the project's Medium feed |
+| Method | Path                               | Headers / Body                                    | Purpose                                                   |
+| ------ | ---------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| GET    | `/api/health`                      | —                                                 | Liveness probe                                            |
+| GET    | `/api/config`                      | —                                                 | List runtime config (e.g. `POINTS_PER_SAT`)               |
+| GET    | `/api/config/:key`                 | —                                                 | Fetch one config value                                    |
+| PUT    | `/api/config/:key`                 | `{ value }`                                       | Update a config value                                     |
+| GET    | `/api/levels`                      | —                                                 | Ordered level set + content `version` for offline caching |
+| POST   | `/api/profile`                     | `{ username, avatarId, deviceId? }`               | Create a profile + mint a Lightning wallet                |
+| GET    | `/api/profile/:username`           | —                                                 | Fetch a profile (mnemonic excluded)                       |
+| PATCH  | `/api/profile/:username`           | `{ avatarId?, deviceId? }`                        | Update avatar (username is immutable)                     |
+| GET    | `/api/profile/:username/seed`      | `x-device-id`                                     | Reveal the BIP-39 mnemonic for backup (device-gated)      |
+| POST   | `/api/profile/restore`             | `{ mnemonic }`                                    | Re-import an account on a new device by seed phrase       |
+| PUT    | `/api/progress`                    | progress object (`username`, `levels`, …)         | Upsert progress (merged server-side)                      |
+| GET    | `/api/progress/:username`          | —                                                 | Latest server progress                                    |
+| GET    | `/api/leaderboard`                 | `?page=1&limit=20`                                | Paginated top players by sats                             |
+| GET    | `/api/rewards/:username`           | —                                                 | Unclaimed points + exchange rate                          |
+| POST   | `/api/rewards/:username/claim`     | —                                                 | Pay all pending rewards over Lightning                    |
+| POST   | `/api/rewards/:username/share`     | —                                                 | Add a small share bonus                                   |
+| GET    | `/api/lightning/:username/info`    | —                                                 | Wallet balance + identity pubkey                          |
+| POST   | `/api/lightning/:username/invoice` | `{ description, amountSats?, expirySecs? }`       | Generate a BOLT11 invoice                                 |
+| POST   | `/api/lightning/:username/send`    | `{ paymentRequest, amountSats? }` + `x-device-id` | Pay an invoice / address (device-gated)                   |
+| GET    | `/api/lightning/:username/events`  | SSE                                               | Real-time wallet event stream                             |
+| POST   | `/api/feedback`                    | `{ username, message, rating?, category? }`       | Submit player feedback                                    |
+| GET    | `/api/feedback`                    | `?username=` (optional)                           | List feedback, newest first                               |
+| GET    | `/api/feedback/:id`                | —                                                 | Fetch one feedback entry                                  |
+| GET    | `/api/rss/medium`                  | —                                                 | Proxy/parse the project's Medium feed                     |
 
 Each player has a non-custodial wallet derived from a fresh BIP-39 mnemonic
 generated on profile creation. The mnemonic never crosses the wire except via
@@ -174,16 +174,16 @@ backend/
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run start:dev` | Watch mode (auto-reload) |
-| `npm run start` | Run without watch |
-| `npm run build` | Compile to `dist/` |
-| `npm run start:prod` | Run the compiled bundle (`node dist/main`) |
-| `npm run seed:levels` | Build, then load the bundled demo levels into the DB |
+| Command                     | What it does                                             |
+| --------------------------- | -------------------------------------------------------- |
+| `npm run start:dev`         | Watch mode (auto-reload)                                 |
+| `npm run start`             | Run without watch                                        |
+| `npm run build`             | Compile to `dist/`                                       |
+| `npm run start:prod`        | Run the compiled bundle (`node dist/main`)               |
+| `npm run seed:levels`       | Build, then load the bundled demo levels into the DB     |
 | `npm run encrypt:mnemonics` | Build, then encrypt existing plaintext mnemonics at rest |
-| `npm run lint` | ESLint with auto-fix |
-| `npm run test` | Jest unit tests |
+| `npm run lint`              | ESLint with auto-fix                                     |
+| `npm run test`              | Jest unit tests                                          |
 
 ## Production notes
 

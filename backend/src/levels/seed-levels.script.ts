@@ -21,10 +21,7 @@ async function run() {
   try {
     const levels = app.get(LevelsService);
     const result = await levels.seed();
-    Logger.log(
-      `Done — seeded ${result.seeded} levels (replaced ${result.replaced})`,
-      'SeedLevels',
-    );
+    Logger.log(`Done — seeded ${result.seeded} levels (replaced ${result.replaced})`, 'SeedLevels');
   } finally {
     await app.close();
   }

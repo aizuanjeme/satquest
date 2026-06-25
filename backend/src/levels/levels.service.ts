@@ -69,9 +69,7 @@ export class LevelsService {
       }
       await tx.save(seedRows);
     });
-    this.logger.log(
-      `${current.length === 0 ? 'Seeded' : 'Re-seeded'} ${seedRows.length} levels`,
-    );
+    this.logger.log(`${current.length === 0 ? 'Seeded' : 'Re-seeded'} ${seedRows.length} levels`);
     return { seeded: seedRows.length, replaced: current.length };
   }
 
@@ -125,9 +123,6 @@ export class LevelsService {
   }
 
   private hash(levels: unknown): string {
-    return createHash('sha256')
-      .update(JSON.stringify(levels))
-      .digest('hex')
-      .slice(0, 16);
+    return createHash('sha256').update(JSON.stringify(levels)).digest('hex').slice(0, 16);
   }
 }
