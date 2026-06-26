@@ -5,12 +5,17 @@ import { AppConfigEntity } from './entities/app-config.entity';
 
 export const CONFIG_KEYS = {
   POINTS_PER_SAT: 'POINTS_PER_SAT',
+  SHARE_REWARD_PTS: 'SHARE_REWARD_PTS',
 } as const;
 
 const DEFAULTS: Record<string, { value: string; description: string }> = {
   [CONFIG_KEYS.POINTS_PER_SAT]: {
     value: '100',
     description: 'How many points equal 1 sat. E.g. 100 means 100 pts = 1 sat.',
+  },
+  [CONFIG_KEYS.SHARE_REWARD_PTS]: {
+    value: '1',
+    description: 'Points granted for sharing a level on social media.',
   },
 };
 
@@ -57,6 +62,13 @@ export class AppConfigService implements OnModuleInit {
     const row = await this.repo.findOne({ where: { key: CONFIG_KEYS.POINTS_PER_SAT } });
     const parsed = parseInt(row?.value ?? DEFAULTS[CONFIG_KEYS.POINTS_PER_SAT].value, 10);
     return isNaN(parsed) || parsed <= 0 ? 100 : parsed;
+  }
+
+  /** Returns the points granted for sharing a level on social media (default 1). */
+  async getShareRewardPts(): Promise<number> {
+    const row = await this.repo.findOne({ where: { key: CONFIG_KEYS.SHARE_REWARD_PTS } });
+    const parsed = parseInt(row?.value ?? DEFAULTS[CONFIG_KEYS.SHARE_REWARD_PTS].value, 10);
+    return isNaN(parsed) || parsed < 0 ? 1 : parsed;
   }
 
   /** Convert a points amount to sats using the current exchange rate. */

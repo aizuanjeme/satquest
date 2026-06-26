@@ -8,6 +8,7 @@ import {
   pullProgress, onOnline, mergeMissedConcepts, getDeviceId,
 } from '../lib/storage'
 import { profileApi, rewardsApi } from '../lib/api'
+import { SHARE_REWARD_FALLBACK } from '../screens/ShareEarn'
 
 export function useGame() {
   // Read from localStorage synchronously on first render so initial state is correct.
@@ -623,17 +624,19 @@ export function useGame() {
   const goToLeaderboard = useCallback(() => setPhase('leaderboard'), [])
   const goToProfile     = useCallback(() => setPhase('profile'), [])
 
-  // Award 2 sats for sharing a level on social media.
+  // Award sats for sharing a level on social media.
   // Idempotent: only earns once per level (tracked in localStorage by ShareEarn).
-  // Also persists and syncs to backend so the leaderboard and wallet see the bonus.
-  const earnShareSats = useCallback(() => {
-    setSats(s => s + 2)
+  // The amount is sourced from the backend app_config (passed in by ShareEarn);
+  // the server credits the authoritative bonus, this is the optimistic local add.
+  const earnShareSats = useCallback((pts = SHARE_REWARD_FALLBACK) => {
+    const amount = Number(pts) || SHARE_REWARD_FALLBACK
+    setSats(s => s + amount)
     if (profile && hydratedRef.current) {
       const current = loadProgress()
-      const updated = { ...current, sats: (current.sats || 0) + 2 }
+      const updated = { ...current, sats: (current.sats || 0) + amount }
       saveProgress(updated)
       syncProgress(updated, profile).catch(() => {})
-      // Create a pending reward row so the +2 sats are included in Lightning claim
+      // Create a pending reward row so the share bonus is included in Lightning claim
       rewardsApi.addShare(profile.username).catch(() => {})
     }
   }, [profile])
