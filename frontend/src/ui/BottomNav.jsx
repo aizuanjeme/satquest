@@ -19,6 +19,7 @@ export default function BottomNav({ phase, onTab }) {
         return (
           <button
             key={t.id}
+            data-tour={`nav-${t.id}`}
             className={`${s.tab} ${active ? s.active : ''}`}
             onMouseEnter={() => sound.hover()}
             onClick={() => { sound.tap(); onTab(t.id) }}

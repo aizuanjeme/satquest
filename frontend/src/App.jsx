@@ -19,8 +19,10 @@ import Profile from './screens/Profile'
 import BottomNav from './ui/BottomNav'
 import NeonButton from './ui/NeonButton'
 import NetworkStatus from './ui/NetworkStatus'
+import Tour from './ui/Tour'
 import { LevelManager } from './core/LevelManager'
 import { ensureLevels } from './lib/levelsSync'
+import { isTourDone, markTourDone } from './lib/storage'
 import { t } from './i18n'
 import s from './App.module.css'
 
@@ -30,6 +32,52 @@ const MOODS = {
   playing: 'playing', reveal: 'reveal', celebrate: 'reveal',
   wallet: 'menu', leaderboard: 'menu', profile: 'menu', done: 'reveal',
 }
+
+// First-run guided walkthrough shown once on the player's first visit to the
+// Quest Map. Each step optionally spotlights a real element via its
+// `data-tour` anchor (see BottomNav / LevelMap).
+const TOUR_STEPS = [
+  {
+    emoji: '\uD83D\uDC4B',
+    title: 'Welcome to SatQuest',
+    body: 'Learn Bitcoin by playing. Here\u2019s a quick tour so you always know where you are.',
+  },
+  {
+    anchor: 'map',
+    emoji: '\uD83D\uDDFA\uFE0F',
+    title: 'Your Quest Map',
+    body: 'Drag to travel the road and tap a glowing vault to start a level. Clear one to unlock the next.',
+  },
+  {
+    anchor: 'sats',
+    emoji: '\u26A1',
+    title: 'Your points',
+    body: 'Earn points every time you clear a level. They track your progress and your ranking.',
+  },
+  {
+    anchor: 'nav-wallet',
+    emoji: '\uD83D\uDCB3',
+    title: 'Wallet',
+    body: 'Your Lightning wallet lives here. Back up your recovery words to keep it safe.',
+  },
+  {
+    anchor: 'nav-leaderboard',
+    emoji: '\uD83C\uDFC6',
+    title: 'Ranks',
+    body: 'See how you stack up against other players on the leaderboard.',
+  },
+  {
+    anchor: 'nav-profile',
+    emoji: '\uD83D\uDC64',
+    title: 'You',
+    body: 'Change your avatar, review tricky concepts, or restore your account from here.',
+  },
+  {
+    emoji: '\uD83D\uDE80',
+    title: 'You\u2019re ready!',
+    body: 'Tap the first vault on the map to begin your quest. Good luck \u2014 stack those sats!',
+  },
+]
 
 function Game() {
   const game = useGame()
@@ -44,6 +92,16 @@ function Game() {
 
   // Drive the persistent 3D backdrop's framing from the active phase.
   useEffect(() => { setMood(MOODS[phase] || 'idle') }, [phase, setMood])
+
+  // First-run walkthrough: show once, the first time the player lands on the
+  // Quest Map. Delayed slightly so the map + nav anchors are mounted/measured.
+  const [showTour, setShowTour] = useState(false)
+  useEffect(() => {
+    if (phase !== 'map' || isTourDone()) return undefined
+    const id = setTimeout(() => setShowTour(true), 700)
+    return () => clearTimeout(id)
+  }, [phase])
+  const finishTour = () => { markTourDone(); setShowTour(false) }
 
   // Unlock the Web Audio context + start ambient score on the first gesture.
   useEffect(() => {
@@ -161,6 +219,7 @@ function Game() {
       )}
 
       {showNav && <BottomNav phase={phase} onTab={handleTab} />}
+      {showTour && <Tour steps={TOUR_STEPS} onDone={finishTour} />}
       <NetworkStatus />
     </div>
   )

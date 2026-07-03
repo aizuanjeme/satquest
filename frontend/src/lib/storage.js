@@ -69,6 +69,18 @@ export function clearProfile() {
   localStorage.removeItem(PROGRESS_KEY)
 }
 
+/* ---------- First-run walkthrough flag ---------- */
+
+const TOUR_KEY = 'satquest.tourDone'
+
+export function isTourDone() {
+  try { return localStorage.getItem(TOUR_KEY) === '1' } catch { return false }
+}
+
+export function markTourDone() {
+  try { localStorage.setItem(TOUR_KEY, '1') } catch { /* ignore */ }
+}
+
 /* ---------- Device id (stable per-browser identifier) ---------- */
 
 export function getDeviceId() {

@@ -95,10 +95,10 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
             <span className={s.prog}>{Math.round(LevelManager.completionRatio(unlockedUpTo) * 100)}% complete</span>
           </div>
         </div>
-        <ScoreDisplay sats={sats} />
+        <span data-tour="sats"><ScoreDisplay sats={sats} /></span>
       </header>
 
-      <div className={s.titleBlock}>
+      <div className={s.titleBlock} data-tour="map">
         <p className={s.kicker}>YOUR JOURNEY</p>
         <h2 className={s.title}>The Quest Map</h2>
       </div>

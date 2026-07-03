@@ -25,6 +25,12 @@ const STATE_COLORS = {
   done: new THREE.Color(0x2bd47a),
 }
 
+const BRANCH_DEFS = [
+  { id: 'explorer',    xFan: -1, hex: 0x2bd47a, rail: '#2bd47a', dash: '#157a3c', label: 'EXPLORER',    icon: '⬡', tagline: ['Learn the basics.', 'Start your journey.'] },
+  { id: 'sovereignty', xFan:  0, hex: 0xf7c948, rail: '#f7c948', dash: '#8a6200', label: 'SOVEREIGNTY', icon: '♛', tagline: ['Go deeper.', 'Understand why.'] },
+  { id: 'builder',     xFan:  1, hex: 0xff44ff, rail: '#ff44ff', dash: '#880088', label: 'BUILDER',     icon: '⌬', tagline: ['Build the future.', 'Master the tools.'] },
+]
+
 const QUEST_THEMES = {
   dark:   { top: 0x0b0a18, mid: 0x140a28, bot: 0x05070e, fog: 0x06070d, star: 0xbfd8ff, light1: 0x2ad8ff, light2: 0x9945ff, rail: '#2ad8ff', dash: '#f7c948', ground: 0x06080f, states: { locked: 0x3a4258, unlocked: 0x2ad8ff, current: 0xf7c948, done: 0x2bd47a } },
   light:  { top: 0x8898c8, mid: 0xa8b8e0, bot: 0xd0d8f0, fog: 0xb0c0e0, star: 0x4488cc, light1: 0x0077cc, light2: 0x5522cc, rail: '#0077cc', dash: '#5522cc', ground: 0xc0ccdf, states: { locked: 0x8899bb, unlocked: 0x0077cc, current: 0xee8800, done: 0x118833 } },
@@ -86,6 +92,10 @@ export class QuestWorld {
     // Camera travels along the curve via this scalar (0..1).
     this._camT = 0
     this._targetCamT = 0
+    // Branch steering: -1=Explorer(left), 0=Sovereignty(center), +1=Builder(right)
+    this._branchBlend = 0
+    this._targetBranchBlend = 0
+    this._branchCurveMap = {} // populated by _buildBranches
 
     this.pointer = new THREE.Vector2(-2, -2)
     this.raycaster = new THREE.Raycaster()
@@ -105,6 +115,7 @@ export class QuestWorld {
       this._bridgeT = 0.978
     }
     this._buildBridge()
+    this._buildBranches()
 
     // Start focused on the current (next playable) level.
     const startIdx = Math.min(this.unlockedUpTo, this.N - 1)
@@ -470,6 +481,196 @@ export class QuestWorld {
     this._coinFrontT = frontT
   }
 
+  /* ---------- branches after Stage 2 ---------- */
+
+  _branchRoadTex(railColor, dashColor, id) {
+    const key = `_brt_${id}`
+    if (this[key]) return this[key]
+    const c = document.createElement('canvas')
+    c.width = 128; c.height = 512
+    const ctx = c.getContext('2d')
+    ctx.fillStyle = '#080b14'
+    ctx.fillRect(0, 0, 128, 512)
+    ctx.fillStyle = railColor; ctx.shadowColor = railColor; ctx.shadowBlur = 14
+    ctx.fillRect(8, 0, 6, 512); ctx.fillRect(114, 0, 6, 512)
+    ctx.fillStyle = dashColor; ctx.shadowColor = dashColor; ctx.shadowBlur = 8
+    for (let y = 0; y < 512; y += 56) ctx.fillRect(60, y, 8, 30)
+    const tex = new THREE.CanvasTexture(c)
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 8)
+    this[key] = tex; return tex
+  }
+
+  _pathHeaderSprite(label, taglines, hex) {
+    const W = 400, H = 220
+    const c = document.createElement('canvas'); c.width = W; c.height = H
+    const ctx = c.getContext('2d')
+    ctx.clearRect(0, 0, W, H)
+    // Icon circle
+    ctx.beginPath(); ctx.arc(W / 2, 46, 34, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fill()
+    ctx.strokeStyle = hex; ctx.lineWidth = 3; ctx.shadowColor = hex; ctx.shadowBlur = 16
+    ctx.stroke()
+    ctx.font = 'bold 38px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff'; ctx.fillText(BRANCH_DEFS.find(b => b.label === label)?.icon ?? '★', W / 2, 46)
+    // Label
+    ctx.font = 'bold 52px Orbitron, sans-serif'
+    ctx.shadowColor = hex; ctx.shadowBlur = 22; ctx.fillStyle = hex
+    ctx.fillText(label, W / 2, 110)
+    // Taglines
+    ctx.font = '28px Orbitron, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.shadowBlur = 6
+    taglines.forEach((line, li) => ctx.fillText(line, W / 2, 152 + li * 36))
+    const tex = new THREE.CanvasTexture(c)
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false })
+    const sp = new THREE.Sprite(mat); sp.scale.set(5.2, 2.86, 1)
+    return sp
+  }
+
+  _makeBranchNode(hexColor, index = 0) {
+    const group = new THREE.Group()
+    const col = new THREE.Color(hexColor)
+    const dim = col.clone().multiplyScalar(0.35)
+    const h = 2.0 + (index % 4) * 0.4  // deterministic, matches main road rhythm
+    const bodyGeo = new THREE.BoxGeometry(1.7, h, 1.7)
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: dim.clone().multiplyScalar(0.32),
+      emissive: dim.clone().multiplyScalar(0.12),
+      emissiveIntensity: 0.4, roughness: 0.4, metalness: 0.5,
+    })
+    const body = new THREE.Mesh(bodyGeo, bodyMat)
+    body.position.y = h / 2; body.userData.role = 'body'; group.add(body)
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(bodyGeo),
+      new THREE.LineBasicMaterial({ color: col.clone().multiplyScalar(0.65), transparent: true, opacity: 0.45 }),
+    )
+    edges.position.y = h / 2; edges.userData.role = 'edges'; group.add(edges)
+    const topGeo = new THREE.BoxGeometry(1.0, 0.7, 1.0)
+    const top = new THREE.Mesh(topGeo, bodyMat.clone())
+    top.position.y = h + 0.35; top.userData.role = 'top'; group.add(top)
+    const label = this._labelSprite('🔒', '#7788aa')
+    label.position.set(0, h + 1.45, 0); group.add(label)
+    group.userData.unlocked = false; group.userData.state = 'locked'
+    group.userData.isBranchPreview = true; group.userData.pickTargets = []
+    return group
+  }
+
+  _buildBranches() {
+    if (this.N === 0) return
+    const up = new THREE.Vector3(0, 1, 0)
+    const N_PREVIEW = 7
+    const halfW = 2.4
+    const SEG = 7   // same spacing as main road
+
+    // Junction = one segment beyond last level on the main curve
+    const lastT = this._tForIndex(this.N - 1)
+    const tPerSeg = 0.9 / Math.max(1, this.N - 1)
+    const junctionT = Math.min(lastT + tPerSeg * 0.75, 0.97)
+    const junctionP = this.curve.getPointAt(junctionT)
+    const junctionTan = this.curve.getTangentAt(junctionT).normalize()
+    const junctionSide = new THREE.Vector3().crossVectors(junctionTan, up).normalize()
+
+    // Glowing junction disc — kept small and flush to the ground
+    const discGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.14, 40)
+    const discMat = new THREE.MeshStandardMaterial({
+      color: 0x0a2030, emissive: 0x2ad8ff, emissiveIntensity: 0.7,
+      metalness: 0.9, roughness: 0.15,
+    })
+    const disc = new THREE.Mesh(discGeo, discMat)
+    disc.position.copy(junctionP); disc.position.y = 0.06
+    this.scene.add(disc); this._junctionDisc = disc
+
+    // Glow ring
+    const ringGeo = new THREE.TorusGeometry(1.7, 0.10, 8, 50)
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2ad8ff, transparent: true, opacity: 0.8 })
+    const ring = new THREE.Mesh(ringGeo, ringMat)
+    ring.rotation.x = Math.PI / 2
+    ring.position.copy(junctionP); ring.position.y = 0.18
+    this.scene.add(ring); this._junctionRing = ring
+
+    // Point light at junction
+    const jLight = new THREE.PointLight(0x2ad8ff, 20, 14)
+    jLight.position.copy(junctionP); jLight.position.y = 1.5
+    this.scene.add(jLight); this._junctionLight = jLight
+
+    this._centerBranchCurve = null
+    this._branchCurveMap = {}
+
+    BRANCH_DEFS.forEach((branch) => {
+      const fanMax = 11 // units of lateral spread at full fan
+      const lateral = branch.xFan * fanMax
+
+      // Build branch CatmullRom curve forward from junction
+      // junctionTan points forward (toward -Z), so SEG*i goes deeper into scene
+      const pts = []
+      for (let i = -1; i <= N_PREVIEW + 2; i++) {
+        const ramp = Math.min(1, Math.max(0, i / 2.5)) // fan opens over first 2.5 segments
+        const lx = junctionSide.x * lateral * ramp + junctionTan.x * (SEG * i)
+        const lz = junctionSide.z * lateral * ramp + junctionTan.z * (SEG * i)
+        pts.push(new THREE.Vector3(junctionP.x + lx, 0, junctionP.z + lz))
+      }
+      const branchCurve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.5)
+      branchCurve.arcLengthDivisions = 300
+      // Store all branch curves keyed by xFan (-1/0/1)
+      this._branchCurveMap[branch.xFan] = branchCurve
+      if (branch.xFan === 0) this._centerBranchCurve = branchCurve
+
+      // Branch road mesh
+      const positions = [], uvs = [], idxs = []
+      const S = 200
+      for (let i = 0; i <= S; i++) {
+        const t = i / S
+        const p = branchCurve.getPointAt(t)
+        const tan = branchCurve.getTangentAt(t).normalize()
+        const side = new THREE.Vector3().crossVectors(tan, up).normalize()
+        const l = p.clone().addScaledVector(side, -halfW)
+        const r = p.clone().addScaledVector(side,  halfW)
+        positions.push(l.x, l.y, l.z, r.x, r.y, r.z)
+        uvs.push(0, t, 1, t)
+        if (i < S) { const a = i * 2; idxs.push(a, a + 1, a + 2, a + 1, a + 3, a + 2) }
+      }
+      const roadGeo = new THREE.BufferGeometry()
+      roadGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+      roadGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+      roadGeo.setIndex(idxs); roadGeo.computeVertexNormals()
+      const roadTex = this._branchRoadTex(branch.rail, branch.dash, branch.id)
+      const roadMat = new THREE.MeshStandardMaterial({
+        map: roadTex,
+        emissive: new THREE.Color(branch.hex).multiplyScalar(0.04),
+        emissiveIntensity: 0.8, roughness: 0.5, metalness: 0.3, side: THREE.DoubleSide,
+      })
+      const branchRoad = new THREE.Mesh(roadGeo, roadMat)
+      branchRoad.position.y = 0.01; this.scene.add(branchRoad)
+
+      // Path header sprite — placed at t=0.45 where branches have fully diverged
+      const headerT = 0.45
+      const headerP = branchCurve.getPointAt(headerT)
+      const header = this._pathHeaderSprite(branch.label, branch.tagline, branch.rail)
+      header.position.set(headerP.x, 5.5, headerP.z)
+      this.scene.add(header)
+
+      // Locked preview nodes along branch
+      for (let ni = 0; ni < N_PREVIEW; ni++) {
+        const nodeT = 0.12 + (ni / (N_PREVIEW - 1)) * 0.82
+        const np = branchCurve.getPointAt(nodeT)
+        const ntan = branchCurve.getTangentAt(nodeT).normalize()
+        const nside = new THREE.Vector3().crossVectors(ntan, up).normalize()
+        const offset = (ni % 2 === 0 ? 1 : -1) * this._sideOffset
+        const g = this._makeBranchNode(branch.hex, ni)
+        g.position.copy(np).addScaledVector(nside, offset)
+        g.lookAt(np.x, g.position.y, np.z)
+        g.userData.basePos = g.position.clone()
+        this.scene.add(g)
+        this._buildings.push(g)
+      }
+
+      // Branch accent point light
+      const bLight = new THREE.PointLight(branch.hex, 18, 22)
+      const bLightP = branchCurve.getPointAt(0.22)
+      bLight.position.set(bLightP.x, 3, bLightP.z)
+      this.scene.add(bLight)
+    })
+  }
+
   /* ---------- bridge to Stage 2 ---------- */
 
   _waterTexture() {
@@ -654,8 +855,14 @@ export class QuestWorld {
     this._setPointerFromEvent(e)
     if (this._dragging) {
       const dy = e.clientY - this._dragY
+      const dx = e.clientX - this._dragX
       this._dragY = e.clientY
-      this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 0.98)
+      this._dragX = e.clientX
+      this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 1.95)
+      // Past the junction: horizontal drag steers between branches
+      if (this._camT > 0.9) {
+        this._targetBranchBlend = THREE.MathUtils.clamp(this._targetBranchBlend + dx * 0.004, -1, 1)
+      }
       this._dragMoved = true
     }
   }
@@ -664,6 +871,7 @@ export class QuestWorld {
     this._setPointerFromEvent(e)
     this._dragging = true
     this._dragY = e.clientY
+    this._dragX = e.clientX
     this._dragMoved = false
   }
 
@@ -681,7 +889,7 @@ export class QuestWorld {
 
   _onWheel(e) {
     e.preventDefault()
-    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + e.deltaY * 0.0006, 0.02, 0.98)
+    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + e.deltaY * 0.0006, 0.02, 1.95)
   }
 
   _pick() {
@@ -820,10 +1028,37 @@ export class QuestWorld {
     const t = this.clock.getElapsedTime()
     const dt = Math.min(0.05, this.clock.getDelta())
 
-    // ease camera along the road
+    // ease camera: vertical scroll = depth, horizontal drag past junction = branch
     this._camT += (this._targetCamT - this._camT) * 0.08
-    const look = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT, 0, 1))
-    const behind = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT - 0.05, 0, 1))
+    this._branchBlend += (this._targetBranchBlend - this._branchBlend) * 0.06
+
+    let look, behind
+    if (this._camT > 1.0 && this._branchCurveMap[0]) {
+      // Remap 1.0..1.95 → 0.04..0.92 on branch curves
+      const bt = THREE.MathUtils.clamp((this._camT - 1.0) / 0.95, 0.04, 0.92)
+      const btB = THREE.MathUtils.clamp(bt - 0.06, 0.0, 0.92)
+      // Blend between the 3 branch curves based on _branchBlend (-1..0..1)
+      const blend = this._branchBlend
+      const cL = this._branchCurveMap[-1] // Explorer
+      const cC = this._branchCurveMap[0]  // Sovereignty
+      const cR = this._branchCurveMap[1]  // Builder
+      const sampleBlended = (btt) => {
+        const pC = cC.getPointAt(btt)
+        if (blend < 0 && cL) {
+          const pL = cL.getPointAt(btt)
+          return pC.clone().lerp(pL, -blend)
+        } else if (blend > 0 && cR) {
+          const pR = cR.getPointAt(btt)
+          return pC.clone().lerp(pR, blend)
+        }
+        return pC
+      }
+      look = sampleBlended(bt)
+      behind = sampleBlended(btB)
+    } else {
+      look = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT, 0, 0.999))
+      behind = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT - 0.05, 0, 0.999))
+    }
     const camPos = behind.clone()
     camPos.y += this._camHeight
     // gentle pointer parallax
@@ -874,6 +1109,18 @@ export class QuestWorld {
       this._bridgeLights.forEach((l, i) => {
         l.intensity = 11 + Math.sin(t * 1.4 + i * Math.PI) * 4
       })
+    }
+
+    // Junction disc + ring pulse
+    if (this._junctionDisc) {
+      this._junctionDisc.material.emissiveIntensity = 0.65 + Math.sin(t * 1.8) * 0.3
+    }
+    if (this._junctionRing) {
+      this._junctionRing.rotation.z = t * 0.6
+      this._junctionRing.material.opacity = 0.6 + Math.sin(t * 2.4) * 0.25
+    }
+    if (this._junctionLight) {
+      this._junctionLight.intensity = 22 + Math.sin(t * 2.2) * 8
     }
 
     this._pick()
