@@ -48,6 +48,10 @@ export default defineConfig({
     }),
   ],
   server: {
+    // Allow localtunnel / loca.lt hostnames used for remote testing.
+    // Accept any subdomain under loca.lt so temporary tunnels work.
+    // Use string wildcard form which Vite accepts (leading dot matches subdomains).
+    allowedHosts: ['.loca.lt', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:3000',

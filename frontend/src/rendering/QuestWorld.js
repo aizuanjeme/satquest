@@ -654,9 +654,13 @@ export class QuestWorld {
     this._setPointerFromEvent(e)
     if (this._dragging) {
       const dy = e.clientY - this._dragY
+      // Ignore tiny jitter so quick taps on touch devices still count as clicks.
+      const MOVE_THRESHOLD = 4 // pixels
+      if (Math.abs(dy) > MOVE_THRESHOLD) {
+        this._dragMoved = true
+        this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 0.98)
+      }
       this._dragY = e.clientY
-      this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 0.98)
-      this._dragMoved = true
     }
   }
 
