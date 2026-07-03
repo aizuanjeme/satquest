@@ -86,6 +86,9 @@ export class QuestWorld {
     // Camera travels along the curve via this scalar (0..1).
     this._camT = 0
     this._targetCamT = 0
+    this._cameraPanX = 0
+    this._targetCameraPanX = 0
+    this._focusIndex = Math.min(this.unlockedUpTo, Math.max(this.N - 1, 0))
 
     this.pointer = new THREE.Vector2(-2, -2)
     this.raycaster = new THREE.Raycaster()
@@ -97,6 +100,7 @@ export class QuestWorld {
     this._buildRoad()
     this._buildLights()
     this._buildBuildings()
+    this._buildComingSoonVault()
     this._buildCoins()
     // Compute bridge position: midpoint between last Stage 1 and first Stage 2 level
     if (this._stage2Start != null && this._stage2Start > 0 && this._stage2Start < this.N) {
@@ -421,6 +425,97 @@ export class QuestWorld {
     }
   }
 
+  _makeComingSoonLabel(text, color) {
+    const c = document.createElement('canvas')
+    c.width = 512
+    c.height = 256
+    const ctx = c.getContext('2d')
+    ctx.clearRect(0, 0, 512, 256)
+
+    ctx.fillStyle = 'rgba(5, 8, 16, 0.9)'
+    ctx.beginPath()
+    ctx.roundRect(18, 18, 476, 220, 24)
+    ctx.fill()
+    ctx.strokeStyle = color
+    ctx.lineWidth = 3
+    ctx.stroke()
+
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.shadowColor = color
+    ctx.shadowBlur = 18
+    ctx.fillStyle = '#ffffff'
+
+    ctx.font = 'bold 34px Orbitron, sans-serif'
+    ctx.fillText('COMING SOON', 256, 96)
+
+    ctx.font = 'bold 54px Orbitron, sans-serif'
+    ctx.fillText('MORE STEPS', 256, 164)
+
+    const tex = new THREE.CanvasTexture(c)
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false })
+    const sp = new THREE.Sprite(mat)
+    sp.scale.set(5.8, 2.3, 1)
+    return sp
+  }
+
+  _buildComingSoonVault() {
+    const t = 0.985
+    const p = this.curve.getPointAt(t)
+    const tan = this.curve.getTangentAt(t).normalize()
+    const up = new THREE.Vector3(0, 1, 0)
+    const side = new THREE.Vector3().crossVectors(tan, up).normalize()
+    const offset = (this.N % 2 === 0 ? 1 : -1) * this._sideOffset * 0.95
+
+    const group = new THREE.Group()
+    group.position.copy(p).addScaledVector(side, offset)
+    group.lookAt(p.x, group.position.y, p.z)
+
+    const accent = new THREE.Color(0x9945ff)
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: accent.clone().multiplyScalar(0.24),
+      emissive: accent.clone().multiplyScalar(0.7),
+      emissiveIntensity: 1.0,
+      roughness: 0.4,
+      metalness: 0.65,
+    })
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.4, 1.8), bodyMat)
+    body.position.y = 1.2
+    body.userData.role = 'comingBody'
+    group.add(body)
+
+    const top = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.78, 1.35), bodyMat.clone())
+    top.position.y = 2.7
+    top.userData.role = 'comingTop'
+    group.add(top)
+
+    const door = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 1.3, 0.16),
+      new THREE.MeshStandardMaterial({ color: 0x090b14, emissive: 0x1f1231, emissiveIntensity: 0.8 }),
+    )
+    door.position.set(0, 1.3, 0.95)
+    group.add(door)
+
+    const beam = new THREE.Mesh(
+      new THREE.BoxGeometry(1.3, 0.18, 0.2),
+      new THREE.MeshStandardMaterial({ color: accent.clone().multiplyScalar(1.5), emissive: accent, emissiveIntensity: 0.9 }),
+    )
+    beam.position.set(0, 1.95, 0.95)
+    group.add(beam)
+
+    const light = new THREE.PointLight(accent, 18, 12)
+    light.position.set(0, 2.6, 1.4)
+    group.add(light)
+
+    const label = this._makeComingSoonLabel('#9945ff')
+    label.position.set(0, 4.1, 0)
+    group.add(label)
+
+    this._comingSoonGroup = group
+    this.scene.add(group)
+  }
+
   _coinTexture() {
     if (this._coinTex) return this._coinTex
     const c = document.createElement('canvas')
@@ -636,12 +731,22 @@ export class QuestWorld {
   setSelected(index) { this._selected = index }
 
   focusLevel(index, animate = true) {
-    const t = this._tForIndex(index)
+    const safeIndex = THREE.MathUtils.clamp(index, 0, Math.max(this.N - 1, 0))
+    this._focusIndex = safeIndex
+    const t = this._tForIndex(safeIndex)
     if (animate) {
       gsap.to(this, { _targetCamT: t, duration: 0.9, ease: 'power3.inOut' })
     } else {
       this._camT = this._targetCamT = t
     }
+  }
+
+  moveRoad(delta) {
+    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + delta, 0.02, 0.98)
+  }
+
+  panHorizontal(delta) {
+    this._targetCameraPanX = THREE.MathUtils.clamp(this._targetCameraPanX + delta, -3.2, 3.2)
   }
 
   _setPointerFromEvent(e) {
@@ -826,12 +931,13 @@ export class QuestWorld {
 
     // ease camera along the road
     this._camT += (this._targetCamT - this._camT) * 0.08
+    this._cameraPanX += (this._targetCameraPanX - this._cameraPanX) * 0.12
     const look = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT, 0, 1))
     const behind = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT - 0.05, 0, 1))
     const camPos = behind.clone()
     camPos.y += this._camHeight
-    // gentle pointer parallax
-    camPos.x += this.pointer.x * 1.2
+    // gentle pointer parallax + optional on-screen pan controls
+    camPos.x += this.pointer.x * 1.2 + this._cameraPanX
     camPos.y += this.pointer.y * 0.6
     this.camera.position.lerp(camPos, 0.12)
     this.camera.lookAt(look.x, look.y + 1.2, look.z)

@@ -116,6 +116,13 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
         </div>
       )}
 
+      <div className={s.navControls}>
+        <button className={s.navBtn} onClick={() => worldRef.current?.moveRoad(0.06)} aria-label="Move up">↑</button>
+        <button className={s.navBtn} onClick={() => worldRef.current?.moveRoad(-0.06)} aria-label="Move down">↓</button>
+        <button className={s.navBtn} onClick={() => worldRef.current?.panHorizontal(-1.3)} aria-label="Move left">←</button>
+        <button className={s.navBtn} onClick={() => worldRef.current?.panHorizontal(1.3)} aria-label="Move right">→</button>
+      </div>
+
       {lv && (
         <div className={s.card} key={selected}>
           <button className={s.cardClose} onClick={() => { sound.tap(); setSelected(null) }} aria-label="Close">✕</button>
