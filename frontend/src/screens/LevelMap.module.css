@@ -283,3 +283,48 @@
   0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
   50%       { opacity: 0.7; transform: translateX(-50%) scale(0.97); }
 }
+
+/* ---- Inside a door's world ---- */
+.realmCard {
+  position: absolute;
+  left: 50%;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0));
+  transform: translateX(-50%);
+  z-index: 13;
+  width: calc(100% - 36px);
+  max-width: 440px;
+  padding: 18px 20px 20px;
+  border-radius: 20px;
+  background: var(--glass);
+  border: 1px solid var(--realm);
+  backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow: var(--shadow-deep), 0 0 50px -16px var(--realm);
+  animation: sq-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+.realmTag {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: var(--realm);
+}
+.realmTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--text-hi);
+  margin: 6px 0 6px;
+  text-shadow: 0 0 24px var(--realm);
+}
+.realmBody {
+  font-size: 0.84rem;
+  color: var(--text-mid);
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+.realmSoon {
+  font-size: 0.74rem;
+  color: var(--text-lo);
+  margin-bottom: 14px;
+}

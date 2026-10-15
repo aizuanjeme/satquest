@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { LevelManager } from '../core/LevelManager'
-import { QuestWorld } from '../rendering/QuestWorld'
+import { QuestWorld, DOOR_DEFS } from '../rendering/QuestWorld'
 import { sound } from '../audio/SoundManager'
 import Avatar from '../ui/Avatar'
 import ScoreDisplay from '../ui/ScoreDisplay'
@@ -17,13 +17,15 @@ const TYPE_META = {
   LevelMap — the quest hub rendered as an explorable 3D road. A winding neon
   highway carries gold sats-coins (transactions) past a Bitcoin "vault"
   building for every level. Drag / scroll to travel the road; tap a building
-  to inspect a level, then launch it.
+  to inspect a level, then launch it. At the end of the road, three doors
+  lead into the Explorer, Sovereignty and Builder worlds.
 */
 export default function LevelMap({ avatar, username, sats, unlockedUpTo, progress, onSelect }) {
   const canvasRef = useRef(null)
   const worldRef = useRef(null)
   const [selected, setSelected] = useState(null)
   const [bridgeWelcome, setBridgeWelcome] = useState(false)
+  const [realm, setRealm] = useState(null)
 
   useEffect(() => {
     if (!canvasRef.current) return undefined
@@ -43,6 +45,15 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
       sound.select()
       setBridgeWelcome(true)
     })
+    world.onDoorPick(() => {
+      sound.select()
+      setSelected(null)
+    })
+    world.onRealmEnter((id) => {
+      sound.success()
+      setRealm(DOOR_DEFS.find((d) => d.id === id) || null)
+    })
+    world.onRealmExit(() => setRealm(null))
     world.start()
 
     // Auto-show bridge welcome once when Stage 2 first unlocked.
@@ -99,24 +110,36 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
       </header>
 
       <div className={s.titleBlock} data-tour="map">
-        <p className={s.kicker}>YOUR JOURNEY</p>
-        <h2 className={s.title}>The Quest Map</h2>
+        <p className={s.kicker}>{realm ? 'YOU ENTERED' : 'YOUR JOURNEY'}</p>
+        <h2 className={s.title}>{realm ? realm.world : 'The Quest Map'}</h2>
       </div>
 
-      {nearBridge && selected == null && (
+      {realm && (
+        <div className={s.realmCard} key={realm.id} style={{ '--realm': realm.css }}>
+          <span className={s.realmTag}>{realm.icon} {realm.label} DOOR</span>
+          <h3 className={s.realmTitle}>{realm.world}</h3>
+          <p className={s.realmBody}>{realm.blurb}</p>
+          <p className={s.realmSoon}>🔒 Quests in this world are coming soon · drag to look around</p>
+          <NeonButton variant="blue" onClick={() => { sound.tap(); worldRef.current?.exitRealm() }}>
+            ← Back to the Quest Map
+          </NeonButton>
+        </div>
+      )}
+
+      {!realm && nearBridge && selected == null && (
         <div className={`${s.urgencyBanner} ${stage2Active ? s.urgencyActive : s.urgencyAwaits}`}>
           {stage2Active ? '⚡ STAGE 2 ACTIVE — YOU’RE IN!' : '🌉 STAGE 2 AWAITS — Cross the bridge →'}
         </div>
       )}
 
-      {selected == null && (
+      {!realm && selected == null && (
         <div className={s.hint}>
           <span className={s.hintDot} />
-          Drag to travel · tap a vault to begin
+          Drag to travel · tap a vault or a door
         </div>
       )}
 
-      {lv && (
+      {!realm && lv && (
         <div className={s.card} key={selected}>
           <button className={s.cardClose} onClick={() => { sound.tap(); setSelected(null) }} aria-label="Close">✕</button>
           <span className={s.cardTag} style={{ color: meta.color }}>

@@ -16,6 +16,16 @@ import gsap from 'gsap'
     .onHover(fn(index|null))
     .focusLevel(index, animate)
     .setSelected(index)
+
+  At the end of the road stand three doors — Explorer, Sovereignty and
+  Builder. Tapping one swings it open and flies the camera through it into
+  that door's own world (a separate scene, built on first visit). Each world
+  has a return door that brings the player back to the road.
+
+    .onDoorPick(fn(id))   — fired when a door is tapped, before the fly-through
+    .onRealmEnter(fn(id)) — fired once the player has arrived in a world
+    .onRealmExit(fn())    — fired once the player is back on the road
+    .exitRealm()
 */
 
 const STATE_COLORS = {
@@ -25,11 +35,35 @@ const STATE_COLORS = {
   done: new THREE.Color(0x2bd47a),
 }
 
-const BRANCH_DEFS = [
-  { id: 'explorer',    xFan: -1, hex: 0x2bd47a, rail: '#2bd47a', dash: '#157a3c', label: 'EXPLORER',    icon: '⬡', tagline: ['Learn the basics.', 'Start your journey.'] },
-  { id: 'sovereignty', xFan:  0, hex: 0xf7c948, rail: '#f7c948', dash: '#8a6200', label: 'SOVEREIGNTY', icon: '♛', tagline: ['Go deeper.', 'Understand why.'] },
-  { id: 'builder',     xFan:  1, hex: 0xff44ff, rail: '#ff44ff', dash: '#880088', label: 'BUILDER',     icon: '⌬', tagline: ['Build the future.', 'Master the tools.'] },
+export const DOOR_DEFS = [
+  {
+    id: 'explorer', slot: -1, hex: 0x2bd47a, css: '#2bd47a', label: 'EXPLORER', icon: '⬡',
+    tagline: ['Learn the basics.', 'Start your journey.'],
+    world: 'The Wildlands',
+    blurb: 'A glowing forest where every trail teaches the basics — what Bitcoin is, how wallets work and how to keep your sats safe.',
+  },
+  {
+    id: 'sovereignty', slot: 0, hex: 0xf7c948, css: '#f7c948', label: 'SOVEREIGNTY', icon: '♛',
+    tagline: ['Go deeper.', 'Understand why.'],
+    world: 'The Golden Citadel',
+    blurb: 'Halls of sound money. Go deeper into why Bitcoin matters — self-custody, scarcity and financial freedom.',
+  },
+  {
+    id: 'builder', slot: 1, hex: 0xff44ff, css: '#ff44ff', label: 'BUILDER', icon: '⌬',
+    tagline: ['Build the future.', 'Master the tools.'],
+    world: 'The Forge',
+    blurb: 'A neon grid where blocks are forged. Master the tools — Lightning, scripts and building on Bitcoin.',
+  },
 ]
+
+const RETURN_DOOR = { id: 'return', slot: 0, hex: 0x2ad8ff, css: '#2ad8ff', label: 'QUEST MAP', icon: '↩', tagline: ['Head back', 'to the road.'] }
+
+const DOOR_W = 2.2       // doorway width
+const DOOR_H = 3.4       // height of the straight sides; the arch sits on top
+const DOOR_BASE = 0.24   // plinth height
+const DOOR_OPEN = 1.75   // leaf swing (radians) when fully open
+const REALM_RING = 10    // radius of the locked quest vaults inside a world
+const REALM_NODES = 7
 
 const QUEST_THEMES = {
   dark:   { top: 0x0b0a18, mid: 0x140a28, bot: 0x05070e, fog: 0x06070d, star: 0xbfd8ff, light1: 0x2ad8ff, light2: 0x9945ff, rail: '#2ad8ff', dash: '#f7c948', ground: 0x06080f, states: { locked: 0x3a4258, unlocked: 0x2ad8ff, current: 0xf7c948, done: 0x2bd47a } },
@@ -92,10 +126,19 @@ export class QuestWorld {
     // Camera travels along the curve via this scalar (0..1).
     this._camT = 0
     this._targetCamT = 0
-    // Branch steering: -1=Explorer(left), 0=Sovereignty(center), +1=Builder(right)
-    this._branchBlend = 0
-    this._targetBranchBlend = 0
-    this._branchCurveMap = {} // populated by _buildBranches
+    this._lastLook = new THREE.Vector3()
+
+    // Doors at the end of the road, and the worlds behind them.
+    this._doors = []
+    this._hoveredDoor = null
+    this._realm = null        // active world while the player is inside one
+    this._realms = {}         // built lazily, keyed by door id
+    this._fromDoor = null     // the road door the player went through
+    this._fly = null          // { pos, look } camera override during door transitions
+    this._transitioning = false
+    this._doorCb = null
+    this._realmEnterCb = null
+    this._realmExitCb = null
 
     this.pointer = new THREE.Vector2(-2, -2)
     this.raycaster = new THREE.Raycaster()
@@ -115,7 +158,8 @@ export class QuestWorld {
       this._bridgeT = 0.978
     }
     this._buildBridge()
-    this._buildBranches()
+    this._buildDoors()
+    this._buildFade()
 
     // Start focused on the current (next playable) level.
     const startIdx = Math.min(this.unlockedUpTo, this.N - 1)
@@ -144,14 +188,20 @@ export class QuestWorld {
   }
 
   _buildSky() {
+    const sky = this._makeSky(0x0b0a18, 0x140a28, 0x05070e)
+    this._skyMat = sky.material
+    this.scene.add(sky)
+  }
+
+  _makeSky(top, mid, bot) {
     const geo = new THREE.SphereGeometry(200, 32, 32)
     const mat = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,
       uniforms: {
-        top: { value: new THREE.Color(0x0b0a18) },
-        mid: { value: new THREE.Color(0x140a28) },
-        bot: { value: new THREE.Color(0x05070e) },
+        top: { value: new THREE.Color(top) },
+        mid: { value: new THREE.Color(mid) },
+        bot: { value: new THREE.Color(bot) },
       },
       vertexShader: `
         varying vec3 vPos;
@@ -167,8 +217,7 @@ export class QuestWorld {
         }
       `,
     })
-    this._skyMat = mat
-    this.scene.add(new THREE.Mesh(geo, mat))
+    return new THREE.Mesh(geo, mat)
   }
 
   _starTexture() {
@@ -481,26 +530,9 @@ export class QuestWorld {
     this._coinFrontT = frontT
   }
 
-  /* ---------- branches after Stage 2 ---------- */
+  /* ---------- doors at the end of the road ---------- */
 
-  _branchRoadTex(railColor, dashColor, id) {
-    const key = `_brt_${id}`
-    if (this[key]) return this[key]
-    const c = document.createElement('canvas')
-    c.width = 128; c.height = 512
-    const ctx = c.getContext('2d')
-    ctx.fillStyle = '#080b14'
-    ctx.fillRect(0, 0, 128, 512)
-    ctx.fillStyle = railColor; ctx.shadowColor = railColor; ctx.shadowBlur = 14
-    ctx.fillRect(8, 0, 6, 512); ctx.fillRect(114, 0, 6, 512)
-    ctx.fillStyle = dashColor; ctx.shadowColor = dashColor; ctx.shadowBlur = 8
-    for (let y = 0; y < 512; y += 56) ctx.fillRect(60, y, 8, 30)
-    const tex = new THREE.CanvasTexture(c)
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 8)
-    this[key] = tex; return tex
-  }
-
-  _pathHeaderSprite(label, taglines, hex) {
+  _pathHeaderSprite(label, taglines, hex, icon = '★') {
     const W = 400, H = 220
     const c = document.createElement('canvas'); c.width = W; c.height = H
     const ctx = c.getContext('2d')
@@ -511,164 +543,636 @@ export class QuestWorld {
     ctx.strokeStyle = hex; ctx.lineWidth = 3; ctx.shadowColor = hex; ctx.shadowBlur = 16
     ctx.stroke()
     ctx.font = 'bold 38px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff'; ctx.fillText(BRANCH_DEFS.find(b => b.label === label)?.icon ?? '★', W / 2, 46)
+    ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff'; ctx.fillText(icon, W / 2, 46)
     // Label
     ctx.font = 'bold 52px Orbitron, sans-serif'
     ctx.shadowColor = hex; ctx.shadowBlur = 22; ctx.fillStyle = hex
-    ctx.fillText(label, W / 2, 110)
+    ctx.fillText(label, W / 2, 110, W - 16)
     // Taglines
     ctx.font = '28px Orbitron, sans-serif'
     ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.shadowBlur = 6
-    taglines.forEach((line, li) => ctx.fillText(line, W / 2, 152 + li * 36))
+    taglines.forEach((line, li) => ctx.fillText(line, W / 2, 152 + li * 36, W - 16))
     const tex = new THREE.CanvasTexture(c)
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false })
     const sp = new THREE.Sprite(mat); sp.scale.set(5.2, 2.86, 1)
     return sp
   }
 
-  _makeBranchNode(hexColor, index = 0) {
-    const group = new THREE.Group()
-    const col = new THREE.Color(hexColor)
-    const dim = col.clone().multiplyScalar(0.35)
-    const h = 2.0 + (index % 4) * 0.4  // deterministic, matches main road rhythm
-    const bodyGeo = new THREE.BoxGeometry(1.7, h, 1.7)
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: dim.clone().multiplyScalar(0.32),
-      emissive: dim.clone().multiplyScalar(0.12),
-      emissiveIntensity: 0.4, roughness: 0.4, metalness: 0.5,
+  // Arch outline: straight sides of height h, semicircle of radius halfW on top.
+  _archShape(halfW, h) {
+    const s = new THREE.Shape()
+    s.moveTo(-halfW, 0)
+    s.lineTo(-halfW, h)
+    s.absarc(0, h, halfW, Math.PI, 0, true)
+    s.lineTo(halfW, 0)
+    s.lineTo(-halfW, 0)
+    return s
+  }
+
+  // Frame as one U-shaped polygon (outer arch, then back along the inner arch).
+  _archFrameShape(outerW, innerW, h) {
+    const s = new THREE.Shape()
+    s.moveTo(-outerW, 0)
+    s.lineTo(-outerW, h)
+    s.absarc(0, h, outerW, Math.PI, 0, true)
+    s.lineTo(outerW, 0)
+    s.lineTo(innerW, 0)
+    s.lineTo(innerW, h)
+    s.absarc(0, h, innerW, 0, Math.PI, false)
+    s.lineTo(-innerW, 0)
+    s.lineTo(-outerW, 0)
+    return s
+  }
+
+  // Swirling glimpse of the world beyond the doorway.
+  _portalMaterial(hex) {
+    return new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(hex) },
+        uBoost: { value: 0 },
+      },
+      vertexShader: `
+        varying vec2 vP;
+        void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+      `,
+      fragmentShader: `
+        varying vec2 vP; uniform float uTime; uniform vec3 uColor; uniform float uBoost;
+        void main(){
+          vec2 p = vP - vec2(0.0, ${(DOOR_H * 0.62).toFixed(2)});
+          float r = length(p);
+          float a = atan(p.y, p.x);
+          float swirl = sin(a * 5.0 + r * 6.0 - uTime * 2.5) * 0.5 + 0.5;
+          float rings = sin(r * 10.0 - uTime * 4.0) * 0.5 + 0.5;
+          float core = exp(-r * 0.9);
+          vec3 c = uColor * (0.35 + swirl * 0.45 + rings * 0.2) + vec3(1.0) * core * (0.3 + uBoost);
+          c *= 1.0 + uBoost * 1.5;
+          gl_FragColor = vec4(c, 0.94);
+        }
+      `,
     })
-    const body = new THREE.Mesh(bodyGeo, bodyMat)
-    body.position.y = h / 2; body.userData.role = 'body'; group.add(body)
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(bodyGeo),
-      new THREE.LineBasicMaterial({ color: col.clone().multiplyScalar(0.65), transparent: true, opacity: 0.45 }),
+  }
+
+  _doorLeafTexture(css) {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 384
+    const ctx = c.getContext('2d')
+    ctx.fillStyle = '#0a0d18'; ctx.fillRect(0, 0, 128, 384)
+    ctx.strokeStyle = css; ctx.shadowColor = css; ctx.shadowBlur = 10; ctx.lineWidth = 4
+    ctx.strokeRect(16, 16, 96, 156)
+    ctx.strokeRect(16, 196, 96, 172)
+    ctx.fillStyle = css
+    ;[[24, 24], [104, 24], [24, 164], [104, 164], [24, 204], [104, 204], [24, 360], [104, 360]].forEach(([x, y]) => {
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill()
+    })
+    return new THREE.CanvasTexture(c)
+  }
+
+  _doorEmblem(icon, css) {
+    const c = document.createElement('canvas'); c.width = c.height = 128
+    const ctx = c.getContext('2d')
+    ctx.beginPath(); ctx.arc(64, 64, 50, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill()
+    ctx.strokeStyle = css; ctx.lineWidth = 5; ctx.shadowColor = css; ctx.shadowBlur = 18; ctx.stroke()
+    ctx.font = 'bold 60px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#ffffff'; ctx.fillText(icon, 64, 68)
+    const mat = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })
+    const sp = new THREE.Sprite(mat); sp.scale.set(1.1, 1.1, 1)
+    return sp
+  }
+
+  _spillTexture() {
+    if (this._spillTex) return this._spillTex
+    const c = document.createElement('canvas'); c.width = c.height = 128
+    const ctx = c.getContext('2d')
+    const g = ctx.createRadialGradient(64, 20, 4, 64, 40, 100)
+    g.addColorStop(0, 'rgba(255,255,255,1)')
+    g.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128)
+    this._spillTex = new THREE.CanvasTexture(c)
+    return this._spillTex
+  }
+
+  // A door group faces local +Z; its leaves swing open toward -Z (inward).
+  _makeDoor(def, headerWidth = 5.2) {
+    const group = new THREE.Group()
+    const col = new THREE.Color(def.hex)
+    const halfW = DOOR_W / 2
+    const pickTargets = []
+
+    const plinth = new THREE.Mesh(
+      new THREE.BoxGeometry(DOOR_W + 0.9, DOOR_BASE, 1.6),
+      new THREE.MeshStandardMaterial({ color: 0x0b1020, emissive: col.clone().multiplyScalar(0.25), metalness: 0.8, roughness: 0.3 }),
     )
-    edges.position.y = h / 2; edges.userData.role = 'edges'; group.add(edges)
-    const topGeo = new THREE.BoxGeometry(1.0, 0.7, 1.0)
-    const top = new THREE.Mesh(topGeo, bodyMat.clone())
-    top.position.y = h + 0.35; top.userData.role = 'top'; group.add(top)
-    const label = this._labelSprite('🔒', '#7788aa')
-    label.position.set(0, h + 1.45, 0); group.add(label)
-    group.userData.unlocked = false; group.userData.state = 'locked'
-    group.userData.isBranchPreview = true; group.userData.pickTargets = []
+    plinth.position.y = DOOR_BASE / 2
+    group.add(plinth)
+
+    const frameGeo = new THREE.ExtrudeGeometry(this._archFrameShape(halfW + 0.32, halfW, DOOR_H), { depth: 0.5, bevelEnabled: false, curveSegments: 20 })
+    frameGeo.translate(0, DOOR_BASE, -0.25)
+    const frame = new THREE.Mesh(frameGeo, new THREE.MeshStandardMaterial({
+      color: col.clone().multiplyScalar(0.3), emissive: col, emissiveIntensity: 0.9, metalness: 0.7, roughness: 0.25,
+    }))
+    group.add(frame); pickTargets.push(frame)
+
+    const portalMat = this._portalMaterial(def.hex)
+    const portal = new THREE.Mesh(new THREE.ShapeGeometry(this._archShape(halfW, DOOR_H), 20), portalMat)
+    portal.position.set(0, DOOR_BASE, -0.14)
+    group.add(portal); pickTargets.push(portal)
+
+    const leafTex = this._doorLeafTexture(def.css)
+    const leafMat = new THREE.MeshStandardMaterial({
+      map: leafTex, emissive: 0xffffff, emissiveMap: leafTex, emissiveIntensity: 0.9, metalness: 0.6, roughness: 0.35,
+    })
+    const leaves = [-1, 1].map((side) => {
+      const geo = new THREE.BoxGeometry(halfW - 0.02, DOOR_H, 0.12)
+      geo.translate(-side * (halfW / 2), DOOR_H / 2, 0) // hinge on the outer edge
+      const leaf = new THREE.Mesh(geo, leafMat)
+      const hinge = new THREE.Group()
+      hinge.position.set(side * halfW, DOOR_BASE, 0.06)
+      hinge.userData.side = side
+      hinge.add(leaf); group.add(hinge); pickTargets.push(leaf)
+      return hinge
+    })
+
+    const emblem = this._doorEmblem(def.icon, def.css)
+    emblem.position.set(0, DOOR_BASE + DOOR_H * 0.62, 0.3)
+    group.add(emblem)
+
+    const header = this._pathHeaderSprite(def.label, def.tagline, def.css, def.icon)
+    header.scale.set(headerWidth, headerWidth * 0.55, 1)
+    header.position.set(0, DOOR_BASE + DOOR_H + halfW + 0.4 + headerWidth * 0.275, 0)
+    group.add(header)
+
+    // Light spilling across the floor as the door opens
+    const spill = new THREE.Mesh(
+      new THREE.PlaneGeometry(DOOR_W * 1.6, 4),
+      new THREE.MeshBasicMaterial({ map: this._spillTexture(), color: col, transparent: true, opacity: 0.15, depthWrite: false, blending: THREE.AdditiveBlending }),
+    )
+    spill.rotation.x = -Math.PI / 2
+    spill.position.set(0, 0.03, 2.6)
+    group.add(spill)
+
+    const light = new THREE.PointLight(def.hex, 6, 12)
+    light.position.set(0, 2.2, 1.8)
+    group.add(light)
+
+    pickTargets.forEach((m) => { m.userData.doorId = def.id })
+    Object.assign(group.userData, { def, leaves, portalMat, emblem, spill, light, pickTargets, open: 0, targetOpen: 0 })
     return group
   }
 
-  _buildBranches() {
+  _updateDoor(door, t, hovered) {
+    const ud = door.userData
+    const target = Math.max(ud.targetOpen, hovered ? 0.18 : 0)
+    ud.open += (target - ud.open) * (target > ud.open ? 0.1 : 0.07)
+    ud.leaves.forEach((h) => { h.rotation.y = -h.userData.side * ud.open * DOOR_OPEN })
+    ud.portalMat.uniforms.uTime.value = t
+    ud.emblem.material.opacity = THREE.MathUtils.clamp(1 - ud.open * 2.5, 0, 1)
+    ud.spill.material.opacity = 0.15 + ud.open * 0.85
+    ud.light.intensity = 6 + ud.open * 34 + Math.sin(t * 2 + ud.def.slot) * 1.5
+  }
+
+  _buildDoors() {
     if (this.N === 0) return
     const up = new THREE.Vector3(0, 1, 0)
-    const N_PREVIEW = 7
-    const halfW = 2.4
-    const SEG = 7   // same spacing as main road
+    const end = this.curve.getPointAt(1)
+    const tan = this.curve.getTangentAt(1).normalize()
+    const side = new THREE.Vector3().crossVectors(tan, up).normalize()
+    const spacing = this._isPortrait ? 3.4 : 4.6
+    const center = end.clone().addScaledVector(tan, 3)
+    center.y = 0
+    this._doorCenter = center
 
-    // Junction = one segment beyond last level on the main curve
-    const lastT = this._tForIndex(this.N - 1)
-    const tPerSeg = 0.9 / Math.max(1, this.N - 1)
-    const junctionT = Math.min(lastT + tPerSeg * 0.75, 0.97)
-    const junctionP = this.curve.getPointAt(junctionT)
-    const junctionTan = this.curve.getTangentAt(junctionT).normalize()
-    const junctionSide = new THREE.Vector3().crossVectors(junctionTan, up).normalize()
-
-    // Glowing junction disc — kept small and flush to the ground
-    const discGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.14, 40)
-    const discMat = new THREE.MeshStandardMaterial({
-      color: 0x0a2030, emissive: 0x2ad8ff, emissiveIntensity: 0.7,
-      metalness: 0.9, roughness: 0.15,
-    })
-    const disc = new THREE.Mesh(discGeo, discMat)
-    disc.position.copy(junctionP); disc.position.y = 0.06
+    // Plaza the doors stand on
+    const disc = new THREE.Mesh(
+      new THREE.CylinderGeometry(spacing * 1.7, spacing * 1.8, 0.14, 48),
+      new THREE.MeshStandardMaterial({ color: 0x0a2030, emissive: 0x2ad8ff, emissiveIntensity: 0.35, metalness: 0.9, roughness: 0.15 }),
+    )
+    disc.position.copy(center); disc.position.y = 0.04
     this.scene.add(disc); this._junctionDisc = disc
 
-    // Glow ring
-    const ringGeo = new THREE.TorusGeometry(1.7, 0.10, 8, 50)
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2ad8ff, transparent: true, opacity: 0.8 })
-    const ring = new THREE.Mesh(ringGeo, ringMat)
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(spacing * 1.75, 0.08, 8, 64),
+      new THREE.MeshBasicMaterial({ color: 0x2ad8ff, transparent: true, opacity: 0.8 }),
+    )
     ring.rotation.x = Math.PI / 2
-    ring.position.copy(junctionP); ring.position.y = 0.18
+    ring.position.copy(center); ring.position.y = 0.14
     this.scene.add(ring); this._junctionRing = ring
 
-    // Point light at junction
-    const jLight = new THREE.PointLight(0x2ad8ff, 20, 14)
-    jLight.position.copy(junctionP); jLight.position.y = 1.5
-    this.scene.add(jLight); this._junctionLight = jLight
-
-    this._centerBranchCurve = null
-    this._branchCurveMap = {}
-
-    BRANCH_DEFS.forEach((branch) => {
-      const fanMax = 11 // units of lateral spread at full fan
-      const lateral = branch.xFan * fanMax
-
-      // Build branch CatmullRom curve forward from junction
-      // junctionTan points forward (toward -Z), so SEG*i goes deeper into scene
-      const pts = []
-      for (let i = -1; i <= N_PREVIEW + 2; i++) {
-        const ramp = Math.min(1, Math.max(0, i / 2.5)) // fan opens over first 2.5 segments
-        const lx = junctionSide.x * lateral * ramp + junctionTan.x * (SEG * i)
-        const lz = junctionSide.z * lateral * ramp + junctionTan.z * (SEG * i)
-        pts.push(new THREE.Vector3(junctionP.x + lx, 0, junctionP.z + lz))
-      }
-      const branchCurve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.5)
-      branchCurve.arcLengthDivisions = 300
-      // Store all branch curves keyed by xFan (-1/0/1)
-      this._branchCurveMap[branch.xFan] = branchCurve
-      if (branch.xFan === 0) this._centerBranchCurve = branchCurve
-
-      // Branch road mesh
-      const positions = [], uvs = [], idxs = []
-      const S = 200
-      for (let i = 0; i <= S; i++) {
-        const t = i / S
-        const p = branchCurve.getPointAt(t)
-        const tan = branchCurve.getTangentAt(t).normalize()
-        const side = new THREE.Vector3().crossVectors(tan, up).normalize()
-        const l = p.clone().addScaledVector(side, -halfW)
-        const r = p.clone().addScaledVector(side,  halfW)
-        positions.push(l.x, l.y, l.z, r.x, r.y, r.z)
-        uvs.push(0, t, 1, t)
-        if (i < S) { const a = i * 2; idxs.push(a, a + 1, a + 2, a + 1, a + 3, a + 2) }
-      }
-      const roadGeo = new THREE.BufferGeometry()
-      roadGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-      roadGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
-      roadGeo.setIndex(idxs); roadGeo.computeVertexNormals()
-      const roadTex = this._branchRoadTex(branch.rail, branch.dash, branch.id)
-      const roadMat = new THREE.MeshStandardMaterial({
-        map: roadTex,
-        emissive: new THREE.Color(branch.hex).multiplyScalar(0.04),
-        emissiveIntensity: 0.8, roughness: 0.5, metalness: 0.3, side: THREE.DoubleSide,
-      })
-      const branchRoad = new THREE.Mesh(roadGeo, roadMat)
-      branchRoad.position.y = 0.01; this.scene.add(branchRoad)
-
-      // Path header sprite — placed at t=0.45 where branches have fully diverged
-      const headerT = 0.45
-      const headerP = branchCurve.getPointAt(headerT)
-      const header = this._pathHeaderSprite(branch.label, branch.tagline, branch.rail)
-      header.position.set(headerP.x, 5.5, headerP.z)
-      this.scene.add(header)
-
-      // Locked preview nodes along branch
-      for (let ni = 0; ni < N_PREVIEW; ni++) {
-        const nodeT = 0.12 + (ni / (N_PREVIEW - 1)) * 0.82
-        const np = branchCurve.getPointAt(nodeT)
-        const ntan = branchCurve.getTangentAt(nodeT).normalize()
-        const nside = new THREE.Vector3().crossVectors(ntan, up).normalize()
-        const offset = (ni % 2 === 0 ? 1 : -1) * this._sideOffset
-        const g = this._makeBranchNode(branch.hex, ni)
-        g.position.copy(np).addScaledVector(nside, offset)
-        g.lookAt(np.x, g.position.y, np.z)
-        g.userData.basePos = g.position.clone()
-        this.scene.add(g)
-        this._buildings.push(g)
-      }
-
-      // Branch accent point light
-      const bLight = new THREE.PointLight(branch.hex, 18, 22)
-      const bLightP = branchCurve.getPointAt(0.22)
-      bLight.position.set(bLightP.x, 3, bLightP.z)
-      this.scene.add(bLight)
+    // Angle the side doors slightly toward the approaching player
+    const facing = center.clone().addScaledVector(tan, -16)
+    DOOR_DEFS.forEach((def) => {
+      const door = this._makeDoor(def, Math.min(5.2, spacing * 0.95))
+      door.position.copy(center).addScaledVector(side, def.slot * spacing)
+      door.lookAt(facing.x, 0, facing.z)
+      this.scene.add(door)
+      this._doors.push(door)
     })
+  }
+
+  /* ---------- the worlds behind the doors ---------- */
+
+  _makeRealmNode(hexColor, index = 0) {
+    const group = new THREE.Group()
+    const col = new THREE.Color(hexColor)
+    const dim = col.clone().multiplyScalar(0.35)
+    const h = 2.0 + (index % 4) * 0.4
+    const bodyGeo = new THREE.BoxGeometry(1.7, h, 1.7)
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: dim.clone().multiplyScalar(0.4),
+      emissive: dim.clone().multiplyScalar(0.3),
+      emissiveIntensity: 0.6, roughness: 0.4, metalness: 0.5,
+    })
+    const body = new THREE.Mesh(bodyGeo, bodyMat)
+    body.position.y = h / 2; group.add(body)
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(bodyGeo),
+      new THREE.LineBasicMaterial({ color: col.clone().multiplyScalar(0.9), transparent: true, opacity: 0.6 }),
+    )
+    edges.position.y = h / 2; group.add(edges)
+    const top = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 1.0), bodyMat)
+    top.position.y = h + 0.35; group.add(top)
+    const label = this._labelSprite('🔒', '#7788aa')
+    label.position.set(0, h + 1.45, 0); group.add(label)
+    return group
+  }
+
+  _floatingPoints(count, color, size, spread) {
+    const pos = new Float32Array(count * 3)
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2
+      const r = Math.sqrt(Math.random()) * spread.r
+      pos[i * 3] = Math.cos(a) * r
+      pos[i * 3 + 1] = spread.y0 + Math.random() * (spread.y1 - spread.y0)
+      pos[i * 3 + 2] = Math.sin(a) * r
+    }
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    return new THREE.Points(geo, new THREE.PointsMaterial({
+      color, size, map: this._starTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    }))
+  }
+
+  _buildRealm(def) {
+    const scene = new THREE.Scene()
+    const realm = {
+      id: def.id,
+      scene,
+      nodes: [],
+      update: null,
+      cam: { angle: 0, targetAngle: 0, radius: 4, height: 1.6, baseRadius: this._isPortrait ? 23 : 19, baseHeight: 7.5 },
+    }
+    const look = {
+      explorer: this._buildWildlands,
+      sovereignty: this._buildCitadel,
+      builder: this._buildForge,
+    }[def.id]
+    const palette = look.call(this, realm, def)
+
+    scene.add(this._makeSky(palette.top, palette.mid, palette.bot))
+    scene.fog = new THREE.FogExp2(palette.fog, palette.fogDensity ?? 0.022)
+    scene.add(new THREE.AmbientLight(palette.ambient ?? 0x556677, 0.7))
+    const key = new THREE.DirectionalLight(0xffffff, 0.6)
+    key.position.set(8, 16, 10)
+    scene.add(key)
+    const accent = new THREE.PointLight(def.hex, 40, 40)
+    accent.position.set(0, 6, 0)
+    scene.add(accent)
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(400, 400),
+      new THREE.MeshStandardMaterial({ color: palette.ground, roughness: 0.85, metalness: 0.2 }),
+    )
+    ground.rotation.x = -Math.PI / 2
+    ground.position.y = -0.02
+    scene.add(ground)
+
+    // The quests of this world — locked for now
+    for (let i = 0; i < REALM_NODES; i++) {
+      const a = (i / REALM_NODES) * Math.PI * 2 + Math.PI / REALM_NODES
+      const g = this._makeRealmNode(def.hex, i)
+      g.position.set(Math.sin(a) * REALM_RING, 0, Math.cos(a) * REALM_RING)
+      g.lookAt(0, 0, 0)
+      g.userData.basePos = g.position.clone()
+      scene.add(g)
+      realm.nodes.push(g)
+    }
+
+    const title = this._pathHeaderSprite(def.label, [def.world, 'Quests coming soon'], def.css, def.icon)
+    title.scale.set(7, 3.85, 1)
+    title.position.set(0, 11, 0)
+    scene.add(title)
+
+    // Return door on the far side, facing the arriving player
+    const exit = this._makeDoor(RETURN_DOOR, 4.2)
+    exit.position.set(0, 0, -(REALM_RING + 4))
+    exit.lookAt(0, 0, 0)
+    scene.add(exit)
+    realm.exitDoor = exit
+
+    return realm
+  }
+
+  // Explorer — a glowing night forest with fireflies and a great crystal.
+  _buildWildlands(realm) {
+    const { scene } = realm
+
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(9, 32, 32), new THREE.MeshBasicMaterial({ color: 0xd9ffe8, fog: false }))
+    moon.position.set(-40, 40, -110)
+    scene.add(moon)
+
+    const trunkGeo = new THREE.CylinderGeometry(0.15, 0.22, 1.2, 6)
+    const coneGeo = new THREE.ConeGeometry(1, 2.2, 7)
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x1a120a, roughness: 0.9 })
+    const leafMats = [0x2bd47a, 0x1fae8f, 0x7be36b].map((c) => new THREE.MeshStandardMaterial({
+      color: new THREE.Color(c).multiplyScalar(0.25), emissive: c, emissiveIntensity: 0.35, roughness: 0.6, flatShading: true,
+    }))
+    for (let i = 0; i < 110; i++) {
+      const a = Math.random() * Math.PI * 2
+      const r = 27 + Math.random() * 45
+      const tree = new THREE.Group()
+      const trunk = new THREE.Mesh(trunkGeo, trunkMat)
+      trunk.position.y = 0.6
+      tree.add(trunk)
+      for (let k = 0; k < 3; k++) {
+        const cone = new THREE.Mesh(coneGeo, leafMats[i % 3])
+        cone.position.y = 1.6 + k * 0.9
+        cone.scale.setScalar(1 - k * 0.25)
+        tree.add(cone)
+      }
+      tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r)
+      tree.scale.setScalar(1.2 + Math.random() * 2.2)
+      tree.rotation.y = Math.random() * Math.PI
+      scene.add(tree)
+    }
+
+    // Ring of standing stones around a floating crystal
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x24302a, emissive: 0x0b3320, roughness: 0.9, flatShading: true })
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2
+      const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(0.6, 0), stoneMat)
+      stone.scale.set(1, 1.8, 0.8)
+      stone.position.set(Math.cos(a) * 3.4, 0.9, Math.sin(a) * 3.4)
+      scene.add(stone)
+    }
+    const crystal = new THREE.Mesh(
+      new THREE.OctahedronGeometry(1.4, 0),
+      new THREE.MeshStandardMaterial({ color: 0x0d4a2c, emissive: 0x2bd47a, emissiveIntensity: 1.2, metalness: 0.3, roughness: 0.1, flatShading: true }),
+    )
+    crystal.scale.set(1, 1.6, 1)
+    crystal.position.y = 3.6
+    scene.add(crystal)
+
+    const flies = this._floatingPoints(320, 0xc8ff7a, 0.45, { r: 34, y0: 0.4, y1: 7 })
+    scene.add(flies)
+    const base = flies.geometry.attributes.position.array.slice()
+
+    realm.update = (t) => {
+      crystal.rotation.y = t * 0.6
+      crystal.position.y = 3.6 + Math.sin(t * 1.3) * 0.25
+      const arr = flies.geometry.attributes.position.array
+      for (let i = 0; i < arr.length; i += 3) {
+        arr[i] = base[i] + Math.sin(t * 0.6 + i) * 0.6
+        arr[i + 1] = base[i + 1] + Math.sin(t * 0.9 + i * 0.3) * 0.4
+        arr[i + 2] = base[i + 2] + Math.cos(t * 0.5 + i) * 0.6
+      }
+      flies.geometry.attributes.position.needsUpdate = true
+      flies.material.opacity = 0.7 + Math.sin(t * 3) * 0.3
+    }
+
+    return { top: 0x05221a, mid: 0x0a2e22, bot: 0x02080a, fog: 0x03140f, fogDensity: 0.026, ground: 0x04130d, ambient: 0x335544 }
+  }
+
+  // Sovereignty — a golden colonnade around a giant floating bitcoin.
+  _buildCitadel(realm) {
+    const { scene } = realm
+
+    for (let r = 4; r <= 34; r += 5) {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(r, r + 0.08, 96),
+        new THREE.MeshBasicMaterial({ color: 0xf7c948, transparent: true, opacity: 0.25, depthWrite: false, blending: THREE.AdditiveBlending }),
+      )
+      ring.rotation.x = -Math.PI / 2
+      ring.position.y = 0.01
+      scene.add(ring)
+    }
+
+    const colMat = new THREE.MeshStandardMaterial({ color: 0x2a1e08, emissive: 0x8a6200, emissiveIntensity: 0.35, metalness: 0.9, roughness: 0.3 })
+    const capMat = new THREE.MeshStandardMaterial({ color: 0x5a4210, emissive: 0xf7c948, emissiveIntensity: 0.8, metalness: 1, roughness: 0.2 })
+    const COLS = 16, COL_R = 28, COL_H = 10
+    for (let i = 0; i < COLS; i++) {
+      const a = (i / COLS) * Math.PI * 2
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.75, COL_H, 16), colMat)
+      col.position.set(Math.cos(a) * COL_R, COL_H / 2, Math.sin(a) * COL_R)
+      scene.add(col)
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 1.8), capMat)
+      cap.position.set(col.position.x, COL_H + 0.25, col.position.z)
+      scene.add(cap)
+    }
+    const crownRing = new THREE.Mesh(new THREE.TorusGeometry(COL_R, 0.35, 8, 96), capMat)
+    crownRing.rotation.x = Math.PI / 2
+    crownRing.position.y = COL_H + 0.7
+    scene.add(crownRing)
+
+    // Stepped pedestal and the floating coin
+    const stepMat = new THREE.MeshStandardMaterial({ color: 0x1c1406, emissive: 0x4a3400, emissiveIntensity: 0.5, metalness: 0.8, roughness: 0.3 })
+    ;[[3.4, 0.4], [2.6, 0.4], [1.8, 0.4]].forEach(([r, h], i) => {
+      const step = new THREE.Mesh(new THREE.CylinderGeometry(r, r + 0.1, h, 40), stepMat)
+      step.position.y = h / 2 + i * h
+      scene.add(step)
+    })
+    const coin = this._makeCoinMesh(2.0)
+    coin.position.y = 5
+    scene.add(coin)
+
+    const orbit = new THREE.Group()
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2
+      const c = this._makeCoinMesh(0.3)
+      c.position.set(Math.cos(a) * 4.4, 5 + Math.sin(a * 2) * 0.6, Math.sin(a) * 4.4)
+      orbit.add(c)
+    }
+    scene.add(orbit)
+
+    const dust = this._floatingPoints(400, 0xffd56a, 0.35, { r: 30, y0: 0, y1: 14 })
+    scene.add(dust)
+
+    realm.update = (t, dt) => {
+      coin.rotation.z = t * 0.8
+      coin.position.y = 5 + Math.sin(t * 1.1) * 0.3
+      orbit.rotation.y = t * 0.35
+      orbit.children.forEach((c) => { c.rotation.z += dt * 3 })
+      const arr = dust.geometry.attributes.position.array
+      for (let i = 1; i < arr.length; i += 3) {
+        arr[i] += dt * 0.6
+        if (arr[i] > 14) arr[i] = 0
+      }
+      dust.geometry.attributes.position.needsUpdate = true
+    }
+
+    return { top: 0x1a0f2a, mid: 0x3a2206, bot: 0x0a0602, fog: 0x1a1004, fogDensity: 0.018, ground: 0x0d0904, ambient: 0x665533 }
+  }
+
+  // Builder — a neon grid city with a spiralling chain of blocks and data rain.
+  _buildForge(realm) {
+    const { scene } = realm
+
+    const grid = new THREE.GridHelper(240, 120, 0xff44ff, 0x552266)
+    grid.material.transparent = true
+    grid.material.opacity = 0.55
+    grid.position.y = 0.01
+    scene.add(grid)
+
+    const towerMat = new THREE.MeshStandardMaterial({ color: 0x0c0418, emissive: 0x220033, roughness: 0.4, metalness: 0.7 })
+    const edgeMats = [0xff44ff, 0x2ad8ff].map((c) => new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: 0.7 }))
+    for (let i = 0; i < 46; i++) {
+      const a = Math.random() * Math.PI * 2
+      const r = 30 + Math.random() * 50
+      const w = 2 + Math.random() * 4
+      const h = 6 + Math.random() * 28
+      const geo = new THREE.BoxGeometry(w, h, w)
+      const tower = new THREE.Mesh(geo, towerMat)
+      tower.position.set(Math.cos(a) * r, h / 2, Math.sin(a) * r)
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMats[i % 2])
+      tower.add(edges)
+      scene.add(tower)
+    }
+
+    // Blockchain helix: blocks linked by glowing lines
+    const helix = new THREE.Group()
+    const blockGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9)
+    const blockEdges = new THREE.EdgesGeometry(blockGeo)
+    const blockMat = new THREE.MeshStandardMaterial({ color: 0x1a0626, emissive: 0xff44ff, emissiveIntensity: 0.45, metalness: 0.6, roughness: 0.3 })
+    const linkPts = []
+    const BLOCKS = 14
+    for (let i = 0; i < BLOCKS; i++) {
+      const a = i * 0.75
+      const p = new THREE.Vector3(Math.cos(a) * 2.6, 0.8 + i * 0.62, Math.sin(a) * 2.6)
+      const block = new THREE.Mesh(blockGeo, blockMat)
+      block.position.copy(p)
+      block.rotation.set(a, a * 0.5, 0)
+      block.add(new THREE.LineSegments(blockEdges, edgeMats[1]))
+      helix.add(block)
+      linkPts.push(p)
+    }
+    helix.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(linkPts), new THREE.LineBasicMaterial({ color: 0x2ad8ff })))
+    scene.add(helix)
+
+    const rain = this._floatingPoints(700, 0xff7bff, 0.3, { r: 40, y0: 0, y1: 24 })
+    scene.add(rain)
+    const speeds = Array.from({ length: 700 }, () => 3 + Math.random() * 5)
+
+    realm.update = (t, dt) => {
+      helix.rotation.y = t * 0.4
+      helix.children.forEach((b, i) => { if (b.isMesh) b.rotation.x += dt * (0.4 + (i % 3) * 0.2) })
+      const arr = rain.geometry.attributes.position.array
+      for (let i = 0; i < speeds.length; i++) {
+        arr[i * 3 + 1] -= dt * speeds[i]
+        if (arr[i * 3 + 1] < 0) arr[i * 3 + 1] = 24
+      }
+      rain.geometry.attributes.position.needsUpdate = true
+      grid.material.opacity = 0.45 + Math.sin(t * 1.5) * 0.12
+    }
+
+    return { top: 0x0a0018, mid: 0x1a0030, bot: 0x05000c, fog: 0x0c0018, fogDensity: 0.02, ground: 0x05000a, ambient: 0x553366 }
+  }
+
+  /* ---------- door transitions ---------- */
+
+  _buildFade() {
+    this._fadeScene = new THREE.Scene()
+    this._fadeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    this._fadeMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff, transparent: true, opacity: 0, depthTest: false, depthWrite: false, toneMapped: false,
+    })
+    this._fadeScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this._fadeMat))
+  }
+
+  _enterDoor(door) {
+    if (this._transitioning || !door) return
+    const def = door.userData.def
+    this._transitioning = true
+    this._doorCb?.(def.id)
+    door.userData.targetOpen = 1
+
+    const midY = DOOR_BASE + DOOR_H * 0.55
+    const front = door.localToWorld(new THREE.Vector3(0, midY, 3.2))
+    const center = door.localToWorld(new THREE.Vector3(0, midY, 0))
+    const beyond = door.localToWorld(new THREE.Vector3(0, midY, -4))
+    const far = door.localToWorld(new THREE.Vector3(0, midY, -20))
+    this._fly = { pos: this.camera.position.clone(), look: this._lastLook.clone() }
+    this._fadeMat.color.set(def.hex)
+
+    this._tl?.kill()
+    this._tl = gsap.timeline()
+      .to(this._fly.look, { x: center.x, y: center.y, z: center.z, duration: 0.6, ease: 'power2.out' }, 0)
+      .to(this._fly.pos, { x: front.x, y: front.y, z: front.z, duration: 1.0, ease: 'power2.inOut' }, 0.15)
+      .to(door.userData.portalMat.uniforms.uBoost, { value: 1.5, duration: 1.2 }, 0.3)
+      .to(this._fly.look, { x: far.x, y: far.y, z: far.z, duration: 0.6, ease: 'power1.in' }, 1.05)
+      .to(this._fly.pos, { x: beyond.x, y: beyond.y, z: beyond.z, duration: 0.6, ease: 'power2.in' }, 1.05)
+      .to(this._fadeMat, { opacity: 1, duration: 0.35, ease: 'power1.in' }, 1.3)
+      .add(() => this._arriveInRealm(door))
+      .to(this._fadeMat, { opacity: 0, duration: 0.9, ease: 'power2.out' })
+      .add(() => { this._transitioning = false })
+  }
+
+  _arriveInRealm(door) {
+    const def = door.userData.def
+    this._fly = null
+    door.userData.portalMat.uniforms.uBoost.value = 0
+    const realm = this._realms[def.id] || (this._realms[def.id] = this._buildRealm(def))
+    this._realm = realm
+    this._fromDoor = door
+    this._setHover(null, false, null)
+
+    // Arrive close to the heart of the world, then pull back to look around
+    const c = realm.cam
+    gsap.killTweensOf(c)
+    c.angle = c.targetAngle = 0
+    c.radius = 4
+    c.height = 1.6
+    gsap.to(c, { radius: c.baseRadius, height: c.baseHeight, duration: 2.6, ease: 'power3.out' })
+    this._realmEnterCb?.(def.id)
+  }
+
+  exitRealm() {
+    if (!this._realm || this._transitioning) return
+    this._transitioning = true
+    const realm = this._realm
+    const door = this._fromDoor
+    realm.exitDoor.userData.targetOpen = 1
+    this._fadeMat.color.set(RETURN_DOOR.hex)
+
+    this._tl?.kill()
+    this._tl = gsap.timeline()
+      .to(this._fadeMat, { opacity: 1, duration: 0.55, ease: 'power1.in' }, 0.25)
+      .add(() => {
+        realm.exitDoor.userData.targetOpen = 0
+        realm.exitDoor.userData.open = 0
+        this._realm = null
+        this._setHover(null, false, null)
+
+        // Step back out of the door we came through; it swings shut behind us
+        this._camT = this._targetCamT = 0.999
+        const pose = this._mainCamPose(0.999)
+        const midY = DOOR_BASE + DOOR_H * 0.55
+        this._fly = {
+          pos: door.localToWorld(new THREE.Vector3(0, midY, 2.2)),
+          look: door.localToWorld(new THREE.Vector3(0, midY, 0)),
+        }
+        this.camera.position.copy(this._fly.pos)
+        door.userData.open = 1
+        door.userData.targetOpen = 0
+        gsap.to(this._fly.pos, { x: pose.pos.x, y: pose.pos.y, z: pose.pos.z, duration: 1.5, ease: 'power3.out' })
+        gsap.to(this._fly.look, {
+          x: pose.look.x, y: pose.look.y, z: pose.look.z, duration: 1.5, ease: 'power3.out',
+          onComplete: () => { this._fly = null; this._transitioning = false },
+        })
+        this._realmExitCb?.()
+      })
+      .to(this._fadeMat, { opacity: 0, duration: 0.8, ease: 'power2.out' })
   }
 
   /* ---------- bridge to Stage 2 ---------- */
@@ -833,6 +1337,9 @@ export class QuestWorld {
   onPick(fn) { this._pickCb = fn }
   onHover(fn) { this._hoverCb = fn }
   onBridgePick(fn) { this._bridgeCb = fn }
+  onDoorPick(fn) { this._doorCb = fn }
+  onRealmEnter(fn) { this._realmEnterCb = fn }
+  onRealmExit(fn) { this._realmExitCb = fn }
 
   setSelected(index) { this._selected = index }
 
@@ -858,12 +1365,14 @@ export class QuestWorld {
       const dx = e.clientX - this._dragX
       this._dragY = e.clientY
       this._dragX = e.clientX
-      this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 1.95)
-      // Past the junction: horizontal drag steers between branches
-      if (this._camT > 0.9) {
-        this._targetBranchBlend = THREE.MathUtils.clamp(this._targetBranchBlend + dx * 0.004, -1, 1)
+      if (Math.abs(dx) + Math.abs(dy) > 0) this._dragMoved = true
+      if (this._transitioning) return
+      if (this._realm) {
+        // Inside a world: horizontal drag looks around
+        this._realm.cam.targetAngle -= dx * 0.006
+      } else {
+        this._targetCamT = THREE.MathUtils.clamp(this._targetCamT - dy * 0.0016, 0.02, 0.999)
       }
-      this._dragMoved = true
     }
   }
 
@@ -876,8 +1385,11 @@ export class QuestWorld {
   }
 
   _onPointerUp() {
-    if (this._dragging && !this._dragMoved) {
-      if (this._bridgeHovered) {
+    if (this._dragging && !this._dragMoved && !this._transitioning) {
+      if (this._hoveredDoor) {
+        if (this._realm) this.exitRealm()
+        else this._enterDoor(this._doors.find((d) => d.userData.def.id === this._hoveredDoor))
+      } else if (this._bridgeHovered) {
         this._bridgeCb?.()
       } else if (this._hovered != null) {
         const g = this._buildings[this._hovered]
@@ -889,25 +1401,42 @@ export class QuestWorld {
 
   _onWheel(e) {
     e.preventDefault()
-    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + e.deltaY * 0.0006, 0.02, 1.95)
+    if (this._transitioning) return
+    if (this._realm) {
+      const c = this._realm.cam
+      gsap.killTweensOf(c)
+      c.radius = THREE.MathUtils.clamp(c.radius + e.deltaY * 0.01, 9, 30)
+      return
+    }
+    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + e.deltaY * 0.0006, 0.02, 0.999)
   }
 
   _pick() {
+    if (this._transitioning) return
     this.raycaster.setFromCamera(this.pointer, this.camera)
     const targets = []
-    this._buildings.forEach((g) => g.userData.pickTargets.forEach((m) => targets.push(m)))
-    if (this._bridgeMesh) targets.push(this._bridgeMesh)
+    const doors = this._realm ? [this._realm.exitDoor] : this._doors
+    doors.forEach((d) => d.userData.pickTargets.forEach((m) => targets.push(m)))
+    if (!this._realm) {
+      this._buildings.forEach((g) => g.userData.pickTargets.forEach((m) => targets.push(m)))
+      if (this._bridgeMesh) targets.push(this._bridgeMesh)
+    }
     const hits = this.raycaster.intersectObjects(targets, false)
     const hit = hits[0]?.object
+    const doorId = hit?.userData.doorId ?? null
     const isBridge = !!hit?.userData.isBridge
-    const idx = hit && !isBridge ? hit.userData.index : null
-    if (idx !== this._hovered || isBridge !== this._bridgeHovered) {
-      this._hovered = idx
-      this._bridgeHovered = isBridge
-      this._hoverCb?.(idx)
-      const wantPointer = isBridge || (idx != null && this._buildings[idx]?.userData.unlocked)
-      this.canvas.style.cursor = wantPointer ? 'pointer' : 'default'
-    }
+    const idx = hit && !isBridge && !doorId ? hit.userData.index : null
+    this._setHover(idx, isBridge, doorId)
+  }
+
+  _setHover(idx, isBridge, doorId) {
+    if (idx === this._hovered && isBridge === this._bridgeHovered && doorId === this._hoveredDoor) return
+    if (idx !== this._hovered) this._hoverCb?.(idx)
+    this._hovered = idx
+    this._bridgeHovered = isBridge
+    this._hoveredDoor = doorId
+    const wantPointer = isBridge || doorId || (idx != null && this._buildings[idx]?.userData.unlocked)
+    this.canvas.style.cursor = wantPointer ? 'pointer' : 'default'
   }
 
   /* ---------- theme ---------- */
@@ -1025,47 +1554,48 @@ export class QuestWorld {
 
   _loop() {
     this._raf = requestAnimationFrame(this._loop)
-    const t = this.clock.getElapsedTime()
+    // getDelta() first: getElapsedTime() would reset the delta to ~0
     const dt = Math.min(0.05, this.clock.getDelta())
+    const t = this.clock.elapsedTime
 
-    // ease camera: vertical scroll = depth, horizontal drag past junction = branch
-    this._camT += (this._targetCamT - this._camT) * 0.08
-    this._branchBlend += (this._targetBranchBlend - this._branchBlend) * 0.06
-
-    let look, behind
-    if (this._camT > 1.0 && this._branchCurveMap[0]) {
-      // Remap 1.0..1.95 → 0.04..0.92 on branch curves
-      const bt = THREE.MathUtils.clamp((this._camT - 1.0) / 0.95, 0.04, 0.92)
-      const btB = THREE.MathUtils.clamp(bt - 0.06, 0.0, 0.92)
-      // Blend between the 3 branch curves based on _branchBlend (-1..0..1)
-      const blend = this._branchBlend
-      const cL = this._branchCurveMap[-1] // Explorer
-      const cC = this._branchCurveMap[0]  // Sovereignty
-      const cR = this._branchCurveMap[1]  // Builder
-      const sampleBlended = (btt) => {
-        const pC = cC.getPointAt(btt)
-        if (blend < 0 && cL) {
-          const pL = cL.getPointAt(btt)
-          return pC.clone().lerp(pL, -blend)
-        } else if (blend > 0 && cR) {
-          const pR = cR.getPointAt(btt)
-          return pC.clone().lerp(pR, blend)
-        }
-        return pC
-      }
-      look = sampleBlended(bt)
-      behind = sampleBlended(btB)
-    } else {
-      look = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT, 0, 0.999))
-      behind = this.curve.getPointAt(THREE.MathUtils.clamp(this._camT - 0.05, 0, 0.999))
+    // Inside a world behind a door: orbit its centre and skip the road entirely
+    if (this._realm) {
+      const realm = this._realm
+      const c = realm.cam
+      if (!this._dragging) c.targetAngle += dt * 0.05
+      c.angle += (c.targetAngle - c.angle) * 0.06
+      this.camera.position.set(
+        Math.sin(c.angle) * c.radius,
+        c.height + this.pointer.y * 0.6,
+        Math.cos(c.angle) * c.radius,
+      )
+      this.camera.lookAt(0, 2.6, 0)
+      realm.update?.(t, dt)
+      realm.nodes.forEach((g, i) => { g.position.y = g.userData.basePos.y + Math.sin(t * 1.2 + i) * 0.12 })
+      this._updateDoor(realm.exitDoor, t, this._hoveredDoor === RETURN_DOOR.id)
+      this._pick()
+      this._render(realm.scene)
+      return
     }
-    const camPos = behind.clone()
-    camPos.y += this._camHeight
-    // gentle pointer parallax
-    camPos.x += this.pointer.x * 1.2
-    camPos.y += this.pointer.y * 0.6
-    this.camera.position.lerp(camPos, 0.12)
-    this.camera.lookAt(look.x, look.y + 1.2, look.z)
+
+    // ease camera along the road (vertical scroll = depth)
+    this._camT += (this._targetCamT - this._camT) * 0.08
+
+    let look
+    if (this._fly) {
+      // Scripted flight through a door
+      this.camera.position.copy(this._fly.pos)
+      look = this._fly.look
+    } else {
+      const pose = this._mainCamPose(this._camT)
+      // gentle pointer parallax
+      pose.pos.x += this.pointer.x * 1.2
+      pose.pos.y += this.pointer.y * 0.6
+      this.camera.position.lerp(pose.pos, 0.12)
+      look = pose.look
+    }
+    this.camera.lookAt(look)
+    this._lastLook.copy(look)
 
     // drifting accent lights track the camera
     this._pBlue.position.set(look.x - 6, 5, look.z + 2)
@@ -1111,20 +1641,40 @@ export class QuestWorld {
       })
     }
 
-    // Junction disc + ring pulse
+    // Door plaza pulse + doors
     if (this._junctionDisc) {
-      this._junctionDisc.material.emissiveIntensity = 0.65 + Math.sin(t * 1.8) * 0.3
+      this._junctionDisc.material.emissiveIntensity = 0.3 + Math.sin(t * 1.8) * 0.15
     }
     if (this._junctionRing) {
       this._junctionRing.rotation.z = t * 0.6
       this._junctionRing.material.opacity = 0.6 + Math.sin(t * 2.4) * 0.25
     }
-    if (this._junctionLight) {
-      this._junctionLight.intensity = 22 + Math.sin(t * 2.2) * 8
-    }
+    this._doors.forEach((d) => this._updateDoor(d, t, this._hoveredDoor === d.userData.def.id))
 
     this._pick()
-    this.renderer.render(this.scene, this.camera)
+    this._render(this.scene)
+  }
+
+  _render(scene) {
+    this.renderer.render(scene, this.camera)
+    if (this._fadeMat.opacity > 0.001) {
+      this.renderer.autoClear = false
+      this.renderer.render(this._fadeScene, this._fadeCam)
+      this.renderer.autoClear = true
+    }
+  }
+
+  // Road camera for a given progress; near the end it turns to frame the doors.
+  _mainCamPose(camT) {
+    const look = this.curve.getPointAt(THREE.MathUtils.clamp(camT, 0, 0.999))
+    const pos = this.curve.getPointAt(THREE.MathUtils.clamp(camT - 0.05, 0, 0.999))
+    pos.y += this._camHeight
+    look.y += 1.2
+    if (this._doorCenter) {
+      const k = THREE.MathUtils.smoothstep(camT, 0.94, 0.999)
+      look.lerp(new THREE.Vector3(this._doorCenter.x, 2.8, this._doorCenter.z), k)
+    }
+    return { pos, look }
   }
 
   _onResize() {
@@ -1143,12 +1693,16 @@ export class QuestWorld {
 
   dispose() {
     if (this._raf) cancelAnimationFrame(this._raf)
+    this._tl?.kill()
+    if (this._fly) gsap.killTweensOf([this._fly.pos, this._fly.look])
     window.removeEventListener('resize', this._onResize)
     this.canvas.removeEventListener('pointermove', this._onPointerMove)
     this.canvas.removeEventListener('pointerdown', this._onPointerDown)
     window.removeEventListener('pointerup', this._onPointerUp)
     this.canvas.removeEventListener('wheel', this._onWheel)
-    this.scene.traverse((o) => {
+    const scenes = [this.scene, this._fadeScene, ...Object.values(this._realms).map((r) => r.scene)]
+    Object.values(this._realms).forEach((r) => gsap.killTweensOf(r.cam))
+    scenes.forEach((scene) => scene.traverse((o) => {
       if (o.geometry) o.geometry.dispose?.()
       if (o.material) {
         const mats = Array.isArray(o.material) ? o.material : [o.material]
@@ -1158,7 +1712,7 @@ export class QuestWorld {
           m.dispose?.()
         })
       }
-    })
+    }))
     this.renderer.dispose()
   }
 }
