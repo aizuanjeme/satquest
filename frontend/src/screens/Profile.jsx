@@ -11,6 +11,16 @@ import BackupSeed from './BackupSeed'
 import Feedback from './Feedback'
 import s from './Profile.module.css'
 
+// Only English is live; the rest show as "coming soon" until translations land.
+const LANGUAGES = [
+  { id: 'en', label: 'English', available: true },
+  { id: 'yo', label: 'Yorùbá', available: false },
+  { id: 'ha', label: 'Hausa', available: false },
+  { id: 'ig', label: 'Igbo', available: false },
+  { id: 'pcm', label: 'Naijá (Pidgin)', available: false },
+  { id: 'fr', label: 'Français', available: false },
+]
+
 /*
   Profile — player hub. Logic preserved: avatar edit via ProfileEditor,
   recovery via BackupSeed, feedback via Feedback, destructive reset with
@@ -23,6 +33,18 @@ export default function Profile({ avatar, username, onUpdateProfile, onReset }) 
   const [pickingTheme, setPickingTheme] = useState(false)
   const { theme } = useTheme()
   const activeTheme = THEMES.find((t) => t.id === theme) || THEMES[0]
+  const [lang, setLang] = useState(() => {
+    try {
+      const saved = localStorage.getItem('satquest.lang')
+      return LANGUAGES.some((l) => l.id === saved && l.available) ? saved : 'en'
+    } catch { return 'en' }
+  })
+
+  const handleLangChange = (e) => {
+    sound.tap()
+    setLang(e.target.value)
+    try { localStorage.setItem('satquest.lang', e.target.value) } catch {}
+  }
 
   const handleReset = () => {
     if (confirm(
@@ -62,6 +84,21 @@ export default function Profile({ avatar, username, onUpdateProfile, onReset }) 
           <p className={s.secTitle}>Theme</p>
           <p className={s.secSub}>Currently: {activeTheme.emoji} {activeTheme.label}. Change the vibe of the whole app.</p>
           <NeonButton variant="ghost" onClick={() => { sound.tap(); setPickingTheme(true) }}>Change theme →</NeonButton>
+        </div>
+      </GlassPanel>
+
+      <GlassPanel className={s.section}>
+        <span className={s.icon}>🌍</span>
+        <div className={s.secBody}>
+          <p className={s.secTitle}>Language</p>
+          <p className={s.secSub}>Choose the language for quests and menus. More languages are on the way.</p>
+          <select className={s.select} value={lang} onChange={handleLangChange} aria-label="Language">
+            {LANGUAGES.map((l) => (
+              <option key={l.id} value={l.id} disabled={!l.available}>
+                {l.available ? l.label : `${l.label} — coming soon`}
+              </option>
+            ))}
+          </select>
         </div>
       </GlassPanel>
 
