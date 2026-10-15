@@ -71,8 +71,8 @@ export default function Reveal({ level, levelIdx, sats, avatar, username, lastEa
   return (
     <div className={s.body}>
       <header className={s.hud}>
-        <button className={s.mapBtn} onMouseEnter={() => sound.hover()} onClick={() => { sound.tap(); onMap() }}>‹ Map</button>
-        <span className={s.lvl}>Level {levelIdx + 1} cleared</span>
+        <button className={s.mapBtn} onMouseEnter={() => sound.hover()} onClick={() => { sound.tap(); onMap() }}>{t('nav.map')}</button>
+        <span className={s.lvl}>{t('reveal.levelCleared', { n: levelIdx + 1 })}</span>
         <span className={s.total}>⚡ {sats}</span>
       </header>
 
@@ -81,27 +81,27 @@ export default function Reveal({ level, levelIdx, sats, avatar, username, lastEa
           <div className={s.avatarGlow}><Avatar avatar={avatar} size={72} /></div>
           {isHunt ? (
             <>
-              <h2 className={s.title}>{huntWon ? 'Hunt Cleared' : 'Time Ran Out'}</h2>
+              <h2 className={s.title}>{huntWon ? t('reveal.huntWon') : t('reveal.huntLost')}</h2>
               <p className={s.sub}>
-                {huntWon ? 'You spotted every real Bitcoin word.' : 'No sats this round — the words return. Keep going.'}
+                {huntWon ? t('reveal.huntWonSub') : t('reveal.huntLostSub')}
               </p>
             </>
           ) : (
             <>
-              <h2 className={s.title}>{isLast ? 'All Secrets Revealed' : 'Secret Unlocked'}</h2>
-              <p className={s.sub}>{isLast ? 'You are Bitcoin-literate. For real.' : 'Here is what you just mastered'}</p>
+              <h2 className={s.title}>{isLast ? t('reveal.allSecrets') : t('reveal.secretUnlocked')}</h2>
+              <p className={s.sub}>{isLast ? t('reveal.lastSub') : t('reveal.sub')}</p>
             </>
           )}
         </div>
 
         <div className={s.satsBox}>
           <span ref={satRef} className={s.satsBig}>+{huntLost ? 0 : earned}</span>
-          <span className={s.satsUnit}>sats {huntLost ? 'earned' : 'via Lightning'}</span>
+          <span className={s.satsUnit}>{huntLost ? t('reveal.satsEarned') : t('reveal.satsLightning')}</span>
         </div>
 
         {isHunt ? (
           <div className={s.huntList}>
-            <p className={s.huntLabel}>The real Bitcoin words were</p>
+            <p className={s.huntLabel}>{t('reveal.realWords')}</p>
             <div className={s.huntChips}>
               {(level.real || []).map((w) => <span key={w} className={s.huntChip}>{w}</span>)}
             </div>

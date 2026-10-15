@@ -1,3 +1,5 @@
+import { getLocale, onLocaleChange } from '../i18n'
+
 export function shuffle(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -83,6 +85,39 @@ export const resolveAvatarId = (id) => LEGACY_AVATAR_MAP[id] || id
 
 export const LEVELS = []
 
+/* ----------------------------------------------------------------------------
+   Content localisation. A level may carry translations as a partial overlay:
+     { title: 'Coin', …, i18n: { yo: { title: 'Owó', pairs: [{ imgLabel: '…' }] } } }
+   Objects merge key by key and arrays of objects merge index by index, so a
+   translator only supplies the text fields — ids, answers, emojis and points
+   stay put. Arrays of plain strings (word-hunt words, quiz options) are
+   replaced whole. Anything missing stays in English.
+   ---------------------------------------------------------------------------- */
+let _raw = []
+
+function mergeOverlay(base, over) {
+  if (Array.isArray(base) && Array.isArray(over) && base.some((v) => v && typeof v === 'object')) {
+    return base.map((v, i) => (i < over.length && over[i] != null ? mergeOverlay(v, over[i]) : v))
+  }
+  if (base && over && typeof base === 'object' && typeof over === 'object' && !Array.isArray(over)) {
+    const out = { ...base }
+    for (const k of Object.keys(over)) out[k] = mergeOverlay(base[k], over[k])
+    return out
+  }
+  return over === undefined ? base : over
+}
+
+function localizeLevel(level, locale) {
+  const over = level?.i18n?.[locale]
+  return over ? mergeOverlay(level, over) : level
+}
+
+// Re-localise the live set in place when the player switches language.
+onLocaleChange((locale) => {
+  if (!_raw.length) return
+  _raw.forEach((l, i) => { LEVELS[i] = localizeLevel(l, locale) })
+})
+
 export let TOTAL_SATS = 0
 
 function _computeStage1Count(list) {
@@ -103,8 +138,9 @@ export const levelsMeta = {
  */
 export function applyLevels(rawLevels) {
   if (!Array.isArray(rawLevels) || rawLevels.length === 0) return false
+  _raw = rawLevels
   LEVELS.length = 0
-  rawLevels.forEach(l => LEVELS.push(l))
+  rawLevels.forEach(l => LEVELS.push(localizeLevel(l, getLocale())))
   TOTAL_SATS = LEVELS.reduce((sum, l) => sum + (l.points ?? l.sats ?? 0), 0)
   levelsMeta.stage1Count = _computeStage1Count(LEVELS)
   levelsMeta.totalSats = TOTAL_SATS

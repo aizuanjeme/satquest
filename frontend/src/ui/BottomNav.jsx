@@ -1,11 +1,12 @@
 import { sound } from '../audio/SoundManager'
+import { t } from '../i18n'
 import s from './BottomNav.module.css'
 
 const TABS = [
-  { id: 'map', label: 'Quest', icon: '🗺️' },
-  { id: 'wallet', label: 'Wallet', icon: '⚡' },
-  { id: 'leaderboard', label: 'Ranks', icon: '🏆' },
-  { id: 'profile', label: 'You', icon: '👤' },
+  { id: 'map', icon: '🗺️' },
+  { id: 'wallet', icon: '⚡' },
+  { id: 'leaderboard', icon: '🏆' },
+  { id: 'profile', icon: '👤' },
 ]
 
 /*
@@ -14,18 +15,18 @@ const TABS = [
 export default function BottomNav({ phase, onTab }) {
   return (
     <nav className={s.nav}>
-      {TABS.map((t) => {
-        const active = phase === t.id
+      {TABS.map((tab) => {
+        const active = phase === tab.id
         return (
           <button
-            key={t.id}
-            data-tour={`nav-${t.id}`}
+            key={tab.id}
+            data-tour={`nav-${tab.id}`}
             className={`${s.tab} ${active ? s.active : ''}`}
             onMouseEnter={() => sound.hover()}
-            onClick={() => { sound.tap(); onTab(t.id) }}
+            onClick={() => { sound.tap(); onTab(tab.id) }}
           >
-            <span className={s.icon}>{t.icon}</span>
-            <span className={s.label}>{t.label}</span>
+            <span className={s.icon}>{tab.icon}</span>
+            <span className={s.label}>{t(`tab.${tab.id}`)}</span>
             {active && <span className={s.dot} />}
           </button>
         )

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { sound } from '../audio/SoundManager'
 import GameFrame from './GameFrame'
+import { t } from '../i18n'
 import s from './ScamSpotterBoard.module.css'
 
 /*
@@ -55,12 +56,12 @@ export default function ScamSpotterBoard({ game, onMapPress }) {
         <div className={`${s.splash} ${scamResult === 'pass' ? s.pass : s.fail}`}>
           <div className={s.splashEmoji}>{scamResult === 'pass' ? '🛡️' : '⚠️'}</div>
           <p className={s.splashText}>
-            {scamResult === 'pass' ? 'Sharp eyes — you spotted the scams!' : 'Tricky! Review and stay alert.'}
+            {scamResult === 'pass' ? t('scam.pass') : t('scam.fail')}
           </p>
         </div>
       ) : sc ? (
         <div className={s.card}>
-          <span className={s.tag} style={{ color: level.hintColor }}>SCAM OR SAFE?</span>
+          <span className={s.tag} style={{ color: level.hintColor }}>{t('scam.tag')}</span>
           <div className={s.emoji}>{sc.emoji || '📩'}</div>
           <p className={s.prompt}>{sc.prompt}</p>
 
@@ -71,25 +72,25 @@ export default function ScamSpotterBoard({ game, onMapPress }) {
                 onMouseEnter={() => sound.hover()}
                 onClick={() => handlePick('scam')}
               >
-                🚩 Scam
+                {t('scam.scam')}
               </button>
               <button
                 className={`${s.choice} ${s.safe}`}
                 onMouseEnter={() => sound.hover()}
                 onClick={() => handlePick('safe')}
               >
-                ✅ Safe
+                {t('scam.safe')}
               </button>
             </div>
           ) : (
             <div className={`${s.verdict} ${correct ? s.vRight : s.vWrong}`}>
               <p className={s.verdictHead}>
-                {correct ? '✓ Correct' : '✕ Not quite'} — this was{' '}
-                <strong>{sc.answer === 'scam' ? 'a SCAM' : 'SAFE'}</strong>
+                {correct ? t('scam.correct') : t('scam.wrong')} {t('scam.thisWas')}{' '}
+                <strong>{sc.answer === 'scam' ? t('scam.wasScam') : t('scam.wasSafe')}</strong>
               </p>
               <p className={s.why}>{sc.why}</p>
               <button className={s.nextBtn} onClick={handleNext}>
-                {scamCurrent + 1 >= scamTotal ? 'Finish →' : 'Next →'}
+                {scamCurrent + 1 >= scamTotal ? t('scam.finish') : t('common.next')}
               </button>
             </div>
           )}

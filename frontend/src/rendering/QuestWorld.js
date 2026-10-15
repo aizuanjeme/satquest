@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { AvatarWalker } from './AvatarWalker'
+import { t as tr } from '../i18n'
 
 /*
   QuestWorld — a self-contained 3D "road map" for the level select screen.
@@ -379,7 +380,7 @@ export class QuestWorld {
     c.height = 128
     const ctx = c.getContext('2d')
     ctx.clearRect(0, 0, 256, 128)
-    ctx.font = 'bold 76px Orbitron, sans-serif'
+    ctx.font = 'bold 76px Orbitron, "Noto Sans", sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.shadowColor = color
@@ -548,11 +549,11 @@ export class QuestWorld {
     ctx.font = 'bold 38px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff'; ctx.fillText(icon, W / 2, 46)
     // Label
-    ctx.font = 'bold 52px Orbitron, sans-serif'
+    ctx.font = 'bold 52px Orbitron, "Noto Sans", sans-serif'
     ctx.shadowColor = hex; ctx.shadowBlur = 22; ctx.fillStyle = hex
     ctx.fillText(label, W / 2, 110, W - 16)
     // Taglines
-    ctx.font = '28px Orbitron, sans-serif'
+    ctx.font = '28px Orbitron, "Noto Sans", sans-serif'
     ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.shadowBlur = 6
     taglines.forEach((line, li) => ctx.fillText(line, W / 2, 152 + li * 36, W - 16))
     const tex = new THREE.CanvasTexture(c)
@@ -703,7 +704,7 @@ export class QuestWorld {
     emblem.position.set(0, DOOR_BASE + DOOR_H * 0.62, 0.3)
     group.add(emblem)
 
-    const header = this._pathHeaderSprite(def.label, def.tagline, def.css, def.icon)
+    const header = this._pathHeaderSprite(tr(`door.${def.id}.label`), tr(`door.${def.id}.tagline`), def.css, def.icon)
     header.scale.set(headerWidth, headerWidth * 0.55, 1)
     header.position.set(0, DOOR_BASE + DOOR_H + halfW + 0.4 + headerWidth * 0.275, 0)
     group.add(header)
@@ -863,7 +864,7 @@ export class QuestWorld {
       realm.nodes.push(g)
     }
 
-    const title = this._pathHeaderSprite(def.label, [def.world, 'Quests coming soon'], def.css, def.icon)
+    const title = this._pathHeaderSprite(tr(`door.${def.id}.label`), [tr(`door.${def.id}.world`), tr('world.questsSoon')], def.css, def.icon)
     title.scale.set(7, 3.85, 1)
     title.position.set(0, 11, 0)
     scene.add(title)
@@ -1231,10 +1232,10 @@ export class QuestWorld {
     ctx.beginPath(); ctx.roundRect(8, 8, 496, 112, 20); ctx.fill()
     ctx.strokeStyle = hex; ctx.shadowColor = hex; ctx.shadowBlur = 18
     ctx.lineWidth = 3; ctx.stroke()
-    ctx.font = 'bold 52px Orbitron, monospace'
+    ctx.font = 'bold 52px Orbitron, "Noto Sans", monospace'
     ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'; ctx.shadowBlur = 24
-    ctx.fillText('STAGE 2  \u203a', 256, 64)
+    ctx.fillText(tr('world.stage2'), 256, 64, 480)
     const tex = new THREE.CanvasTexture(c)
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false })
     const sp = new THREE.Sprite(mat); sp.scale.set(5.8, 1.45, 1)
@@ -1574,10 +1575,10 @@ export class QuestWorld {
         ctx.beginPath(); ctx.roundRect(8, 8, 496, 112, 20); ctx.fill()
         ctx.strokeStyle = hex; ctx.shadowColor = hex; ctx.shadowBlur = 18
         ctx.lineWidth = 3; ctx.stroke()
-        ctx.font = 'bold 52px Orbitron, monospace'
+        ctx.font = 'bold 52px Orbitron, "Noto Sans", monospace'
         ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'; ctx.shadowBlur = 24
-        ctx.fillText('STAGE 2  \u203a', 256, 64)
+        ctx.fillText(tr('world.stage2'), 256, 64, 480)
         this._bridgeSignTex.image = signCanvas
         this._bridgeSignTex.needsUpdate = true
       }

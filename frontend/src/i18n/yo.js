@@ -1,0 +1,377 @@
+/*
+  Yorùbá UI strings. Mirrors en.js key-for-key; any key missing here falls
+  back to English.
+
+  Terminology choices (keep consistent when editing):
+    Bitcoin, sats, Lightning, SatQuest, BIP-39 → kept as-is (proper nouns)
+    wallet            → àpamọ́wọ́
+    level             → ìpele
+    quest             → ìrìn-àjò
+    map               → máàpù
+    points            → máàkì  (the "pts" unit stays as a symbol)
+    recovery words    → ọ̀rọ̀ ìgbàpadà
+    scam              → jìbìtì
+  Yorùbá has no grammatical plural, so plural keys only define `.other`.
+
+  NOTE: machine-assisted draft — have a native speaker review before launch.
+*/
+export default {
+  // Boot / connectivity
+  'boot.loading': 'Ń ṣí SatQuest…',
+  'boot.offline': 'Sopọ̀ mọ́ íńtánẹ́ẹ̀tì lẹ́ẹ̀kan láti gba SatQuest sílẹ̀, lẹ́yìn náà o lè ṣeré láìsí íńtánẹ́ẹ̀tì nígbàkigbà.',
+  'boot.retry': 'Gbìyànjú lẹ́ẹ̀kan sí i',
+
+  // Generic
+  'nav.map': '‹ Máàpù',
+  'nav.backToMap': 'Padà sí máàpù',
+  'common.close': 'Pa á dé',
+  'common.copy': 'Ṣe àdàkọ',
+  'common.done': 'Ó ti parí',
+  'common.cancel': 'Fagilé',
+  'common.save': 'Fi pamọ́',
+  'common.next': 'Tẹ̀síwájú →',
+  'common.back': '← Padà',
+  'common.skip': 'Fò ó',
+  'common.loading': 'Ó ń bọ̀…',
+  'common.sending': 'Ń fi ránṣẹ́…',
+  'common.pts': 'pts',
+  'common.sats': 'sats',
+
+  // Bottom nav
+  'tab.map': 'Ìrìn-àjò',
+  'tab.wallet': 'Àpamọ́wọ́',
+  'tab.leaderboard': 'Ipò',
+  'tab.profile': 'Ìwọ',
+
+  // Network status pill
+  'net.offline': 'Kò sí ìsopọ̀',
+  'net.syncing': 'Ń ṣe ìmúdọ́gba…',
+  'net.saved': 'Ó ti wà ní ìpamọ́',
+  'net.online': 'Ìsopọ̀ ti padà',
+  'net.idle': 'Ó wà lórí ayélujára',
+
+  // Level type labels
+  'type.match': 'ÌBÁRAMU',
+  'type.wordhunt': 'ỌDẸ Ọ̀RỌ̀',
+  'type.crossover': 'ÌDÁNWÒ ÌKẸYÌN',
+  'type.scamspot': 'Ẹ̀GBÁ JÌBÌTÌ',
+  'type.seedorder': 'Ọ̀RỌ̀ ÌGBÀPADÀ',
+  'type.step': 'ÌGBÉSẸ̀ {n}',
+
+  // First-run tour
+  'tour.welcome.title': 'Ẹ káàbọ̀ sí SatQuest',
+  'tour.welcome.body': 'Kọ́ nípa Bitcoin nípa ṣíṣeré. Èyí ni ìrìnkiri kúkúrú kí o lè mọ ibi tí o wà nígbà gbogbo.',
+  'tour.map.title': 'Máàpù Ìrìn-àjò Rẹ',
+  'tour.map.body': 'Fà á láti rìn lójú ọ̀nà, kí o sì tẹ ilé-ìṣúra tó ń tàn láti bẹ̀rẹ̀ ìpele kan. Parí ọ̀kan láti ṣí èyí tó kàn.',
+  'tour.sats.title': 'Máàkì rẹ',
+  'tour.sats.body': 'Gba máàkì nígbàkúùgbà tí o bá parí ìpele kan. Wọ́n ń ṣàkọsílẹ̀ ìtẹ̀síwájú àti ipò rẹ.',
+  'tour.wallet.title': 'Àpamọ́wọ́',
+  'tour.wallet.body': 'Àpamọ́wọ́ Lightning rẹ wà níbí. Ṣe ẹ̀dà ọ̀rọ̀ ìgbàpadà rẹ sílẹ̀ kí ó lè wà ní àbò.',
+  'tour.ranks.title': 'Ipò',
+  'tour.ranks.body': 'Wo bí o ṣe dúró láàrin àwọn òṣèré mìíràn lórí àtẹ ipò.',
+  'tour.you.title': 'Ìwọ',
+  'tour.you.body': 'Yí àwòrán rẹ padà, tún àwọn èrò tó le wò, tàbí gba àkọọ́lẹ̀ rẹ padà láti ibí.',
+  'tour.ready.title': 'O ti ṣetán!',
+  'tour.ready.body': 'Tẹ ilé-ìṣúra àkọ́kọ́ lórí máàpù láti bẹ̀rẹ̀ ìrìn-àjò rẹ. Orí ire o — kó sats jọ!',
+  'tour.aria': 'Ìtọ́sọ́nà ìlò',
+  'tour.skipAria': 'Fo ìtọ́sọ́nà',
+  'tour.go': 'Ẹ jẹ́ ká lọ ⚡',
+
+  // Done screen
+  'done.title': 'O ti parí gbogbo ìpele {count}!',
+  'done.sub': 'O ti mọ̀ nípa Bitcoin ju ìdá 90 nínú ọgọ́rùn-ún àwọn ọmọ Nàìjíríà lọ. Pín SatQuest pẹ̀lú àwọn ènìyàn rẹ.',
+  'done.earned': '⚡ O ti gba {sats} pts',
+  'done.across': 'láti inú gbogbo ìpele {count}',
+  'done.again': 'Tún ṣeré',
+
+  // Entry screen
+  'entry.kicker': 'SATQUEST',
+  'entry.welcomeBack': ['Ẹ káàbọ̀', 'Lẹ́ẹ̀kan Sí I'],
+  'entry.stats.other': '⚡ {sats} sats · ìpele {n} ti parí',
+  'entry.awaits': 'Ìrìn-àjò rẹ ń dúró dè ọ́',
+  'entry.continue': 'Tẹ̀síwájú nínú Ìrìn-àjò →',
+  'entry.restore': 'Gbà á padà pẹ̀lú ọ̀rọ̀ ìgbàpadà',
+  'entry.startOver': 'Kì í ṣe ìwọ? Bẹ̀rẹ̀ láti ìbẹ̀rẹ̀',
+  'entry.begin': 'BẸ̀RẸ̀',
+  'entry.tagline': 'Mọ Bitcoin dáadáa. Kó sats gidi jọ.',
+  'entry.placeholder': 'orúkọ_rẹ',
+  'entry.handleError': 'Lẹ́tà 2-20, nọ́ńbà, _ tàbí -',
+  'entry.handleHint': 'Àmì 2-20 · lẹ́tà, nọ́ńbà, _ tàbí -',
+  'entry.pick': 'YAN ÈNÌYÀN RẸ',
+  'entry.enter': 'Wọ inú Ìrìn-àjò →',
+  'entry.haveAccount': 'O ti ní àkọọ́lẹ̀ tẹ́lẹ̀? Gbà á padà',
+
+  // Welcome intro
+  'intro.welcome': 'Ẹ káàbọ̀, @{name}',
+  'intro.lines': [
+    'Bitcoin ni owó ọjọ́ iwájú.',
+    'Ìwọ yóò kọ́ ọ — ìrìn-àjò kan lẹ́ẹ̀kan.',
+    'Parí àwọn ìpele. Gba sats gidi.',
+  ],
+  'intro.open': 'Ṣí Máàpù →',
+
+  // Restore modal
+  'restore.title': 'Gba Àpamọ́wọ́ Padà',
+  'restore.intro': 'Lẹ ọ̀rọ̀ ìgbàpadà 12 tí o fi pamọ́ síbí. A ó dá orúkọ rẹ, ènìyàn rẹ, àti owó Lightning rẹ padà.',
+  'restore.placeholder': 'ọ̀rọ̀1 ọ̀rọ̀2 ọ̀rọ̀3 … ọ̀rọ̀12',
+  'restore.count': 'ọ̀rọ̀ {n} / 12',
+  'restore.need12': 'Jọ̀wọ́ lẹ ọ̀rọ̀ 12 gangan, tí àlàfo yà wọ́n sọ́tọ̀.',
+  'restore.notFound': 'Kò sí àkọọ́lẹ̀ tó bá àwọn ọ̀rọ̀ yìí mu. Ṣàyẹ̀wò bí o ṣe kọ wọ́n àti ètò wọn.',
+  'restore.failed': 'Ìgbàpadà kùnà. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.',
+  'restore.busy': 'Ń gbà á padà…',
+  'restore.submit': 'Gbà á padà →',
+
+  // Level map
+  'map.complete': 'Ìdá {pct}% ti parí',
+  'map.entered': 'O TI WỌLÉ SÍ',
+  'map.journey': 'ÌRÌN-ÀJÒ RẸ',
+  'map.title': 'Máàpù Ìrìn-àjò',
+  'map.door': 'ẸNU Ọ̀NÀ {label}',
+  'map.realmSoon': '🔒 Àwọn ìrìn-àjò nínú ayé yìí ń bọ̀ láìpẹ́ · fà á láti wò yíká',
+  'map.backToMap': '← Padà sí Máàpù Ìrìn-àjò',
+  'map.stage2Active': '⚡ ÌPELE KEJÌ TI ṢÍ — O TI WỌLÉ!',
+  'map.stage2Awaits': '🌉 ÌPELE KEJÌ Ń DÚRÓ — Sọdá afárá →',
+  'map.hint': 'Fà á láti rìn · tẹ ilé-ìṣúra tàbí ẹnu ọ̀nà',
+  'map.cleared': 'Ó TI PARÍ',
+  'map.replay': 'Tún ṣe →',
+  'map.enter': 'Wọ Ìrìn-àjò →',
+  'map.locked': '🔒 Ó ti tì',
+  'map.bridgeKicker': 'O TI DÉ IBẸ̀',
+  'map.bridgeTitle': 'Ẹ káàbọ̀ sí Ìpele Kejì',
+  'map.bridge1': 'O ti sọdá afárá. Ìpele Kínní fi hàn pé o ye àwọn ìpìlẹ̀ — Bitcoin, àpamọ́wọ́, kọ́kọ́rọ́, àti ìdúnàádúrà.',
+  'map.bridge2': 'Ìpele Kejì jinlẹ̀ jù: Lightning Network, Layer 2, ààbò tó ga, àti ìmọ̀ ọgbọ́n owó tó dúró ṣinṣin. Ọ̀nà tó wà níwájú gùn ó sì le jù.',
+  'map.bridge3': '⚡ Ìpele Kejì ti ṣí — máa yí kọjá afárá láti ṣí àwọn ìpèníjà tuntun!',
+  'map.enterStage2': 'Wọ Ìpele Kejì →',
+  'map.backToQuest': 'Padà sí Ìrìn-àjò →',
+
+  // 3D world signage
+  'world.stage2': 'ÌPELE 2  ›',
+  'world.questsSoon': 'Ìrìn-àjò ń bọ̀ láìpẹ́',
+  'door.explorer.label': 'ASÀWÁRÍ',
+  'door.explorer.tagline': ['Kọ́ àwọn ìpìlẹ̀.', 'Bẹ̀rẹ̀ ìrìn-àjò rẹ.'],
+  'door.explorer.world': 'Ilẹ̀ Igbó',
+  'door.explorer.blurb': 'Igbó tó ń tàn níbi tí gbogbo ipa ọ̀nà ti ń kọ́ni ní ìpìlẹ̀ — kí ni Bitcoin, bí àpamọ́wọ́ ṣe ń ṣiṣẹ́ àti bí o ṣe lè pa sats rẹ mọ́.',
+  'door.sovereignty.label': 'ÒMÌNIRA',
+  'door.sovereignty.tagline': ['Lọ jìn sí i.', 'Mọ ìdí rẹ̀.'],
+  'door.sovereignty.world': 'Ààfin Wúrà',
+  'door.sovereignty.blurb': 'Gbọ̀ngàn owó tó dúró ṣinṣin. Lọ jìn sí i nínú ìdí tí Bitcoin fi ṣe pàtàkì — ìtọ́jú ara ẹni, àìtó, àti òmìnira ìṣúná.',
+  'door.builder.label': 'AKỌ́LÉ',
+  'door.builder.tagline': ['Kọ́ ọjọ́ iwájú.', 'Mọ àwọn irinṣẹ́.'],
+  'door.builder.world': 'Ilé Alágbẹ̀dẹ',
+  'door.builder.blurb': 'Àwọ̀n iná níbi tí wọ́n ti ń rọ àwọn búlọ́ọ̀kù. Mọ àwọn irinṣẹ́ — Lightning, script àti kíkọ́lé lórí Bitcoin.',
+  'door.return.label': 'MÁÀPÙ',
+  'door.return.tagline': ['Padà sí', 'ojú ọ̀nà.'],
+
+  // In-game frame / HUD
+  'game.levelOf': 'Ìpele {n} / {total}',
+  'game.briefTag': '{stage} · ÌPELE {n}',
+  'game.reward': 'Èrè',
+  'game.begin': 'Bẹ̀rẹ̀ →',
+
+  // Word hunt
+  'hunt.time': 'ÀKÓKÒ',
+  'hunt.found': 'O ti rí {found}/{total}',
+
+  // Scam spotter
+  'scam.pass': 'Ojú mímú — o rí àwọn jìbìtì náà!',
+  'scam.fail': 'Ó le díẹ̀! Tún un wò kí o sì ṣọ́ra.',
+  'scam.tag': 'JÌBÌTÌ ÀBÍ Ó DÁA?',
+  'scam.scam': '🚩 Jìbìtì',
+  'scam.safe': '✅ Ó dáa',
+  'scam.correct': '✓ Ó tọ̀nà',
+  'scam.wrong': '✕ Kò tọ̀nà',
+  'scam.thisWas': '— èyí jẹ́',
+  'scam.wasScam': 'JÌBÌTÌ',
+  'scam.wasSafe': 'ÈYÍ TÓ DÁA',
+  'scam.finish': 'Parí →',
+
+  // Seed order
+  'seed.read': 'Kà á',
+  'seed.study': 'Ka ọ̀rọ̀ {n} rẹ ní ètò, lẹ́yìn náà tò wọ́n padà láti inú ìrántí',
+  'seed.memorized': 'Mo ti há wọn sórí — tò wọ́n ↓',
+  'seed.hint': 'Tẹ àwọn ọ̀rọ̀ náà ní ètò tó tọ̀nà',
+  'seed.undo': '↶ Yí èyí tó kẹ́yìn padà',
+  'seed.win': 'Ọ̀rọ̀ ìgbàpadà ti padà sípò — báyìí ni o ṣe ń gba àpamọ́wọ́ padà!',
+
+  // Crossover quiz
+  'quiz.won': 'O Ṣẹ́gun Ìdánwò Náà',
+  'quiz.lost': 'Kò Tíì Tó',
+  'quiz.passSub': 'O nílò {need}/{total}. +{sats} sats ti wọlé. Ìpele tó kàn ti ṣí.',
+  'quiz.failSub': 'O nílò {need}/{total}, o gba {score}/{total}. Padà wo àwọn ìpele díẹ̀ kí o sì padà wá.',
+  'quiz.retry': 'Gbìyànjú Lẹ́ẹ̀kan Sí I',
+  'quiz.questions': '📋 Ìbéèrè {n}',
+  'quiz.q': 'Ìb.',
+  'quiz.question': 'ÌBÉÈRÈ {n}',
+
+  // Reveal recap
+  'reveal.levelCleared': 'Ìpele {n} ti parí',
+  'reveal.huntWon': 'Ọdẹ Ti Parí',
+  'reveal.huntLost': 'Àkókò Ti Tán',
+  'reveal.huntWonSub': 'O rí gbogbo ọ̀rọ̀ Bitcoin gidi.',
+  'reveal.huntLostSub': 'Kò sí sats lọ́tẹ̀ yìí — àwọn ọ̀rọ̀ náà yóò padà wá. Máa bá a lọ.',
+  'reveal.secretUnlocked': 'Àṣírí Ti Ṣí',
+  'reveal.allSecrets': 'Gbogbo Àṣírí Ti Hàn',
+  'reveal.lastSub': 'O ti mọ̀ nípa Bitcoin. Lóòótọ́.',
+  'reveal.sub': 'Èyí ni ohun tí o ṣẹ̀ṣẹ̀ mọ̀ dáadáa',
+  'reveal.satsEarned': 'sats tí o gbà',
+  'reveal.satsLightning': 'sats láti ọwọ́ Lightning',
+  'reveal.realWords': 'Àwọn ọ̀rọ̀ Bitcoin gidi ni',
+  'reveal.continue': 'Tẹ̀síwájú →',
+  'reveal.playAgain': 'Tún Ṣeré',
+  'reveal.review': '🔁 Ó yẹ kí o tún wò',
+  'reveal.learnMore': 'Kọ́ sí i',
+  'reveal.hideDetails': 'Fi àlàyé pamọ́',
+
+  // Share & earn
+  'share.doneTitle': 'O ti Pín, O sì ti Gbà',
+  'share.doneSub': 'A dúpẹ́ pé o tan ìròyìn náà kálẹ̀ ⚡',
+  'share.confirmTitle': 'Ṣé o ti fi í ránṣẹ́?',
+  'share.confirmSub': 'Jẹ́rìí láti gba {amount}',
+  'share.yes': '✅ Bẹ́ẹ̀ni, mo ti fi ránṣẹ́',
+  'share.notYet': 'Kò tíì',
+  'share.title': 'Pín Kí O sì Gbà',
+  'share.sub': 'Fi ìṣẹ́gun rẹ hàn, gba {amount}',
+  'share.amount': '+{n} sats',
+  'share.x': '𝕏 Pín lórí X',
+  'share.ig': '📋 Ṣe àdàkọ fún IG',
+  'share.text': '🧡 Mo ṣẹ̀ṣẹ̀ gòkè ìpele lórí SatQuest!\n\n"{title}"\n{summary}\n\nẸ̀kọ́ Bitcoin tó ń san ọ́ ní sats gidi ⚡\n\n#Bitcoin #LearnBitcoin #Lightning #SatQuest',
+  'share.fallbackSummary': 'Ẹ̀kọ́ Bitcoin tó ń san ọ́ ní sats gidi.',
+
+  // Celebrate
+  'celebrate.praise': [
+    'O ṣe é! 🚀',
+    'Kàbọ́ọ̀m! Ìpele ti parí!',
+    'Ìwọ ni ọ̀gá! 💪',
+    'Kíá kíá! Sí èyí tó kàn!',
+    'Kì í ṣe kékeré o! 🔥',
+    'Ọ̀gá Bitcoin ń bọ̀ lọ́nà!',
+    'Háà! Ó mọ́ tónítóní!',
+    'Sats ti wọlé! ⚡',
+    'Ìwọ ló ń darí ibí! 👑',
+  ],
+  'celebrate.kicker': 'Ìpele Ti Parí',
+  'celebrate.next': 'Yan ìpele tó kàn →',
+  'celebrate.tap': 'Tẹ ibikíbi láti tẹ̀síwájú',
+
+  // Wallet
+  'wallet.received': 'O gba {n} sats',
+  'wallet.sent': 'O fi {n} sats ránṣẹ́',
+  'wallet.kicker': 'LIGHTNING',
+  'wallet.title': 'Àpamọ́wọ́',
+  'wallet.totalEarned': 'Àpapọ̀ máàkì tí o gbà',
+  'wallet.rate': '{rate} pts = 1 sat · nínú {total} lápapọ̀',
+  'wallet.cleared': 'Ó ti parí',
+  'wallet.locked': 'Ó ti tì',
+  'wallet.toEarn': 'Láti gbà',
+  'wallet.balance': 'Owó inú àpamọ́wọ́',
+  'wallet.address': 'Àdírẹ́sì Lightning',
+  'wallet.offlineTitle': '⚠ Lightning kò ṣiṣẹ́',
+  'wallet.offlineSub': 'Olùṣàkóso kò tíì ṣí ìsanwó sílẹ̀. A ṣì ń ṣàkọsílẹ̀ èrè rẹ, a ó sì san án nígbà tí ó bá ṣí.',
+  'wallet.claimTitle': '⚡ Gba èrè rẹ',
+  'wallet.claimReady': '{n} sats ti ṣetán láti wọ àpamọ́wọ́ rẹ.',
+  'wallet.claimEmpty': 'Parí àwọn ìpele láti kó sats jọ.',
+  'wallet.claimSent': '✅ A ti fi {n} sats ránṣẹ́ ·',
+  'wallet.claimErr': 'Kò ṣeé gbà: {msg}',
+  'wallet.claimBtn': 'Gba {n} sats →',
+  'wallet.nothing': 'Kò sí nǹkan láti gbà',
+  'wallet.receiveTitle': 'Gba owó ⚡',
+  'wallet.receiveSub': 'Ṣe ìwé-owó (invoice) kí ẹnikẹ́ni lè fi sats ránṣẹ́ sí ọ.',
+  'wallet.generate': 'Ṣẹ̀dá',
+  'wallet.backupTitle': '🔑 Ṣe ẹ̀dà àpamọ́wọ́ rẹ',
+  'wallet.backupSub': 'Ṣí ọ̀rọ̀ ìgbàpadà 12 rẹ. Kọ wọ́n sílẹ̀ — wọ́n lè dá àpamọ́wọ́ rẹ padà níbikíbi.',
+  'wallet.backupBtn': 'Ṣí ọ̀rọ̀ ìgbàpadà',
+  'wallet.history': 'Ìtàn',
+  'wallet.empty': 'Kò tíì sí ìdúnàádúrà kankan. Parí ìpele kan láti gbà.',
+  'wallet.tries': 'ìgbìyànjú {n}',
+
+  // Backup seed
+  'backup.title': 'Ọ̀rọ̀ Ìgbàpadà',
+  'backup.warnTitle': 'Ọ̀NÀ KAN ṢOṢO láti gba sats rẹ padà.',
+  'backup.warn1': 'Tí o bá pa dátà ẹ̀rọ aṣàwákiri rẹ́ tàbí yí ẹ̀rọ padà, àpamọ́wọ́ náà yóò sọnù láìsí wọn.',
+  'backup.warn2': 'Ẹnikẹ́ni tó bá ní ọ̀rọ̀ 12 yìí lè ná sats rẹ — fi wọ́n pamọ́ ní àṣírí.',
+  'backup.warn3': 'Kọ wọ́n sílẹ̀ tàbí fi wọ́n pamọ́ sínú ohun èlò ìpamọ́ ọ̀rọ̀ aṣínà. Yíya àwòrán ojú-iboju léwu.',
+  'backup.warn4': 'Ó ṣeé gbé wọ inú àpamọ́wọ́ BIP-39 èyíkéyìí.',
+  'backup.show': 'Fi ọ̀rọ̀ mi hàn →',
+  'backup.loadFailed': 'Kò ṣeé gbé ọ̀rọ̀ ìgbàpadà wá',
+  'backup.copied': '✓ A ti ṣe àdàkọ',
+  'backup.copyAll': 'Ṣe àdàkọ gbogbo ọ̀rọ̀ 12',
+  'backup.saved': 'Mo ti fi wọ́n pamọ́ láìléwu',
+
+  // Leaderboard
+  'lb.kicker': 'KÁRÍAYÉ',
+  'lb.title': 'Ipò',
+  'lb.offTitle': 'O kò sí lórí ayélujára',
+  'lb.offSub': 'Tún sopọ̀ láti rí ipò rẹ láàrin àwọn òṣèré kárí ayé.',
+  'lb.loading': 'Ń gbé ipò wá…',
+  'lb.empty': 'Kò tíì sí òṣèré kankan — ìwọ lè jẹ́ àkọ́kọ́!',
+  'lb.total.other': 'Òṣèré {n} ló wà ní ipò',
+  'lb.you': 'ìwọ',
+  'lb.levels': 'Ìpele {n} ti parí',
+  'lb.more': 'Ń gbé díẹ̀ sí i wá…',
+  'lb.end': 'Gbogbo òṣèré {n} ti hàn 🏁',
+
+  // Profile
+  'profile.kicker': 'ÒṢÈRÉ',
+  'profile.title': 'Àkọọ́lẹ̀',
+  'profile.editAvatar': '✏️ Ṣàtúnṣe àwòrán',
+  'profile.backupTitle': 'Ṣe ẹ̀dà àpamọ́wọ́ rẹ',
+  'profile.backupSub': 'Fi ọ̀rọ̀ ìgbàpadà 12 rẹ pamọ́. Láìsí wọn, pípa dátà ẹ̀rọ aṣàwákiri rẹ́ túmọ̀ sí pé sats rẹ ti lọ — pẹ̀lú wọn o lè gbà á padà níbikíbi.',
+  'profile.backupBtn': 'Fi ọ̀rọ̀ ìgbàpadà hàn →',
+  'profile.themeTitle': 'Àwọ̀',
+  'profile.themeSub': 'Lọ́wọ́lọ́wọ́: {theme}. Yí ìrísí gbogbo áàpù padà.',
+  'profile.themeBtn': 'Yí àwọ̀ padà →',
+  'profile.langTitle': 'Èdè',
+  'profile.langSub': 'Yan èdè fún ìrìn-àjò àti àwọn àkójọ. Àwọn èdè mìíràn ń bọ̀.',
+  'profile.langSoon': '{label} — ń bọ̀ láìpẹ́',
+  'profile.audioTitle': 'Ohùn',
+  'profile.audioSub': 'Orin àyíká àti ohùn ìlò. Ohun tó ń dún: àdàlù {theme}.',
+  'profile.feedbackTitle': 'Fi èsì ránṣẹ́',
+  'profile.feedbackSub': 'Ṣé o rí àṣìṣe, o ní èrò kan, tàbí o fẹ́ kí wa? A ń ka gbogbo ìfiránṣẹ́.',
+  'profile.feedbackBtn': 'Sọ èrò rẹ →',
+  'profile.resetTitle': 'Tún àkọọ́lẹ̀ àti ìtẹ̀síwájú ṣe',
+  'profile.resetSub': 'Ó ń pa gbogbo nǹkan rẹ́ lórí ẹ̀rọ yìí. Ṣe ẹ̀dà àpamọ́wọ́ rẹ kọ́kọ́ — kò ṣeé yí padà.',
+  'profile.resetBtn': 'Pa gbogbo rẹ̀ rẹ́',
+  'profile.resetConfirm': '⚠️ Èyí yóò pa gbogbo nǹkan rẹ́ lórí ẹ̀rọ yìí.\n\nTí o KÒ bá tíì ṣe ẹ̀dà ọ̀rọ̀ ìgbàpadà 12 rẹ, sats rẹ yóò SỌNÙ TITI LÁÍ.\n\nṢé kí a tẹ̀síwájú?',
+
+  // Profile editor
+  'editor.title': 'Ṣàtúnṣe àkọọ́lẹ̀',
+  'editor.username': 'Orúkọ olùlò',
+  'editor.usernameHint': 'A kò lè yí orúkọ olùlò padà — ó so mọ́ àpamọ́wọ́ rẹ.',
+  'editor.character': 'Ènìyàn',
+  'editor.prev': 'Ti tẹ́lẹ̀',
+  'editor.next': 'Tó kàn',
+
+  // Feedback
+  'fb.title': 'Fi Èsì Ránṣẹ́',
+  'fb.thanks': 'A dúpẹ́ fún èsì rẹ!',
+  'fb.thanksSub': 'A ń ka gbogbo ìfiránṣẹ́, a sì ń lò ó láti mú SatQuest dára sí i.',
+  'fb.rateLabel': 'Báwo ni SatQuest ṣe rí lára rẹ?',
+  'fb.stars.other': 'Ìràwọ̀ {n}',
+  'fb.category': 'Ẹ̀ka',
+  'fb.cat.general': '💬 Gbogbogbò',
+  'fb.cat.bug': '🐛 Àṣìṣe',
+  'fb.cat.suggestion': '💡 Àbá',
+  'fb.cat.other': '✨ Òmíràn',
+  'fb.message': 'Ìfiránṣẹ́ rẹ',
+  'fb.placeholder': 'Sọ ohun tí o rò fún wa, jábọ̀ àṣìṣe, tàbí pín èrò kan…',
+  'fb.tooShort': 'Jọ̀wọ́ kọ ọ̀rọ̀ díẹ̀ ó kéré tán.',
+  'fb.failed': 'Nǹkan kan ṣẹlẹ̀. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.',
+  'fb.send': 'Fi èsì ránṣẹ́ →',
+
+  // Theme picker + sound
+  'theme.heading': 'Yan Ìrísí Rẹ',
+  'theme.dark.label': 'Òkùnkùn Òfuurufú',
+  'theme.dark.desc': 'Òfuurufú jíjìn. Ìmọ́lẹ̀ neon.',
+  'theme.light.label': 'Ìmọ́lẹ̀ Mímọ́',
+  'theme.light.desc': 'Ó mọ́lẹ̀ ó sì mọ́ tónítóní.',
+  'theme.market.label': 'Ọjà',
+  'theme.market.desc': 'Ojú ìṣòwò.',
+  'theme.bank.label': 'Ilé-ìṣúra Báǹkì',
+  'theme.bank.desc': 'Ìbílẹ̀ àti oníyì.',
+  'theme.rainy.label': 'Ìlú Òjò',
+  'theme.rainy.desc': 'Ó tutù ó sì dákẹ́.',
+  'theme.disco.label': 'Disco',
+  'theme.disco.desc': 'Àkókò àríyá. 🎉',
+  'sound.music': 'Orin àyíká',
+  'sound.sfx': 'Ohùn ìṣe',
+}

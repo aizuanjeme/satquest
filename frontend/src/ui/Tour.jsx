@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useCallback } from 'react'
 import { sound } from '../audio/SoundManager'
+import { t } from '../i18n'
 import s from './Tour.module.css'
 
 /*
@@ -92,7 +93,7 @@ export default function Tour({ steps, onDone }) {
   }
 
   return (
-    <div className={s.root} role="dialog" aria-modal="true" aria-label="App walkthrough">
+    <div className={s.root} role="dialog" aria-modal="true" aria-label={t('tour.aria')}>
       {/* Dim layer. With a spotlight the dark surround comes from the ring's
           huge box-shadow, so the base layer stays transparent there. */}
       <div className={`${s.scrim} ${spot ? s.scrimClear : ''}`} onClick={skip} />
@@ -108,7 +109,7 @@ export default function Tour({ steps, onDone }) {
         className={`${s.card} ${spot ? s.cardAnchored : s.cardCenter} ${placement === 'above' ? s.cardAbove : ''}`}
         style={cardStyle}
       >
-        <button className={s.close} onClick={skip} aria-label="Skip walkthrough">✕</button>
+        <button className={s.close} onClick={skip} aria-label={t('tour.skipAria')}>✕</button>
 
         {step.emoji && <div className={s.emoji}>{step.emoji}</div>}
         <h3 className={s.title}>{step.title}</h3>
@@ -122,10 +123,10 @@ export default function Tour({ steps, onDone }) {
 
         <div className={s.actions}>
           {i > 0
-            ? <button className={s.back} onClick={back}>← Back</button>
-            : <button className={s.back} onClick={skip}>Skip</button>}
+            ? <button className={s.back} onClick={back}>{t('common.back')}</button>
+            : <button className={s.back} onClick={skip}>{t('common.skip')}</button>}
           <button className={s.next} onClick={next}>
-            {isLast ? "Let's go ⚡" : 'Next →'}
+            {isLast ? t('tour.go') : t('common.next')}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useTheme, THEMES } from '../hooks/useTheme'
 import { sound } from '../audio/SoundManager'
+import { t as tr } from '../i18n'
 import s from './ThemePicker.module.css'
 
 export default function ThemePicker({ onClose }) {
@@ -14,7 +15,7 @@ export default function ThemePicker({ onClose }) {
     <div className={s.backdrop} onClick={onClose}>
       <div className={s.sheet} onClick={(e) => e.stopPropagation()}>
         <div className={s.handle} />
-        <p className={s.heading}>Choose Your Vibe</p>
+        <p className={s.heading}>{tr('theme.heading')}</p>
         <div className={s.gridWrap}>
           <div className={s.grid}>
             {THEMES.map((t) => (
@@ -30,15 +31,15 @@ export default function ThemePicker({ onClose }) {
                   ))}
                 </div>
                 <span className={s.emoji}>{t.emoji}</span>
-                <span className={s.name}>{t.label}</span>
-                <span className={s.desc}>{t.desc}</span>
+                <span className={s.name}>{tr(`theme.${t.id}.label`)}</span>
+                <span className={s.desc}>{tr(`theme.${t.id}.desc`)}</span>
                 {theme === t.id && <span className={s.check}>✓</span>}
               </button>
             ))}
           </div>
         </div>
         <div className={s.closeRow}>
-          <button className={s.close} onClick={onClose}>Done</button>
+          <button className={s.close} onClick={onClose}>{tr('common.done')}</button>
         </div>
       </div>
     </div>

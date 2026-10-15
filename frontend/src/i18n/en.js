@@ -1,15 +1,14 @@
 /*
-  English UI strings (default locale).
+  English UI strings (default locale — every other locale falls back to this).
 
-  SCOPE: this file holds the app *chrome* — buttons, status, and recap labels
+  SCOPE: this file holds the app *chrome* — buttons, status, labels and copy
   that are baked into the client. LEVEL CONTENT (titles, stories, questions,
-  reveals, scam scenarios) is NOT here: it lives in the database and is authored
-  in frontend/content/levels.source.mjs. To localise content, add a translated
-  level set keyed by locale on the backend and serve it from GET /api/levels
-  based on an Accept-Language / ?lang query (documented in i18n/index.js).
+  reveals, scam scenarios) is NOT here: it lives in the database. Translate it
+  with a per-level `i18n: { <code>: { … } }` overlay (see i18n/index.js).
 
   Keys use dot.namespaces. Interpolate with {name} placeholders, e.g.
     t('done.title', { count: 37 })
+  Plural pairs end in `.one` / `.other` and are read with tn().
 */
 export default {
   // Boot / connectivity
@@ -17,19 +16,360 @@ export default {
   'boot.offline': 'Connect to the internet once to download SatQuest, then play offline anytime.',
   'boot.retry': 'Try again',
 
-  // Generic navigation
+  // Generic
   'nav.map': '‹ Map',
   'nav.backToMap': 'Back to map',
+  'common.close': 'Close',
+  'common.copy': 'Copy',
+  'common.done': 'Done',
+  'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.next': 'Next →',
+  'common.back': '← Back',
+  'common.skip': 'Skip',
+  'common.loading': 'Loading…',
+  'common.sending': 'Sending…',
+  'common.pts': 'pts',
+  'common.sats': 'sats',
+
+  // Bottom nav
+  'tab.map': 'Quest',
+  'tab.wallet': 'Wallet',
+  'tab.leaderboard': 'Ranks',
+  'tab.profile': 'You',
+
+  // Network status pill
+  'net.offline': 'No Connection',
+  'net.syncing': 'Syncing…',
+  'net.saved': 'Saved',
+  'net.online': 'Back Online',
+  'net.idle': 'Online',
+
+  // Level type labels (HUD + map card)
+  'type.match': 'MATCH',
+  'type.wordhunt': 'WORD HUNT',
+  'type.crossover': 'FINAL TRIAL',
+  'type.scamspot': 'SCAM SPOTTER',
+  'type.seedorder': 'SEED PHRASE',
+  'type.step': 'STEP {n}',
+
+  // First-run tour
+  'tour.welcome.title': 'Welcome to SatQuest',
+  'tour.welcome.body': 'Learn Bitcoin by playing. Here’s a quick tour so you always know where you are.',
+  'tour.map.title': 'Your Quest Map',
+  'tour.map.body': 'Drag to travel the road and tap a glowing vault to start a level. Clear one to unlock the next.',
+  'tour.sats.title': 'Your points',
+  'tour.sats.body': 'Earn points every time you clear a level. They track your progress and your ranking.',
+  'tour.wallet.title': 'Wallet',
+  'tour.wallet.body': 'Your Lightning wallet lives here. Back up your recovery words to keep it safe.',
+  'tour.ranks.title': 'Ranks',
+  'tour.ranks.body': 'See how you stack up against other players on the leaderboard.',
+  'tour.you.title': 'You',
+  'tour.you.body': 'Change your avatar, review tricky concepts, or restore your account from here.',
+  'tour.ready.title': 'You’re ready!',
+  'tour.ready.body': 'Tap the first vault on the map to begin your quest. Good luck — stack those sats!',
+  'tour.aria': 'App walkthrough',
+  'tour.skipAria': 'Skip walkthrough',
+  'tour.go': 'Let’s go ⚡',
+
+  // Done screen
+  'done.title': 'You finished all {count} levels!',
+  'done.sub': 'You are now more Bitcoin-literate than 90% of Nigerians. Share SatQuest with your people.',
+  'done.earned': '⚡ {sats} pts earned',
+  'done.across': 'across all {count} levels',
+  'done.again': 'Play again',
+
+  // Entry screen
+  'entry.kicker': 'SATQUEST',
+  'entry.welcomeBack': ['Welcome', 'Back'],
+  'entry.stats.one': '⚡ {sats} sats · {n} level cleared',
+  'entry.stats.other': '⚡ {sats} sats · {n} levels cleared',
+  'entry.awaits': 'Your journey awaits',
+  'entry.continue': 'Continue Quest →',
+  'entry.restore': 'Restore from recovery words',
+  'entry.startOver': 'Not you? Start over',
+  'entry.begin': 'BEGIN THE',
+  'entry.tagline': 'Master Bitcoin. Stack real sats.',
+  'entry.placeholder': 'your_handle',
+  'entry.handleError': '2-20 letters, numbers, _ or -',
+  'entry.handleHint': '2-20 characters · letters, numbers, _ or -',
+  'entry.pick': 'CHOOSE YOUR CHARACTER',
+  'entry.enter': 'Enter the Quest →',
+  'entry.haveAccount': 'Already have an account? Restore it',
+
+  // Welcome intro
+  'intro.welcome': 'Welcome, @{name}',
+  'intro.lines': [
+    'Bitcoin is the money of the future.',
+    'You will learn it — one quest at a time.',
+    'Clear levels. Earn real sats.',
+  ],
+  'intro.open': 'Open the Map →',
+
+  // Restore modal
+  'restore.title': 'Restore Wallet',
+  'restore.intro': 'Paste the 12 recovery words you saved. We’ll bring back your handle, character, and Lightning balance.',
+  'restore.placeholder': 'word1 word2 word3 … word12',
+  'restore.count': '{n} / 12 words',
+  'restore.need12': 'Please paste exactly 12 words separated by spaces.',
+  'restore.notFound': 'No account matches these words. Check spelling and order.',
+  'restore.failed': 'Restore failed. Please try again.',
+  'restore.busy': 'Restoring…',
+  'restore.submit': 'Restore →',
+
+  // Level map
+  'map.complete': '{pct}% complete',
+  'map.entered': 'YOU ENTERED',
+  'map.journey': 'YOUR JOURNEY',
+  'map.title': 'The Quest Map',
+  'map.door': '{label} DOOR',
+  'map.realmSoon': '🔒 Quests in this world are coming soon · drag to look around',
+  'map.backToMap': '← Back to the Quest Map',
+  'map.stage2Active': '⚡ STAGE 2 ACTIVE — YOU’RE IN!',
+  'map.stage2Awaits': '🌉 STAGE 2 AWAITS — Cross the bridge →',
+  'map.hint': 'Drag to travel · tap a vault or a door',
+  'map.cleared': 'CLEARED',
+  'map.replay': 'Replay →',
+  'map.enter': 'Enter Quest →',
+  'map.locked': '🔒 Locked',
+  'map.bridgeKicker': 'YOU MADE IT',
+  'map.bridgeTitle': 'Welcome to Stage 2',
+  'map.bridge1': 'You’ve crossed the bridge. Stage 1 proved you understand the basics — Bitcoin, wallets, keys, and transactions.',
+  'map.bridge2': 'Stage 2 goes deeper: Lightning Network, Layer 2, advanced security, and the philosophy of sound money. The road ahead is longer and harder.',
+  'map.bridge3': '⚡ Stage 2 is live — keep scrolling past the bridge to unlock new challenges!',
+  'map.enterStage2': 'Enter Stage 2 →',
+  'map.backToQuest': 'Back to Quest →',
+
+  // 3D world signage (drawn onto the map canvas)
+  'world.stage2': 'STAGE 2  ›',
+  'world.questsSoon': 'Quests coming soon',
+  'door.explorer.label': 'EXPLORER',
+  'door.explorer.tagline': ['Learn the basics.', 'Start your journey.'],
+  'door.explorer.world': 'The Wildlands',
+  'door.explorer.blurb': 'A glowing forest where every trail teaches the basics — what Bitcoin is, how wallets work and how to keep your sats safe.',
+  'door.sovereignty.label': 'SOVEREIGNTY',
+  'door.sovereignty.tagline': ['Go deeper.', 'Understand why.'],
+  'door.sovereignty.world': 'The Golden Citadel',
+  'door.sovereignty.blurb': 'Halls of sound money. Go deeper into why Bitcoin matters — self-custody, scarcity and financial freedom.',
+  'door.builder.label': 'BUILDER',
+  'door.builder.tagline': ['Build the future.', 'Master the tools.'],
+  'door.builder.world': 'The Forge',
+  'door.builder.blurb': 'A neon grid where blocks are forged. Master the tools — Lightning, scripts and building on Bitcoin.',
+  'door.return.label': 'QUEST MAP',
+  'door.return.tagline': ['Head back', 'to the road.'],
+
+  // In-game frame / HUD
+  'game.levelOf': 'Level {n} / {total}',
+  'game.briefTag': '{stage} · LEVEL {n}',
+  'game.reward': 'Reward',
+  'game.begin': 'Begin →',
+
+  // Word hunt
+  'hunt.time': 'TIME',
+  'hunt.found': '{found}/{total} found',
+
+  // Scam spotter
+  'scam.pass': 'Sharp eyes — you spotted the scams!',
+  'scam.fail': 'Tricky! Review and stay alert.',
+  'scam.tag': 'SCAM OR SAFE?',
+  'scam.scam': '🚩 Scam',
+  'scam.safe': '✅ Safe',
+  'scam.correct': '✓ Correct',
+  'scam.wrong': '✕ Not quite',
+  'scam.thisWas': '— this was',
+  'scam.wasScam': 'a SCAM',
+  'scam.wasSafe': 'SAFE',
+  'scam.finish': 'Finish →',
+
+  // Seed order
+  'seed.read': 'Read',
+  'seed.study': 'Read your {n} words in order, then rebuild them from memory',
+  'seed.memorized': 'I’ve memorized them — arrange ↓',
+  'seed.hint': 'Tap the words in the right order',
+  'seed.undo': '↶ Undo last',
+  'seed.win': 'Phrase restored — that’s how you recover a wallet!',
+
+  // Crossover quiz
+  'quiz.won': 'Trial Conquered',
+  'quiz.lost': 'Not Quite',
+  'quiz.passSub': 'You needed {need}/{total}. +{sats} sats secured. The next stage is open.',
+  'quiz.failSub': 'You needed {need}/{total}, scored {score}/{total}. Revisit a few levels and return.',
+  'quiz.retry': 'Try Again',
+  'quiz.questions': '📋 {n} questions',
+  'quiz.q': 'Q',
+  'quiz.question': 'QUESTION {n}',
 
   // Reveal recap
+  'reveal.levelCleared': 'Level {n} cleared',
+  'reveal.huntWon': 'Hunt Cleared',
+  'reveal.huntLost': 'Time Ran Out',
+  'reveal.huntWonSub': 'You spotted every real Bitcoin word.',
+  'reveal.huntLostSub': 'No sats this round — the words return. Keep going.',
   'reveal.secretUnlocked': 'Secret Unlocked',
   'reveal.allSecrets': 'All Secrets Revealed',
+  'reveal.lastSub': 'You are Bitcoin-literate. For real.',
+  'reveal.sub': 'Here is what you just mastered',
+  'reveal.satsEarned': 'sats earned',
+  'reveal.satsLightning': 'sats via Lightning',
+  'reveal.realWords': 'The real Bitcoin words were',
   'reveal.continue': 'Continue →',
   'reveal.playAgain': 'Play Again',
   'reveal.review': '🔁 Worth a review',
   'reveal.learnMore': 'Learn more',
   'reveal.hideDetails': 'Hide details',
 
-  // Done screen
-  'done.title': 'You finished all {count} levels!',
+  // Share & earn
+  'share.doneTitle': 'Shared & Earned',
+  'share.doneSub': 'Thanks for spreading the word ⚡',
+  'share.confirmTitle': 'Did you post it?',
+  'share.confirmSub': 'Confirm to earn {amount}',
+  'share.yes': '✅ Yes, I posted',
+  'share.notYet': 'Not yet',
+  'share.title': 'Share & Earn',
+  'share.sub': 'Post your win, get {amount}',
+  'share.amount': '+{n} sats',
+  'share.x': '𝕏 Share on X',
+  'share.ig': '📋 Copy for IG',
+  'share.text': '🧡 Just leveled up on SatQuest!\n\n"{title}"\n{summary}\n\nBitcoin education that rewards you with real sats ⚡\n\n#Bitcoin #LearnBitcoin #Lightning #SatQuest',
+  'share.fallbackSummary': 'Bitcoin education that pays you real sats.',
+
+  // Celebrate
+  'celebrate.praise': [
+    'You just smashed it! 🚀',
+    'Boom! Level cleared!',
+    'You dey kampe! 💪',
+    'Sharp sharp! On to the next!',
+    'No be small thing! 🔥',
+    'Bitcoin master in the making!',
+    'Omo! That was clean!',
+    'Sats secured! ⚡',
+    'Na you dey run this! 👑',
+  ],
+  'celebrate.kicker': 'Level Cleared',
+  'celebrate.next': 'Pick your next level →',
+  'celebrate.tap': 'Tap anywhere to continue',
+
+  // Wallet
+  'wallet.received': 'Received {n} sats',
+  'wallet.sent': 'Sent {n} sats',
+  'wallet.kicker': 'LIGHTNING',
+  'wallet.title': 'Wallet',
+  'wallet.totalEarned': 'Total pts earned',
+  'wallet.rate': '{rate} pts = 1 sat · of {total} total',
+  'wallet.cleared': 'Cleared',
+  'wallet.locked': 'Locked',
+  'wallet.toEarn': 'To earn',
+  'wallet.balance': 'Wallet balance',
+  'wallet.address': 'Lightning Address',
+  'wallet.offlineTitle': '⚠ Lightning offline',
+  'wallet.offlineSub': 'The operator hasn’t enabled payouts yet. Rewards are still tracked and pay out once it’s on.',
+  'wallet.claimTitle': '⚡ Claim rewards',
+  'wallet.claimReady': '{n} sats ready to claim into your wallet.',
+  'wallet.claimEmpty': 'Clear levels to stack claimable sats.',
+  'wallet.claimSent': '✅ Sent {n} sats ·',
+  'wallet.claimErr': 'Couldn’t claim: {msg}',
+  'wallet.claimBtn': 'Claim {n} sats →',
+  'wallet.nothing': 'Nothing to claim',
+  'wallet.receiveTitle': 'Receive ⚡',
+  'wallet.receiveSub': 'Generate an invoice so anyone can send you sats.',
+  'wallet.generate': 'Generate',
+  'wallet.backupTitle': '🔑 Back up your wallet',
+  'wallet.backupSub': 'Reveal your 12 recovery words. Write them down — they restore your wallet anywhere.',
+  'wallet.backupBtn': 'Reveal recovery words',
+  'wallet.history': 'History',
+  'wallet.empty': 'No transactions yet. Clear a level to earn.',
+  'wallet.tries': '{n} tries',
+
+  // Backup seed
+  'backup.title': 'Recovery Words',
+  'backup.warnTitle': 'The ONLY way to recover your sats.',
+  'backup.warn1': 'Clear browser data or change device, and the wallet is gone without these.',
+  'backup.warn2': 'Anyone with these 12 words can spend your sats — keep them secret.',
+  'backup.warn3': 'Write them down or store in a password manager. Screenshots are risky.',
+  'backup.warn4': 'Importable into any BIP-39 wallet.',
+  'backup.show': 'Show my words →',
+  'backup.loadFailed': 'Failed to load recovery words',
+  'backup.copied': '✓ Copied',
+  'backup.copyAll': 'Copy all 12 words',
+  'backup.saved': 'I’ve saved them safely',
+
+  // Leaderboard
+  'lb.kicker': 'GLOBAL',
+  'lb.title': 'Rankings',
+  'lb.offTitle': 'You’re offline',
+  'lb.offSub': 'Reconnect to see how you rank against players worldwide.',
+  'lb.loading': 'Loading rankings…',
+  'lb.empty': 'No players yet — you could be first!',
+  'lb.total.one': '{n} player ranked',
+  'lb.total.other': '{n} players ranked',
+  'lb.you': 'you',
+  'lb.levels': '{n} levels cleared',
+  'lb.more': 'Loading more…',
+  'lb.end': 'All {n} players shown 🏁',
+
+  // Profile
+  'profile.kicker': 'PLAYER',
+  'profile.title': 'Profile',
+  'profile.editAvatar': '✏️ Edit avatar',
+  'profile.backupTitle': 'Back up your wallet',
+  'profile.backupSub': 'Save your 12-word recovery phrase. Without it, clearing browser data means your sats are gone — with it you can restore anywhere.',
+  'profile.backupBtn': 'Show recovery words →',
+  'profile.themeTitle': 'Theme',
+  'profile.themeSub': 'Currently: {theme}. Change the vibe of the whole app.',
+  'profile.themeBtn': 'Change theme →',
+  'profile.langTitle': 'Language',
+  'profile.langSub': 'Choose the language for quests and menus. More languages are on the way.',
+  'profile.langSoon': '{label} — coming soon',
+  'profile.audioTitle': 'Audio',
+  'profile.audioSub': 'Ambient score and interface sounds. Now playing: {theme} mix.',
+  'profile.feedbackTitle': 'Send feedback',
+  'profile.feedbackSub': 'Found a bug, have an idea, or want to say hi? We read every message.',
+  'profile.feedbackBtn': 'Share your thoughts →',
+  'profile.resetTitle': 'Reset profile & progress',
+  'profile.resetSub': 'Wipes everything on this device. Back up your wallet first — this cannot be undone.',
+  'profile.resetBtn': 'Reset everything',
+  'profile.resetConfirm': '⚠️ This wipes everything on this device.\n\nIf you have NOT backed up your 12 recovery words, your sats are GONE FOREVER.\n\nContinue?',
+
+  // Profile editor
+  'editor.title': 'Edit profile',
+  'editor.username': 'Username',
+  'editor.usernameHint': 'Username can’t be changed — it’s tied to your wallet.',
+  'editor.character': 'Character',
+  'editor.prev': 'Previous',
+  'editor.next': 'Next',
+
+  // Feedback
+  'fb.title': 'Send Feedback',
+  'fb.thanks': 'Thanks for the feedback!',
+  'fb.thanksSub': 'We read every message and use it to make SatQuest better.',
+  'fb.rateLabel': 'How are you finding SatQuest?',
+  'fb.stars.one': '{n} star',
+  'fb.stars.other': '{n} stars',
+  'fb.category': 'Category',
+  'fb.cat.general': '💬 General',
+  'fb.cat.bug': '🐛 Bug',
+  'fb.cat.suggestion': '💡 Suggestion',
+  'fb.cat.other': '✨ Other',
+  'fb.message': 'Your message',
+  'fb.placeholder': 'Tell us what you think, report a bug, or share an idea…',
+  'fb.tooShort': 'Please write at least a few words.',
+  'fb.failed': 'Something went wrong. Please try again.',
+  'fb.send': 'Send feedback →',
+
+  // Theme picker + sound
+  'theme.heading': 'Choose Your Vibe',
+  'theme.dark.label': 'Space Dark',
+  'theme.dark.desc': 'Deep space. Neon glow.',
+  'theme.light.label': 'Clean Light',
+  'theme.light.desc': 'Bright & crisp.',
+  'theme.market.label': 'Market',
+  'theme.market.desc': 'Trading terminal.',
+  'theme.bank.label': 'Bank Vault',
+  'theme.bank.desc': 'Classic & formal.',
+  'theme.rainy.label': 'Rainy City',
+  'theme.rainy.desc': 'Moody & cool.',
+  'theme.disco.label': 'Disco',
+  'theme.disco.desc': 'Party mode. 🎉',
+  'sound.music': 'Ambient music',
+  'sound.sfx': 'Sound effects',
 }

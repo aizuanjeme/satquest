@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { sound } from '../audio/SoundManager'
 import { configApi } from '../lib/api'
+import { t } from '../i18n'
 import s from './ShareEarn.module.css'
 
 /*
@@ -27,8 +28,14 @@ function markShared(levelIdx) {
 }
 function buildText(level) {
   const title = level.title || 'Bitcoin'
-  const summary = level.story || 'Bitcoin education that pays you real sats.'
-  return `🧡 Just leveled up on SatQuest!\n\n"${title}"\n${summary}\n\nBitcoin education that rewards you with real sats ⚡\n\n#Bitcoin #LearnBitcoin #Lightning #SatQuest`
+  const summary = level.story || t('share.fallbackSummary')
+  return t('share.text', { title, summary })
+}
+
+/** Renders a translated sentence with its `{amount}` slot in bold. */
+function WithAmount({ text, n }) {
+  const [pre, post = ''] = text.split('{amount}')
+  return <>{pre}<b>{t('share.amount', { n })}</b>{post}</>
 }
 
 export default function ShareEarn({ level, levelIdx, onEarn }) {
@@ -61,7 +68,7 @@ export default function ShareEarn({ level, levelIdx, onEarn }) {
     return (
       <div className={`${s.card} ${s.cardDone}`}>
         <span className={s.icon}>📣</span>
-        <div className={s.text}><p className={s.title}>Shared & Earned</p><p className={s.sub}>Thanks for spreading the word ⚡</p></div>
+        <div className={s.text}><p className={s.title}>{t('share.doneTitle')}</p><p className={s.sub}>{t('share.doneSub')}</p></div>
         <span className={s.badge}>+{reward} ⚡</span>
       </div>
     )
@@ -72,11 +79,11 @@ export default function ShareEarn({ level, levelIdx, onEarn }) {
       <div className={s.card}>
         <div className={s.head}>
           <span className={s.icon}>❓</span>
-          <div className={s.text}><p className={s.title}>Did you post it?</p><p className={s.sub}>Confirm to earn <b>+{reward} sats</b></p></div>
+          <div className={s.text}><p className={s.title}>{t('share.confirmTitle')}</p><p className={s.sub}><WithAmount text={t('share.confirmSub')} n={reward} /></p></div>
         </div>
         <div className={s.btns}>
-          <button className={`${s.btn} ${s.yes}`} onClick={confirm}>✅ Yes, I posted</button>
-          <button className={`${s.btn} ${s.no}`} onClick={() => { sound.tap(); setStep('idle') }}>Not yet</button>
+          <button className={`${s.btn} ${s.yes}`} onClick={confirm}>{t('share.yes')}</button>
+          <button className={`${s.btn} ${s.no}`} onClick={() => { sound.tap(); setStep('idle') }}>{t('share.notYet')}</button>
         </div>
       </div>
     )
@@ -86,12 +93,12 @@ export default function ShareEarn({ level, levelIdx, onEarn }) {
     <div className={s.card}>
       <div className={s.head}>
         <span className={s.icon}>📣</span>
-        <div className={s.text}><p className={s.title}>Share & Earn</p><p className={s.sub}>Post your win, get <b>+{reward} sats</b></p></div>
+        <div className={s.text}><p className={s.title}>{t('share.title')}</p><p className={s.sub}><WithAmount text={t('share.sub')} n={reward} /></p></div>
         <span className={s.badge}>+{reward} ⚡</span>
       </div>
       <div className={s.btns}>
-        <button className={`${s.btn} ${s.x}`} onMouseEnter={() => sound.hover()} onClick={shareX}>𝕏 Share on X</button>
-        <button className={`${s.btn} ${s.ig}`} onMouseEnter={() => sound.hover()} onClick={copyIg}>📋 Copy for IG</button>
+        <button className={`${s.btn} ${s.x}`} onMouseEnter={() => sound.hover()} onClick={shareX}>{t('share.x')}</button>
+        <button className={`${s.btn} ${s.ig}`} onMouseEnter={() => sound.hover()} onClick={copyIg}>{t('share.ig')}</button>
       </div>
     </div>
   )

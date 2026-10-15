@@ -24,8 +24,8 @@
   --glow-blue: 0 0 24px rgba(42, 216, 255, 0.45);
   --glow-purple: 0 0 28px rgba(153, 69, 255, 0.45);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 
 /* ── LIGHT ── */
@@ -53,8 +53,8 @@
   --glow-blue: 0 0 20px rgba(0, 119, 204, 0.3);
   --glow-purple: 0 0 22px rgba(85, 34, 204, 0.3);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 [data-theme="light"] body { background: var(--bg-0); }
 
@@ -83,8 +83,8 @@
   --glow-blue: 0 0 24px rgba(0, 255, 65, 0.5);
   --glow-purple: 0 0 24px rgba(255, 23, 68, 0.5);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 
 /* ── BANK VAULT ── */
@@ -112,8 +112,8 @@
   --glow-blue: 0 0 24px rgba(200, 168, 75, 0.45);
   --glow-purple: 0 0 24px rgba(74, 144, 217, 0.45);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 
 /* ── RAINY CITY ── */
@@ -141,8 +141,8 @@
   --glow-blue: 0 0 24px rgba(79, 195, 247, 0.45);
   --glow-purple: 0 0 24px rgba(84, 110, 122, 0.4);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 [data-theme="rainy"] body::before {
   content: '';
@@ -189,8 +189,8 @@
   --glow-blue: 0 0 28px rgba(255, 0, 255, 0.55);
   --glow-purple: 0 0 28px rgba(0, 255, 255, 0.55);
 
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-ui: 'Sora', system-ui, sans-serif;
+  --font-display: 'Orbitron', 'Noto Sans', system-ui, sans-serif;
+  --font-ui: 'Sora', 'Noto Sans', system-ui, sans-serif;
 }
 /* Disco rotating hue on accent elements */
 [data-theme="disco"] [class*="barFill"],

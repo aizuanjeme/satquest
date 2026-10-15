@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { LEVELS, AVATARS, TOTAL_SATS, resolveAvatarId, levelsMeta } from '../data/levels'
 
 /*
@@ -23,11 +24,8 @@ export const LevelManager = {
   stageLabel: (idx) => {
     const lv = LEVELS[idx]
     if (!lv) return ''
-    if (lv.type === 'crossover') return 'FINAL TRIAL'
-    if (lv.type === 'wordhunt') return 'WORD HUNT'
-    if (lv.type === 'scamspot') return 'SCAM SPOTTER'
-    if (lv.type === 'seedorder') return 'SEED PHRASE'
-    return lv.chapter || `STEP ${idx + 1}`
+    if (['crossover', 'wordhunt', 'scamspot', 'seedorder'].includes(lv.type)) return t(`type.${lv.type}`)
+    return lv.chapter || t('type.step', { n: idx + 1 })
   },
 
   /** Overall completion ratio for progress rings. */

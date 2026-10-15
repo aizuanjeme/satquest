@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sound } from '../audio/SoundManager'
+import { t } from '../i18n'
 import s from './SoundToggle.module.css'
 
 /*
@@ -24,10 +25,10 @@ export default function SoundToggle() {
 
   return (
     <div className={s.wrap}>
-      <button className={`${s.btn} ${music ? s.on : ''}`} onClick={toggleMusic} title="Ambient music">
+      <button className={`${s.btn} ${music ? s.on : ''}`} onClick={toggleMusic} title={t('sound.music')}>
         {music ? '♫' : '♪̸'}
       </button>
-      <button className={`${s.btn} ${sfx ? s.on : ''}`} onClick={toggleSfx} title="Sound effects">
+      <button className={`${s.btn} ${sfx ? s.on : ''}`} onClick={toggleSfx} title={t('sound.sfx')}>
         {sfx ? '🔊' : '🔇'}
       </button>
     </div>

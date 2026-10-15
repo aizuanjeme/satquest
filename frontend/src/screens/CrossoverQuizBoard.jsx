@@ -5,6 +5,7 @@ import { sound } from '../audio/SoundManager'
 import LevelIndicator from '../ui/LevelIndicator'
 import ScoreDisplay from '../ui/ScoreDisplay'
 import NeonButton from '../ui/NeonButton'
+import { t } from '../i18n'
 import s from './CrossoverQuizBoard.module.css'
 
 /*
@@ -46,8 +47,8 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
 
   const Header = (
     <header className={s.hud}>
-      <button className={s.mapBtn} onMouseEnter={() => sound.hover()} onClick={() => { sound.tap(); onMapPress() }}>‹ Map</button>
-      <LevelIndicator index={levelIdx} total={LevelManager.total} label="FINAL TRIAL" type="crossover" />
+      <button className={s.mapBtn} onMouseEnter={() => sound.hover()} onClick={() => { sound.tap(); onMapPress() }}>{t('nav.map')}</button>
+      <LevelIndicator index={levelIdx} total={LevelManager.total} label={t('type.crossover')} type="crossover" />
       <ScoreDisplay sats={sats} compact />
     </header>
   )
@@ -60,7 +61,7 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
         <div className={s.scroll}>
           <div className={`${s.resultCard} ${passed ? s.pass : s.fail}`}>
             <div className={s.resultEmoji}>{passed ? '🏆' : '⚔️'}</div>
-            <h2 className={s.resultTitle}>{passed ? 'Trial Conquered' : 'Not Quite'}</h2>
+            <h2 className={s.resultTitle}>{passed ? t('quiz.won') : t('quiz.lost')}</h2>
             <div className={s.scoreBig}>
               <span className={s.scoreNum}>{quizCorrect}</span>
               <span className={s.scoreOf}>/ {quizTotal}</span>
@@ -68,8 +69,8 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
             <div className={s.scorePct} style={{ color: passed ? '#2bd47a' : '#ff5e6e' }}>{scorePct}%</div>
             <p className={s.resultSub}>
               {passed
-                ? `You needed ${passingNum}/${totalQ}. +${level.sats} sats secured. The next stage is open.`
-                : `You needed ${passingNum}/${totalQ}, scored ${quizCorrect}/${totalQ}. Revisit a few levels and return.`}
+                ? t('quiz.passSub', { need: passingNum, total: totalQ, sats: level.sats })
+                : t('quiz.failSub', { need: passingNum, total: totalQ, score: quizCorrect })}
             </p>
             <div className={s.breakdown}>
               {questions.map((q, idx) => {
@@ -87,7 +88,7 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
             </div>
             {!passed && (
               <NeonButton variant="purple" full onClick={() => { sound.click(); retryQuiz() }}>
-                Try Again
+                {t('quiz.retry')}
               </NeonButton>
             )}
           </div>
@@ -111,7 +112,7 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
             <p className={s.introTitle}>{level.title}</p>
             <p className={s.introText}>{level.story}</p>
             <div className={s.introMeta}>
-              <span>📋 {totalQ} questions</span>
+              <span>{t('quiz.questions', { n: totalQ })}</span>
               <span>⏱ {level.timeLimit}s</span>
               <span>🎯 {Math.round((level.passMark || 0.7) * 100)}%</span>
               <span>⚡ {level.sats}</span>
@@ -121,13 +122,13 @@ export default function CrossoverQuizBoard({ game, onMapPress }) {
 
         <div className={`${s.statsRow} ${s[timeUrg]}`}>
           <div className={s.timer}><span>⏱</span><b>{quizTimeLeft}s</b></div>
-          <div className={s.qCount}>Q <b>{quizCurrent + 1}</b> / {totalQ}</div>
+          <div className={s.qCount}>{t('quiz.q')} <b>{quizCurrent + 1}</b> / {totalQ}</div>
           <div className={s.scoreChip}>✓ <b>{quizCorrect}</b></div>
         </div>
 
         {question && (
           <div className={s.qCard}>
-            <p className={s.qNum}>QUESTION {quizCurrent + 1}</p>
+            <p className={s.qNum}>{t('quiz.question', { n: quizCurrent + 1 })}</p>
             <p className={s.qText}>{question.q}</p>
             <div className={s.options}>
               {question.options.map((opt, idx) => (

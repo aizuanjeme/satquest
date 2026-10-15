@@ -3,13 +3,8 @@ import gsap from 'gsap'
 import Avatar from '../ui/Avatar'
 import NeonButton from '../ui/NeonButton'
 import { sound } from '../audio/SoundManager'
+import { t } from '../i18n'
 import s from './WelcomeIntro.module.css'
-
-const LINES = [
-  'Bitcoin is the money of the future.',
-  'You will learn it — one quest at a time.',
-  'Clear levels. Earn real sats.',
-]
 
 /*
   WelcomeIntro — cinematic, sequenced welcome after character pick.
@@ -31,15 +26,15 @@ export default function WelcomeIntro({ avatar, username, onDone }) {
   return (
     <div className={s.body} ref={rootRef}>
       <div className={s.av}><Avatar avatar={avatar} size={120} /></div>
-      <p className={s.name}>Welcome, @{username}</p>
+      <p className={s.name}>{t('intro.welcome', { name: username })}</p>
       <div className={s.lines}>
-        {LINES.map((l, i) => (
+        {t('intro.lines').map((l, i) => (
           <p key={i} ref={(el) => (lineRefs.current[i] = el)} className={s.line}>{l}</p>
         ))}
       </div>
       <div className={s.cta}>
         <NeonButton variant="blue" onClick={() => { sound.success(); onDone() }}>
-          Open the Map →
+          {t('intro.open')}
         </NeonButton>
       </div>
     </div>

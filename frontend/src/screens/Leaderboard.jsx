@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { leaderboardApi } from '../core/APIClient'
 import Avatar from '../ui/Avatar'
+import { t, tn } from '../i18n'
 import s from './Leaderboard.module.css'
 
 /*
@@ -76,8 +77,8 @@ export default function Leaderboard({ username, avatar }) {
     <div className={s.body}>
       <header className={s.header}>
         <div>
-          <p className={s.kicker}>GLOBAL</p>
-          <h2 className={s.title}>Rankings</h2>
+          <p className={s.kicker}>{t('lb.kicker')}</p>
+          <h2 className={s.title}>{t('lb.title')}</h2>
         </div>
         <Avatar avatar={avatar} size={44} />
       </header>
@@ -85,17 +86,17 @@ export default function Leaderboard({ username, avatar }) {
       {offline ? (
         <div className={s.offline}>
           <Avatar avatar={avatar} size={120} />
-          <p className={s.offTitle}>You're offline</p>
-          <p className={s.offSub}>Reconnect to see how you rank against players worldwide.</p>
+          <p className={s.offTitle}>{t('lb.offTitle')}</p>
+          <p className={s.offSub}>{t('lb.offSub')}</p>
         </div>
       ) : rows.length === 0 && loading ? (
-        <p className={s.empty}>Loading rankings…</p>
+        <p className={s.empty}>{t('lb.loading')}</p>
       ) : rows.length === 0 ? (
-        <p className={s.empty}>No players yet — you could be first!</p>
+        <p className={s.empty}>{t('lb.empty')}</p>
       ) : (
         <div className={s.list}>
           {total !== null && (
-            <p className={s.totalCount}>{total} player{total !== 1 ? 's' : ''} ranked</p>
+            <p className={s.totalCount}>{tn('lb.total', total)}</p>
           )}
           {rows.map((entry, idx) => {
             const isMe = entry.username?.toLowerCase() === username?.toLowerCase()
@@ -108,17 +109,17 @@ export default function Leaderboard({ username, avatar }) {
               >
                 <span className={s.rank}>{medal || <span className={s.rankNum}>#{entry.rank}</span>}</span>
                 <div className={s.info}>
-                  <p className={s.name}>{entry.username}{isMe && <span className={s.you}>you</span>}</p>
-                  <p className={s.meta}>{entry.levelsCompleted} levels cleared</p>
+                  <p className={s.name}>{entry.username}{isMe && <span className={s.you}>{t('lb.you')}</span>}</p>
+                  <p className={s.meta}>{t('lb.levels', { n: entry.levelsCompleted })}</p>
                 </div>
               </div>
             )
           })}
 
           <div ref={sentinelRef} className={s.sentinel}>
-            {loading && <p className={s.loadingMore}>Loading more…</p>}
+            {loading && <p className={s.loadingMore}>{t('lb.more')}</p>}
             {!hasMore && rows.length > 0 && (
-              <p className={s.endMsg}>All {rows.length} players shown 🏁</p>
+              <p className={s.endMsg}>{t('lb.end', { n: rows.length })}</p>
             )}
           </div>
         </div>

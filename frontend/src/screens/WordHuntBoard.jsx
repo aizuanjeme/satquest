@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { WordEngine } from '../core/GameEngine'
 import { sound } from '../audio/SoundManager'
 import GameFrame from './GameFrame'
+import { t } from '../i18n'
 import s from './WordHuntBoard.module.css'
 
 /*
@@ -24,9 +25,9 @@ export default function WordHuntBoard({ game, onMapPress }) {
 
   const timer = (
     <div className={`${s.timerRow} ${urgency === 2 ? s.crit : urgency === 1 ? s.warn : ''}`}>
-      <span className={s.timerLabel}>TIME</span>
+      <span className={s.timerLabel}>{t('hunt.time')}</span>
       <span className={s.timerVal}>{huntTimeLeft}s</span>
-      <span className={s.found}>{huntRealFound}/{huntRealTotal} found</span>
+      <span className={s.found}>{t('hunt.found', { found: huntRealFound, total: huntRealTotal })}</span>
     </div>
   )
 

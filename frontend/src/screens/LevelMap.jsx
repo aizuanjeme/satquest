@@ -5,12 +5,13 @@ import { sound } from '../audio/SoundManager'
 import Avatar from '../ui/Avatar'
 import ScoreDisplay from '../ui/ScoreDisplay'
 import NeonButton from '../ui/NeonButton'
+import { t } from '../i18n'
 import s from './LevelMap.module.css'
 
 const TYPE_META = {
-  match: { tag: 'MATCH', color: '#2ad8ff' },
-  wordhunt: { tag: 'WORD HUNT', color: '#f7c948' },
-  crossover: { tag: 'FINAL TRIAL', color: '#b07bff' },
+  match: { color: '#2ad8ff' },
+  wordhunt: { color: '#f7c948' },
+  crossover: { color: '#b07bff' },
 }
 
 /*
@@ -99,6 +100,7 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
 
   const lv = selected != null ? LevelManager.all[selected] : null
   const meta = lv ? (TYPE_META[lv.type] || TYPE_META.match) : null
+  const tag = lv ? t(`type.${TYPE_META[lv.type] ? lv.type : 'match'}`) : ''
   const selUnlocked = selected != null && selected <= unlockedUpTo
   const selDone = selected != null && LevelManager.isComplete(selected, progress)
 
@@ -111,59 +113,59 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
           <Avatar avatar={avatar} size={42} />
           <div className={s.userMeta}>
             <span className={s.hello}>@{username}</span>
-            <span className={s.prog}>{Math.round(LevelManager.completionRatio(unlockedUpTo) * 100)}% complete</span>
+            <span className={s.prog}>{t('map.complete', { pct: Math.round(LevelManager.completionRatio(unlockedUpTo) * 100) })}</span>
           </div>
         </div>
         <span data-tour="sats"><ScoreDisplay sats={sats} /></span>
       </header>
 
       <div className={s.titleBlock} data-tour="map">
-        <p className={s.kicker}>{realm ? 'YOU ENTERED' : 'YOUR JOURNEY'}</p>
-        <h2 className={s.title}>{realm ? realm.world : 'The Quest Map'}</h2>
+        <p className={s.kicker}>{realm ? t('map.entered') : t('map.journey')}</p>
+        <h2 className={s.title}>{realm ? t(`door.${realm.id}.world`) : t('map.title')}</h2>
       </div>
 
       {realm && (
         <div className={s.realmCard} key={realm.id} style={{ '--realm': realm.css }}>
-          <span className={s.realmTag}>{realm.icon} {realm.label} DOOR</span>
-          <h3 className={s.realmTitle}>{realm.world}</h3>
-          <p className={s.realmBody}>{realm.blurb}</p>
-          <p className={s.realmSoon}>🔒 Quests in this world are coming soon · drag to look around</p>
+          <span className={s.realmTag}>{realm.icon} {t('map.door', { label: t(`door.${realm.id}.label`) })}</span>
+          <h3 className={s.realmTitle}>{t(`door.${realm.id}.world`)}</h3>
+          <p className={s.realmBody}>{t(`door.${realm.id}.blurb`)}</p>
+          <p className={s.realmSoon}>{t('map.realmSoon')}</p>
           <NeonButton variant="blue" onClick={() => { sound.tap(); worldRef.current?.exitRealm() }}>
-            ← Back to the Quest Map
+            {t('map.backToMap')}
           </NeonButton>
         </div>
       )}
 
       {!realm && nearBridge && selected == null && (
         <div className={`${s.urgencyBanner} ${stage2Active ? s.urgencyActive : s.urgencyAwaits}`}>
-          {stage2Active ? '⚡ STAGE 2 ACTIVE — YOU’RE IN!' : '🌉 STAGE 2 AWAITS — Cross the bridge →'}
+          {stage2Active ? t('map.stage2Active') : t('map.stage2Awaits')}
         </div>
       )}
 
       {!realm && selected == null && (
         <div className={s.hint}>
           <span className={s.hintDot} />
-          Drag to travel · tap a vault or a door
+          {t('map.hint')}
         </div>
       )}
 
       {!realm && lv && (
         <div className={s.card} key={selected}>
-          <button className={s.cardClose} onClick={() => { sound.tap(); setSelected(null) }} aria-label="Close">✕</button>
+          <button className={s.cardClose} onClick={() => { sound.tap(); setSelected(null) }} aria-label={t('common.close')}>✕</button>
           <span className={s.cardTag} style={{ color: meta.color }}>
-            {meta.tag} · {String(selected + 1).padStart(2, '0')}
-            {selDone && <span className={s.doneBadge}>CLEARED</span>}
+            {tag} · {String(selected + 1).padStart(2, '0')}
+            {selDone && <span className={s.doneBadge}>{t('map.cleared')}</span>}
           </span>
           <h3 className={s.cardTitle}>{lv.title || lv.chapter}</h3>
           {lv.story && <p className={s.cardStory}>{lv.story}</p>}
           <div className={s.cardFoot}>
-            <span className={s.cardSats}>⚡ {lv.points ?? lv.sats} pts</span>
+            <span className={s.cardSats}>⚡ {lv.points ?? lv.sats} {t('common.pts')}</span>
             {selUnlocked ? (
               <NeonButton variant={selDone ? 'gold' : 'blue'} onClick={() => onSelect(selected)}>
-                {selDone ? 'Replay →' : 'Enter Quest →'}
+                {selDone ? t('map.replay') : t('map.enter')}
               </NeonButton>
             ) : (
-              <span className={s.locked}>🔒 Locked</span>
+              <span className={s.locked}>{t('map.locked')}</span>
             )}
           </div>
         </div>
@@ -172,21 +174,15 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
       {bridgeWelcome && (
         <div className={s.bridgeOverlay} onClick={() => { sound.tap(); setBridgeWelcome(false) }}>
           <div className={s.bridgeCard} onClick={(e) => e.stopPropagation()}>
-            <button className={s.cardClose} onClick={() => { sound.tap(); setBridgeWelcome(false) }} aria-label="Close">✕</button>
+            <button className={s.cardClose} onClick={() => { sound.tap(); setBridgeWelcome(false) }} aria-label={t('common.close')}>✕</button>
             <div className={s.bridgeIcon}>🌉</div>
-            <p className={s.bridgeKicker}>YOU MADE IT</p>
-            <h3 className={s.bridgeTitle}>Welcome to Stage 2</h3>
-            <p className={s.bridgeBody}>
-              You've crossed the bridge. Stage 1 proved you understand the basics — Bitcoin, wallets, keys, and transactions.
-            </p>
-            <p className={s.bridgeBody}>
-              Stage 2 goes deeper: Lightning Network, Layer 2, advanced security, and the philosophy of sound money. The road ahead is longer and harder.
-            </p>
-            <p className={s.bridgeBody}>
-              ⚡ Stage 2 is live — keep scrolling past the bridge to unlock new challenges!
-            </p>
+            <p className={s.bridgeKicker}>{t('map.bridgeKicker')}</p>
+            <h3 className={s.bridgeTitle}>{t('map.bridgeTitle')}</h3>
+            <p className={s.bridgeBody}>{t('map.bridge1')}</p>
+            <p className={s.bridgeBody}>{t('map.bridge2')}</p>
+            <p className={s.bridgeBody}>{t('map.bridge3')}</p>
             <NeonButton variant="blue" onClick={() => { sound.tap(); setBridgeWelcome(false) }}>
-              {stage2Active ? 'Enter Stage 2 →' : 'Back to Quest →'}
+              {stage2Active ? t('map.enterStage2') : t('map.backToQuest')}
             </NeonButton>
           </div>
         </div>
