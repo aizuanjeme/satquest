@@ -130,6 +130,9 @@ export class QuestWorld {
     this._camT = 0
     this._targetCamT = 0
     this._lastLook = new THREE.Vector3()
+    this._cameraPanX = 0
+    this._targetCameraPanX = 0
+    this._focusIndex = Math.min(this.unlockedUpTo, Math.max(this.N - 1, 0))
 
     // Doors at the end of the road, and the worlds behind them.
     this._doors = []
@@ -1383,12 +1386,24 @@ export class QuestWorld {
   setSelected(index) { this._selected = index }
 
   focusLevel(index, animate = true) {
-    const t = this._tForIndex(index)
+    const safeIndex = THREE.MathUtils.clamp(index, 0, Math.max(this.N - 1, 0))
+    this._focusIndex = safeIndex
+    const t = this._tForIndex(safeIndex)
     if (animate) {
       gsap.to(this, { _targetCamT: t, duration: 0.9, ease: 'power3.inOut' })
     } else {
       this._camT = this._targetCamT = t
     }
+  }
+
+  moveRoad(delta) {
+    if (this._realm || this._transitioning) return
+    this._targetCamT = THREE.MathUtils.clamp(this._targetCamT + delta, 0.02, 0.999)
+  }
+
+  panHorizontal(delta) {
+    if (this._realm || this._transitioning) return
+    this._targetCameraPanX = THREE.MathUtils.clamp(this._targetCameraPanX + delta, -3.2, 3.2)
   }
 
   _setPointerFromEvent(e) {
@@ -1404,7 +1419,10 @@ export class QuestWorld {
       const dx = e.clientX - this._dragX
       this._dragY = e.clientY
       this._dragX = e.clientX
-      if (Math.abs(dx) + Math.abs(dy) > 0) this._dragMoved = true
+      // Ignore tiny jitter so quick taps on touch devices still count as clicks.
+      const MOVE_THRESHOLD = 4 // pixels
+      if (Math.abs(dx) <= MOVE_THRESHOLD && Math.abs(dy) <= MOVE_THRESHOLD) return
+      this._dragMoved = true
       if (this._transitioning) return
       if (this._realm) {
         // Inside a world: horizontal drag looks around
@@ -1621,6 +1639,7 @@ export class QuestWorld {
 
     // ease camera along the road (vertical scroll = depth)
     this._camT += (this._targetCamT - this._camT) * 0.08
+    this._cameraPanX += (this._targetCameraPanX - this._cameraPanX) * 0.12
 
     let look
     if (this._fly) {
@@ -1629,8 +1648,8 @@ export class QuestWorld {
       look = this._fly.look
     } else {
       const pose = this._mainCamPose(this._camT)
-      // gentle pointer parallax
-      pose.pos.x += this.pointer.x * 1.2
+      // gentle pointer parallax + optional on-screen pan controls
+      pose.pos.x += this.pointer.x * 1.2 + this._cameraPanX
       pose.pos.y += this.pointer.y * 0.6
       this.camera.position.lerp(pose.pos, 0.12)
       look = pose.look
