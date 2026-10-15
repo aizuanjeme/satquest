@@ -17,7 +17,8 @@ const TYPE_META = {
   LevelMap — the quest hub rendered as an explorable 3D road. A winding neon
   highway carries gold sats-coins (transactions) past a Bitcoin "vault"
   building for every level. Drag / scroll to travel the road; tap a building
-  to inspect a level, then launch it. At the end of the road, three doors
+  to inspect a level, then launch it. The player's avatar walks the road
+  as a little character. At the end of the road, three doors
   lead into the Explorer, Sovereignty and Builder worlds.
 */
 export default function LevelMap({ avatar, username, sats, unlockedUpTo, progress, onSelect }) {
@@ -34,6 +35,7 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
       unlockedUpTo,
       isComplete: (i) => LevelManager.isComplete(i, progress),
       stage2Start: LevelManager.stage1Count,
+      avatar,
     })
     world.onPick((i) => {
       sound.select()
@@ -85,6 +87,12 @@ export default function LevelMap({ avatar, username, sats, unlockedUpTo, progres
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Keep the walking character's head in sync if the avatar changes
+  useEffect(() => {
+    worldRef.current?.setAvatar(avatar)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [avatar?.img, avatar?.emoji])
 
   const stage2Active = unlockedUpTo >= LevelManager.stage1Count
   const nearBridge = LevelManager.stage1Count > 0 && unlockedUpTo >= LevelManager.stage1Count - 4

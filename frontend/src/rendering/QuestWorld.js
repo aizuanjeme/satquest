@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import gsap from 'gsap'
+import { AvatarWalker } from './AvatarWalker'
 
 /*
   QuestWorld — a self-contained 3D "road map" for the level select screen.
@@ -16,6 +17,7 @@ import gsap from 'gsap'
     .onHover(fn(index|null))
     .focusLevel(index, animate)
     .setSelected(index)
+    .setAvatar(avatar)   — the walking character's head portrait
 
   At the end of the road stand three doors — Explorer, Sovereignty and
   Builder. Tapping one swings it open and flies the camera through it into
@@ -75,7 +77,7 @@ const QUEST_THEMES = {
 }
 
 export class QuestWorld {
-  constructor(canvas, { levels, unlockedUpTo = 0, isComplete = () => false, stage2Start = null } = {}) {
+  constructor(canvas, { levels, unlockedUpTo = 0, isComplete = () => false, stage2Start = null, avatar = null } = {}) {
     this.canvas = canvas
     this.levels = levels || []
     this.unlockedUpTo = unlockedUpTo
@@ -164,6 +166,7 @@ export class QuestWorld {
     // Start focused on the current (next playable) level.
     const startIdx = Math.min(this.unlockedUpTo, this.N - 1)
     this._camT = this._targetCamT = this._tForIndex(startIdx)
+    this._buildWalker(avatar)
 
     this._onResize = this._onResize.bind(this)
     this._onPointerMove = this._onPointerMove.bind(this)
@@ -1105,8 +1108,16 @@ export class QuestWorld {
     this._fly = { pos: this.camera.position.clone(), look: this._lastLook.clone() }
     this._fadeMat.color.set(def.hex)
 
+    // The character walks up to the door and through it, the camera following
+    this._walkerScripted = true
+    const walkerPos = this._walker.object.position
+    const doorstep = door.localToWorld(new THREE.Vector3(0, 0, 0.9))
+    const inside = door.localToWorld(new THREE.Vector3(0, 0, -3))
+
     this._tl?.kill()
     this._tl = gsap.timeline()
+      .to(walkerPos, { x: doorstep.x, z: doorstep.z, duration: 0.8, ease: 'sine.inOut' }, 0)
+      .to(walkerPos, { x: inside.x, z: inside.z, duration: 0.6, ease: 'sine.in' }, 0.8)
       .to(this._fly.look, { x: center.x, y: center.y, z: center.z, duration: 0.6, ease: 'power2.out' }, 0)
       .to(this._fly.pos, { x: front.x, y: front.y, z: front.z, duration: 1.0, ease: 'power2.inOut' }, 0.15)
       .to(door.userData.portalMat.uniforms.uBoost, { value: 1.5, duration: 1.2 }, 0.3)
@@ -1134,6 +1145,11 @@ export class QuestWorld {
     c.radius = 4
     c.height = 1.6
     gsap.to(c, { radius: c.baseRadius, height: c.baseHeight, duration: 2.6, ease: 'power3.out' })
+
+    // The character steps in just behind the arriving camera, revealed as it pulls back
+    realm.scene.add(this._walker.object)
+    this._walker.placeAt(new THREE.Vector3(0, 0, 7.5), Math.PI)
+    gsap.to(this._walker.object.position, { z: 5.5, duration: 1.6, delay: 0.5, ease: 'sine.out' })
     this._realmEnterCb?.(def.id)
   }
 
@@ -1165,6 +1181,16 @@ export class QuestWorld {
         this.camera.position.copy(this._fly.pos)
         door.userData.open = 1
         door.userData.targetOpen = 0
+
+        // The character walks back out of the door onto the end of the road
+        gsap.killTweensOf(this._walker.object.position)
+        this.scene.add(this._walker.object)
+        this._walker.placeAt(door.localToWorld(new THREE.Vector3(0, 0, -0.6)).setY(0))
+        const roadEnd = this.curve.getPointAt(0.999)
+        gsap.to(this._walker.object.position, {
+          x: roadEnd.x, z: roadEnd.z, duration: 1.5, ease: 'sine.inOut',
+          onComplete: () => { this._walkerScripted = false },
+        })
         gsap.to(this._fly.pos, { x: pose.pos.x, y: pose.pos.y, z: pose.pos.z, duration: 1.5, ease: 'power3.out' })
         gsap.to(this._fly.look, {
           x: pose.look.x, y: pose.look.y, z: pose.look.z, duration: 1.5, ease: 'power3.out',
@@ -1331,6 +1357,18 @@ export class QuestWorld {
     this._bridgeGroup = group
     this.scene.add(group)
   }
+
+  /* ---------- the player's character ---------- */
+
+  _buildWalker(avatar) {
+    this._walker = new AvatarWalker({ avatar, coinTexture: this._coinTexture() })
+    this._walkerScripted = false
+    const tan = this.curve.getTangentAt(this._camT)
+    this._walker.placeAt(this.curve.getPointAt(this._camT), Math.atan2(tan.x, tan.z))
+    this.scene.add(this._walker.object)
+  }
+
+  setAvatar(avatar) { this._walker?.setAvatar(avatar) }
 
   /* ---------- interaction ---------- */
 
@@ -1570,6 +1608,8 @@ export class QuestWorld {
         Math.cos(c.angle) * c.radius,
       )
       this.camera.lookAt(0, 2.6, 0)
+      this._walker.faceToward(this.camera.position.x, this.camera.position.z)
+      this._walker.update(t, dt)
       realm.update?.(t, dt)
       realm.nodes.forEach((g, i) => { g.position.y = g.userData.basePos.y + Math.sin(t * 1.2 + i) * 0.12 })
       this._updateDoor(realm.exitDoor, t, this._hoveredDoor === RETURN_DOOR.id)
@@ -1596,6 +1636,12 @@ export class QuestWorld {
     }
     this.camera.lookAt(look)
     this._lastLook.copy(look)
+
+    // The character walks wherever the camera is heading along the road
+    if (!this._walkerScripted) {
+      this._walker.object.position.copy(this.curve.getPointAt(THREE.MathUtils.clamp(this._camT, 0, 0.999)))
+    }
+    this._walker.update(t, dt)
 
     // drifting accent lights track the camera
     this._pBlue.position.set(look.x - 6, 5, look.z + 2)
@@ -1695,6 +1741,7 @@ export class QuestWorld {
     if (this._raf) cancelAnimationFrame(this._raf)
     this._tl?.kill()
     if (this._fly) gsap.killTweensOf([this._fly.pos, this._fly.look])
+    gsap.killTweensOf(this._walker.object.position)
     window.removeEventListener('resize', this._onResize)
     this.canvas.removeEventListener('pointermove', this._onPointerMove)
     this.canvas.removeEventListener('pointerdown', this._onPointerDown)
