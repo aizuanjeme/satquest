@@ -13,8 +13,10 @@
   Adding a language:
     1. Create i18n/<code>.js exporting the same keys as en.js. Missing keys
        fall back to English, so a partial translation is safe.
-    2. Register it in LOCALES and flip `available` in LANGUAGES below
-       (a locale stays unselectable until `available` is true).
+    2. Register it in LOCALES. Leave `available: false` in LANGUAGES below
+       until the level content (served by the backend) is translated too —
+       until then it shows as "coming soon" and can't be selected. Flip it
+       locally to test, but don't commit that.
 
   LEVEL CONTENT (titles/questions/reveals) is localised per level: a level may
   carry an `i18n: { yo: { …partial level… } }` overlay that is merged over the

@@ -36,8 +36,9 @@ npm run dev
 ```
 
 Open the URL Vite prints (default `http://localhost:5173`). In dev, requests to
-`/api/*` are proxied to the backend at `http://localhost:3000` (override with
-`VITE_API_URL`).
+`/api/*` are proxied to the backend at `http://127.0.0.1:3000` (override with
+`VITE_API_URL`). The proxy uses `127.0.0.1` rather than `localhost` so it doesn't
+resolve to IPv6 `::1` on machines where the API only listens on IPv4.
 
 > Run the [backend](../backend/README.md) and seed the demo levels
 > (`npm run seed:levels`) first, otherwise there's no level content to play.
@@ -75,6 +76,37 @@ backend is authoritative for points credited.
 3. **Offline with no cache:** the app shows a "connect once" prompt with retry.
 4. **Backend content update:** detected via the payload `version` hash and picked
    up on the next session.
+
+## Localisation
+
+UI strings go through a small runtime in [`src/i18n/index.js`](src/i18n/index.js):
+
+```js
+import { t, tn } from '../i18n'
+t('reveal.continue')             // "Continue →"
+t('done.title', { count: 37 })   // interpolation
+tn('lb.total', 3)                // plural: 'lb.total.one' / 'lb.total.other'
+```
+
+- Players pick a language from the **Profile** screen. The choice is saved as
+  `satquest.lang` and `<html lang>` is kept in sync. On first launch the browser
+  language is used if it is enabled.
+- Missing keys fall back to English, so a partial translation is safe.
+- Level content is translated separately, with a per-level `i18n: { <code>: … }`
+  overlay served by the backend and merged in [`src/data/levels.js`](src/data/levels.js).
+- A language only becomes selectable when it is registered in `LOCALES` **and**
+  marked `available: true` in `LANGUAGES`. Yorùbá (`yo.js`) is registered but
+  stays "coming soon" until its level content is translated too. You can flip it
+  on locally to test, but don't commit that change.
+
+## First-run tour
+
+The first time a player reaches the map, [`src/ui/Tour.jsx`](src/ui/Tour.jsx)
+runs a spotlight walkthrough. Each step highlights the element tagged
+`data-tour="<anchor>"` (map, sats counter, bottom-nav tabs). The steps are
+defined in `TOUR_STEPS` in [`src/App.jsx`](src/App.jsx), and their text comes
+from the `tour.*` i18n keys. Finishing or skipping sets `satquest.tourDone`.
+Clear that key to see the tour again.
 
 ## Security touchpoints
 
@@ -115,15 +147,16 @@ frontend/
 │   │   ├── useLightningEvents.js# wallet SSE subscription
 │   │   └── useTheme.jsx         # theme context (dark/light/market/…)
 │   ├── i18n/
-│   │   ├── index.js             # minimal t() runtime + locale handling
-│   │   └── en.js                # English UI strings
+│   │   ├── index.js             # minimal t() runtime, LANGUAGES list, locale handling
+│   │   ├── en.js                # English UI strings (source of truth for keys)
+│   │   └── yo.js                # Yorùbá UI strings (not yet enabled)
 │   ├── lib/
 │   │   ├── api.js               # backend client (profile/progress/rewards/…)
 │   │   ├── levelsSync.js        # offline-first level cache orchestration
 │   │   └── storage.js           # localStorage + device ID
-│   ├── rendering/              # Three.js scenes (QuestWorld map, board grids…)
+│   ├── rendering/              # Three.js scenes (QuestWorld map, AvatarWalker, board grids…)
 │   ├── screens/                # all screen components (entry, map, boards, wallet…)
-│   └── ui/                     # reusable UI (Avatar, NeonButton, GlassPanel…)
+│   └── ui/                     # reusable UI (Avatar, NeonButton, GlassPanel, Tour…)
 ├── index.html
 ├── vite.config.js
 ├── netlify.toml

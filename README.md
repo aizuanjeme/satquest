@@ -36,7 +36,9 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
   - **🧩 Seed Order** — study a recovery phrase, then rebuild it in the correct order.
 - **Points → sats rewards** — gameplay accrues points; the **backend** is authoritative for how many. Points convert to sats at claim time and pay out over Lightning from the Wallet screen.
 - **Non-custodial Lightning wallet per player** — derived from a BIP-39 mnemonic minted on signup (Breez SDK). Back up or restore your account with the 12-word seed.
-- **Custom avatars** — pick your character on first launch from a scrollable strip.
+- **Custom avatars** — pick one of 38 characters on first launch from a scrollable strip. Your avatar then walks the quest map as a little 3D explorer.
+- **First-run guided tour** — a spotlight walkthrough of the map, sats counter, wallet, leaderboard, and profile the first time a player reaches the map.
+- **Language picker** — UI strings are localised (English shipped, Yorùbá in progress); level content can carry per-language overlays. Pick a language from the Profile screen.
 - **Welcome-back & edit-profile flows** — avatar is changeable; username is immutable (tied to your wallet).
 - **Performance tracked** per level — fastest completion time and attempt count.
 - **Global leaderboard** — infinite-scroll ranked list, paginated from the backend (20 per page).
@@ -182,11 +184,12 @@ satquest/
 │   │   ├── hooks/
 │   │   │   ├── useGame.js             # Full state machine + storage hydration
 │   │   │   └── useLightningEvents.js
+│   │   ├── i18n/                      # t() runtime + en.js / yo.js UI strings
 │   │   ├── lib/
 │   │   │   ├── api.js                 # profile/progress/rewards/lightning/… client
 │   │   │   ├── levelsSync.js          # offline-first level cache (IndexedDB)
 │   │   │   └── storage.js             # localStorage layer + device ID
-│   │   ├── rendering/                 # Three.js scenes (quest map, board grids)
+│   │   ├── rendering/                 # Three.js scenes (QuestWorld map, AvatarWalker, board grids)
 │   │   ├── screens/
 │   │   │   ├── EntryScreen.jsx        # Onboarding: username + avatar carousel
 │   │   │   ├── LevelMap.jsx           # 3D quest map
@@ -198,7 +201,7 @@ satquest/
 │   │   │   ├── Wallet.jsx             # sats balance + Lightning payout
 │   │   │   ├── Leaderboard.jsx        # Infinite-scroll global rankings
 │   │   │   └── …
-│   │   ├── ui/                        # Avatar, NeonButton, GlassPanel, ScoreDisplay …
+│   │   ├── ui/                        # Avatar, NeonButton, GlassPanel, Tour (first-run walkthrough) …
 │   │   ├── App.jsx                    # Phase router
 │   │   └── index.css                  # Brand palette as CSS variables
 │   ├── index.html
@@ -265,6 +268,7 @@ satquest/
 | State | React hooks | `useGame.js` is a complete state machine |
 | Persistence | localStorage + IndexedDB + PostgreSQL | Offline-first, synced to backend |
 | Audio | Web Audio API | Procedural synthesis — no audio files |
+| i18n | Tiny in-house `t()` runtime | No dependency; English fallback for missing keys |
 | Backend | NestJS + TypeORM + Postgres | REST API, validation, ORM |
 | Lightning | Breez SDK — Spark | Non-custodial wallet per player |
 | Icon pipeline | sharp | SVG → PNG at home-screen sizes |
@@ -361,6 +365,24 @@ isn't Bitcoin vocabulary. Scam Spotter and Seed Order reinforce self-custody.
 }
 ```
 
+### Localised level content
+
+Any level may carry an optional `i18n` overlay keyed by language code. It is
+merged over the English fields for the active locale. Objects merge key by key
+and arrays of objects merge index by index, so a translator only supplies text:
+ids, answers, emojis, and points stay as they are. Arrays of plain strings
+(word-hunt words, quiz options) are replaced whole. Anything missing stays in
+English.
+
+```js
+{
+  id: 1, type: 'match', title: 'Coin', /* … */
+  i18n: {
+    yo: { title: 'Owó', pairs: [{ imgLabel: '…' }], reveals: [{ def: '…' }] },
+  },
+}
+```
+
 ### Storage shape ([`frontend/src/lib/storage.js`](frontend/src/lib/storage.js ))
 
 ```js
@@ -384,6 +406,11 @@ isn't Bitcoin vocabulary. Scam Spotter and Seed Order reinforce self-custody.
   deviceId:  'dev_xyz...',
   updatedAt: 1779080000000,
 }
+
+// Other keys
+// satquest.deviceId  stable per-browser id (device-gating)
+// satquest.lang      chosen UI language, e.g. 'en'
+// satquest.tourDone  '1' once the first-run tour is finished or skipped
 ```
 
 ### Backend API (live)
@@ -470,8 +497,9 @@ Quick summary:
 - **Add an avatar** — drop a new webp into `frontend/src/avatars/` (and
   `landing/src/avatars/` if it should appear on the marketing site).
 - **Fix a bug** — open an issue or PR.
-- **Translate** — UI strings live in `frontend/src/i18n/`; level prose
-  (`story`, `hint`, `def`, `funny`) can be localised in the seed content.
+- **Translate** — UI strings live in `frontend/src/i18n/<code>.js`; level
+  content is translated with a per-level `i18n` overlay in the seed (see
+  [Localised level content](#localised-level-content)).
 
 After changes, run `npm run build` in the app you touched to confirm it compiles.
 
@@ -494,7 +522,10 @@ After changes, run `npm run build` in the app you touched to confirm it compiles
 - [x] Procedural Web Audio music + full SFX set
 - [x] Landing page (satquests.com) with live leaderboard + player feedback
 - [x] Tournament page (coming soon)
-- [ ] Yoruba, Igbo, and Hausa language support
+- [x] First-run guided tour + walking avatar on the quest map
+- [x] i18n runtime + in-app language picker (English)
+- [ ] Yorùbá release (UI strings drafted; level content still to translate)
+- [ ] Hausa, Igbo, Naijá (Pidgin), and French
 - [ ] Tournament mode (live bracket)
 - [ ] Share score card for social media
 - [ ] More game modes: timed flashcards, fill-in-the-blank, sentence shuffle
