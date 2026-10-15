@@ -5,6 +5,7 @@ import { sound } from '../audio/SoundManager'
 import LevelIndicator from '../ui/LevelIndicator'
 import ScoreDisplay from '../ui/ScoreDisplay'
 import NeonButton from '../ui/NeonButton'
+import { t } from '../i18n'
 import s from './GameFrame.module.css'
 
 /*
@@ -34,7 +35,7 @@ export default function GameFrame({
     <div className={s.frame}>
       <header className={s.hud}>
         <button className={s.mapBtn} onMouseEnter={() => sound.hover()} onClick={() => { sound.tap(); onMapPress() }}>
-          ‹ Map
+          {t('nav.map')}
         </button>
         <LevelIndicator
           index={levelIdx}
@@ -60,16 +61,16 @@ export default function GameFrame({
         <div className={s.briefBackdrop}>
           <div className={s.briefCard}>
             <p className={s.briefTag} style={{ color: level.hintColor }}>
-              {LevelManager.stageLabel(levelIdx)} · LEVEL {levelIdx + 1}
+              {t('game.briefTag', { stage: LevelManager.stageLabel(levelIdx), n: levelIdx + 1 })}
             </p>
             <h2 className={s.briefTitle}>{level.title || level.chapter}</h2>
             <p className={s.briefStory}>{level.story}</p>
             <div className={s.briefReward}>
-              <span>Reward</span>
-              <strong>⚡ {level.points ?? level.sats} pts</strong>
+              <span>{t('game.reward')}</span>
+              <strong>⚡ {level.points ?? level.sats} {t('common.pts')}</strong>
             </div>
             <NeonButton variant="blue" full onClick={() => { sound.select(); setBriefing(false) }}>
-              Begin →
+              {t('game.begin')}
             </NeonButton>
           </div>
         </div>

@@ -7,6 +7,7 @@ import Avatar from '../ui/Avatar'
 import NeonButton from '../ui/NeonButton'
 import GlassPanel from '../ui/GlassPanel'
 import RestoreModal from './RestoreModal'
+import { t, tn } from '../i18n'
 import s from './EntryScreen.module.css'
 
 const HANDLE_RE = /^[a-zA-Z0-9_-]{2,20}$/
@@ -41,8 +42,8 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
     return (
       <div className={s.body}>
         <div className={s.brand} ref={titleRef}>
-          <p className={s.kicker}>SATQUEST</p>
-          <h1 className={s.hero}>Welcome<br />Back</h1>
+          <p className={s.kicker}>{t('entry.kicker')}</p>
+          <h1 className={s.hero}>{t('entry.welcomeBack')[0]}<br />{t('entry.welcomeBack')[1]}</h1>
         </div>
 
         <GlassPanel glow="blue" className={s.backCard}>
@@ -50,20 +51,20 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
           <p className={s.handle}>@{existingProfile.username}</p>
           <p className={s.stat}>
             {savedSats > 0 || savedLevels > 0
-              ? `⚡ ${savedSats} sats · ${savedLevels} level${savedLevels === 1 ? '' : 's'} cleared`
-              : 'Your journey awaits'}
+              ? tn('entry.stats', savedLevels, { sats: savedSats })
+              : t('entry.awaits')}
           </p>
         </GlassPanel>
 
         <div className={s.actions}>
           <NeonButton variant="blue" full onClick={() => onResume(existingProfile)}>
-            Continue Quest →
+            {t('entry.continue')}
           </NeonButton>
           <button className={s.link} onClick={() => { sound.tap(); setRestoring(true) }}>
-            Restore from recovery words
+            {t('entry.restore')}
           </button>
           <button className={s.linkDim} onClick={() => { sound.tap(); onReset() }}>
-            Not you? Start over
+            {t('entry.startOver')}
           </button>
         </div>
 
@@ -88,7 +89,7 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
   const handleStart = () => {
     const trimmed = username.trim().toLowerCase()
     if (!HANDLE_RE.test(trimmed)) {
-      setError('2-20 letters, numbers, _ or -')
+      setError(t('entry.handleError'))
       sound.wrong()
       return
     }
@@ -99,9 +100,9 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
   return (
     <div className={s.body}>
       <div className={s.brand} ref={titleRef}>
-        <p className={s.kicker}>BEGIN THE</p>
+        <p className={s.kicker}>{t('entry.begin')}</p>
         <h1 className={s.hero}>Sat<span className={s.heroAccent}>Quest</span></h1>
-        <p className={s.tag}>Master Bitcoin. Stack real sats.</p>
+        <p className={s.tag}>{t('entry.tagline')}</p>
       </div>
 
       <div className={s.field}>
@@ -110,7 +111,7 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
             className={s.input}
             value={username}
             onChange={(e) => { setUsername(e.target.value); setError('') }}
-            placeholder="your_handle"
+            placeholder={t('entry.placeholder')}
             maxLength={20}
             autoComplete="off"
             autoCapitalize="off"
@@ -119,11 +120,11 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
           <span className={s.suffix}>.satquest</span>
         </div>
         <p className={error ? s.err : s.hint}>
-          {error || '2-20 characters · letters, numbers, _ or -'}
+          {error || t('entry.handleHint')}
         </p>
       </div>
 
-      <p className={s.pickLabel}>CHOOSE YOUR CHARACTER</p>
+      <p className={s.pickLabel}>{t('entry.pick')}</p>
 
       <div className={s.carousel}>
         <button className={s.arrow} onMouseEnter={() => sound.hover()} onClick={() => move(-1)}>‹</button>
@@ -137,10 +138,10 @@ export default function EntryScreen({ existingProfile, onChoose, onResume, onRes
 
       <div className={s.actions}>
         <NeonButton variant="blue" full onClick={handleStart} disabled={!username.trim()}>
-          Enter the Quest →
+          {t('entry.enter')}
         </NeonButton>
         <button className={s.link} onClick={() => { sound.tap(); setRestoring(true) }}>
-          Already have an account? Restore it
+          {t('entry.haveAccount')}
         </button>
       </div>
 

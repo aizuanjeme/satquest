@@ -9,6 +9,7 @@ import NeonButton from '../ui/NeonButton'
 import ProgressRing from '../ui/ProgressRing'
 import QrCode from '../ui/QrCode'
 import BackupSeed from './BackupSeed'
+import { t } from '../i18n'
 import s from './Wallet.module.css'
 
 /*
@@ -99,14 +100,14 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
       {paymentToast && (
         <div className={`${s.toast} ${paymentToast.kind === 'in' ? s.toastIn : s.toastOut}`}>
           <span>{paymentToast.kind === 'in' ? '⚡' : '↗'}</span>
-          {paymentToast.kind === 'in' ? 'Received' : 'Sent'} {paymentToast.sats} sats
+          {t(paymentToast.kind === 'in' ? 'wallet.received' : 'wallet.sent', { n: paymentToast.sats })}
         </div>
       )}
 
       <header className={s.header}>
         <div>
-          <p className={s.kicker}>LIGHTNING</p>
-          <h2 className={s.title}>Wallet</h2>
+          <p className={s.kicker}>{t('wallet.kicker')}</p>
+          <h2 className={s.title}>{t('wallet.title')}</h2>
         </div>
         <Avatar avatar={avatar} size={44} />
       </header>
@@ -116,27 +117,27 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
           <span className={s.ringPct}>{Math.round(ratio * 100)}%</span>
         </ProgressRing>
         <div className={s.balMeta}>
-          <p className={s.balLabel}>Total pts earned</p>
-          <p className={s.balNum}>{totalEarned}<span className={s.balUnit}> pts</span></p>
-          <p className={s.balRate}>{pending.exchangeRate} pts = 1 sat · of {TOTAL_SATS} total</p>
+          <p className={s.balLabel}>{t('wallet.totalEarned')}</p>
+          <p className={s.balNum}>{totalEarned}<span className={s.balUnit}> {t('common.pts')}</span></p>
+          <p className={s.balRate}>{t('wallet.rate', { rate: pending.exchangeRate, total: TOTAL_SATS })}</p>
         </div>
       </GlassPanel>
 
       <div className={s.stats}>
-        <div className={s.stat}><b>{completed.length}</b><span>Cleared</span></div>
-        <div className={s.stat}><b>{remaining.length}</b><span>Locked</span></div>
-        <div className={s.stat}><b>+{remainingSats}</b><span>To earn</span></div>
+        <div className={s.stat}><b>{completed.length}</b><span>{t('wallet.cleared')}</span></div>
+        <div className={s.stat}><b>{remaining.length}</b><span>{t('wallet.locked')}</span></div>
+        <div className={s.stat}><b>+{remainingSats}</b><span>{t('wallet.toEarn')}</span></div>
       </div>
 
       {walletInfo && (
         <GlassPanel className={s.section}>
-          <div className={s.wRow}><span className={s.wLabel}>Wallet balance</span><span className={s.wBal}>{walletInfo.balanceSats ?? 0} ⚡</span></div>
+          <div className={s.wRow}><span className={s.wLabel}>{t('wallet.balance')}</span><span className={s.wBal}>{walletInfo.balanceSats ?? 0} ⚡</span></div>
           {walletInfo.lightningAddress && (
             <div className={s.addrBlock}>
-              <span className={s.wLabel}>Lightning Address</span>
+              <span className={s.wLabel}>{t('wallet.address')}</span>
               <div className={s.addrPill}>
                 <code>{walletInfo.lightningAddress}</code>
-                <button className={s.copyMini} onClick={() => copy(walletInfo.lightningAddress)}>Copy</button>
+                <button className={s.copyMini} onClick={() => copy(walletInfo.lightningAddress)}>{t('common.copy')}</button>
               </div>
             </div>
           )}
@@ -146,26 +147,26 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
 
       {lightningDisabled && (
         <GlassPanel className={s.warn}>
-          <p className={s.warnTitle}>⚠ Lightning offline</p>
-          <p className={s.warnSub}>The operator hasn't enabled payouts yet. Rewards are still tracked and pay out once it's on.</p>
+          <p className={s.warnTitle}>{t('wallet.offlineTitle')}</p>
+          <p className={s.warnSub}>{t('wallet.offlineSub')}</p>
         </GlassPanel>
       )}
 
       <GlassPanel glow="purple" className={s.section}>
-        <p className={s.secTitle}>⚡ Claim rewards</p>
+        <p className={s.secTitle}>{t('wallet.claimTitle')}</p>
         <p className={s.secSub}>
-          {pendingSats > 0 ? `${pendingSats} sats ready to claim into your wallet.` : 'Clear levels to stack claimable sats.'}
+          {pendingSats > 0 ? t('wallet.claimReady', { n: pendingSats }) : t('wallet.claimEmpty')}
         </p>
-        {claimResult?.claimedSats > 0 && <div className={s.ok}>✅ Sent {claimResult.claimedSats} sats · <code>{claimResult.paymentId.slice(0, 10)}…</code></div>}
-        {claimErr && <div className={s.bad}>Couldn't claim: {claimErr.message}</div>}
+        {claimResult?.claimedSats > 0 && <div className={s.ok}>{t('wallet.claimSent', { n: claimResult.claimedSats })} <code>{claimResult.paymentId.slice(0, 10)}…</code></div>}
+        {claimErr && <div className={s.bad}>{t('wallet.claimErr', { msg: claimErr.message })}</div>}
         <NeonButton variant="purple" full disabled={pendingSats <= 0 || claiming || lightningDisabled} onClick={handleClaim}>
-          {claiming ? 'Sending…' : pendingSats > 0 ? `Claim ${pendingSats} sats →` : 'Nothing to claim'}
+          {claiming ? t('common.sending') : pendingSats > 0 ? t('wallet.claimBtn', { n: pendingSats }) : t('wallet.nothing')}
         </NeonButton>
       </GlassPanel>
 
       <GlassPanel className={s.section}>
-        <p className={s.secTitle}>Receive ⚡</p>
-        <p className={s.secSub}>Generate an invoice so anyone can send you sats.</p>
+        <p className={s.secTitle}>{t('wallet.receiveTitle')}</p>
+        <p className={s.secSub}>{t('wallet.receiveSub')}</p>
         <div className={s.invRow}>
           <input
             type="number" min={1} className={s.invInput} value={invoiceSats}
@@ -173,32 +174,32 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
             disabled={invoiceBusy || lightningDisabled}
           />
           <NeonButton variant="blue" disabled={invoiceBusy || lightningDisabled || invoiceSats <= 0} onClick={handleGenerateInvoice}>
-            {invoiceBusy ? '…' : 'Generate'}
+            {invoiceBusy ? '…' : t('wallet.generate')}
           </NeonButton>
         </div>
         {invoiceErr && <p className={s.bad}>{invoiceErr.message}</p>}
         {invoice && (
           <div className={s.invoiceBox}>
             <div className={s.qrWrap}><QrCode value={invoice.paymentRequest} size={210} /></div>
-            <p className={s.invAmt}>{invoice.amountSats}<span> sats</span></p>
+            <p className={s.invAmt}>{invoice.amountSats}<span> {t('common.sats')}</span></p>
             <p className={s.invAddr}>{invoice.paymentRequest}</p>
             <div className={s.invActions}>
-              <NeonButton variant="ghost" onClick={() => copy(invoice.paymentRequest)}>Copy</NeonButton>
-              <NeonButton variant="ghost" onClick={() => setInvoice(null)}>Close</NeonButton>
+              <NeonButton variant="ghost" onClick={() => copy(invoice.paymentRequest)}>{t('common.copy')}</NeonButton>
+              <NeonButton variant="ghost" onClick={() => setInvoice(null)}>{t('common.close')}</NeonButton>
             </div>
           </div>
         )}
       </GlassPanel>
 
       <GlassPanel className={s.section}>
-        <p className={s.secTitle}>🔑 Back up your wallet</p>
-        <p className={s.secSub}>Reveal your 12 recovery words. Write them down — they restore your wallet anywhere.</p>
-        <NeonButton variant="gold" full onClick={() => { sound.tap(); setShowSeed(true) }}>Reveal recovery words</NeonButton>
+        <p className={s.secTitle}>{t('wallet.backupTitle')}</p>
+        <p className={s.secSub}>{t('wallet.backupSub')}</p>
+        <NeonButton variant="gold" full onClick={() => { sound.tap(); setShowSeed(true) }}>{t('wallet.backupBtn')}</NeonButton>
       </GlassPanel>
 
       <div className={s.section}>
-        <p className={s.secTitle}>History</p>
-        {completed.length === 0 && <p className={s.empty}>No transactions yet. Clear a level to earn.</p>}
+        <p className={s.secTitle}>{t('wallet.history')}</p>
+        {completed.length === 0 && <p className={s.empty}>{t('wallet.empty')}</p>}
         {completed.map((lv, i) => {
           const perf = progress?.levels?.[i]
           const seconds = perf?.bestTimeMs != null ? Math.round(perf.bestTimeMs / 1000) : null
@@ -208,7 +209,7 @@ export default function Wallet({ sats, avatar, username, progress, unlockedUpTo,
               <span className={s.txIcon}>{lv.type === 'wordhunt' ? '⚡' : lv.type === 'crossover' ? '★' : '◆'}</span>
               <div className={s.txInfo}>
                 <p className={s.txTitle}>{lv.title}</p>
-                <p className={s.txMeta}>{lv.chapter}{seconds != null && ` · ${seconds}s`}{perf?.attempts > 1 && ` · ${perf.attempts} tries`}</p>
+                <p className={s.txMeta}>{lv.chapter}{seconds != null && ` · ${seconds}s`}{perf?.attempts > 1 && ` · ${t('wallet.tries', { n: perf.attempts })}`}</p>
               </div>
               <span className={s.txAmt}>+{earned} 🏆</span>
             </div>

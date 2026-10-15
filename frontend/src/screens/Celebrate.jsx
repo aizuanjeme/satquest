@@ -1,18 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { sound } from '../audio/SoundManager'
+import { t } from '../i18n'
 import s from './Celebrate.module.css'
-
-const PRAISE = [
-  'You just smashed it! 🚀',
-  'Boom! Level cleared!',
-  'You dey kampe! 💪',
-  'Sharp sharp! On to the next!',
-  'No be small thing! 🔥',
-  'Bitcoin master in the making!',
-  'Omo! That was clean!',
-  'Sats secured! ⚡',
-  'Na you dey run this! 👑',
-]
 
 const CONFETTI_COLORS = ['#2ad8ff', '#9945ff', '#f7c948', '#ff4d5e', '#2bd47a', '#ff9500']
 const SPARKS = ['✨', '⚡', '🟠', '⭐', '💫', '🌟']
@@ -20,7 +9,10 @@ const SPARKS = ['✨', '⚡', '🟠', '⭐', '💫', '🌟']
 export default function Celebrate({ levelTitle, earnedSats, onDone }) {
   useEffect(() => { sound.win() }, [])
 
-  const praise = useMemo(() => PRAISE[Math.floor(Math.random() * PRAISE.length)], [])
+  const praise = useMemo(() => {
+    const lines = t('celebrate.praise')
+    return lines[Math.floor(Math.random() * lines.length)]
+  }, [])
 
   const confetti = useMemo(() => Array.from({ length: 40 }).map((_, i) => ({
     left: Math.random() * 100,
@@ -40,8 +32,8 @@ export default function Celebrate({ levelTitle, earnedSats, onDone }) {
 
   // Auto-advance after 4.5s
   useEffect(() => {
-    const t = setTimeout(onDone, 4500)
-    return () => clearTimeout(t)
+    const id = setTimeout(onDone, 4500)
+    return () => clearTimeout(id)
   }, [onDone])
 
   return (
@@ -82,7 +74,7 @@ export default function Celebrate({ levelTitle, earnedSats, onDone }) {
       {/* Card */}
       <div className={s.card}>
         <div className={s.trophy}>🏆</div>
-        <p className={s.kicker}>Level Cleared</p>
+        <p className={s.kicker}>{t('celebrate.kicker')}</p>
         <h1 className={s.praise}>{praise}</h1>
         {levelTitle && (
           <p className={s.levelLine}><span className={s.check}>✓</span> {levelTitle}</p>
@@ -91,13 +83,13 @@ export default function Celebrate({ levelTitle, earnedSats, onDone }) {
           <div className={s.satsBadge}>
             <span className={s.bolt}>⚡</span>
             <span className={s.satsNum}>+{earnedSats}</span>
-            <span className={s.satsWord}>pts</span>
+            <span className={s.satsWord}>{t('common.pts')}</span>
           </div>
         )}
         <button className={s.btn} onClick={(e) => { e.stopPropagation(); onDone() }}>
-          Pick your next level →
+          {t('celebrate.next')}
         </button>
-        <p className={s.hint}>Tap anywhere to continue</p>
+        <p className={s.hint}>{t('celebrate.tap')}</p>
       </div>
 
     </div>

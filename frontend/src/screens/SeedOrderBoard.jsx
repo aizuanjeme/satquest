@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { sound } from '../audio/SoundManager'
 import GameFrame from './GameFrame'
+import { t } from '../i18n'
 import s from './SeedOrderBoard.module.css'
 
 /*
@@ -49,10 +50,10 @@ export default function SeedOrderBoard({ game, onMapPress }) {
         sats={sats}
         onMapPress={onMapPress}
         progress={0}
-        progressLabel="Read"
+        progressLabel={t('seed.read')}
       >
         <p className={s.hint} style={{ color: level.hintColor }}>
-          Read your {seedTotal} words in order, then rebuild them from memory
+          {t('seed.study', { n: seedTotal })}
         </p>
         <div className={s.studyGrid}>
           {seedTarget.map((word, i) => (
@@ -63,7 +64,7 @@ export default function SeedOrderBoard({ game, onMapPress }) {
           ))}
         </div>
         <button className={s.studyBtn} onClick={() => { sound.select(); startSeedArrange() }}>
-          I've memorized them — arrange ↓
+          {t('seed.memorized')}
         </button>
       </GameFrame>
     )
@@ -79,7 +80,7 @@ export default function SeedOrderBoard({ game, onMapPress }) {
       progressLabel={`${placedCount}/${seedTotal}`}
     >
       <p className={s.hint} style={{ color: level.hintColor }}>
-        {level.hint || 'Tap the words in the right order'}
+        {level.hint || t('seed.hint')}
       </p>
 
       <div className={s.slots}>
@@ -93,7 +94,7 @@ export default function SeedOrderBoard({ game, onMapPress }) {
 
       {placedCount > 0 && !seedResult && (
         <button className={s.undo} onClick={() => { sound.tap(); undoSeedWord() }}>
-          ↶ Undo last
+          {t('seed.undo')}
         </button>
       )}
 
@@ -119,7 +120,7 @@ export default function SeedOrderBoard({ game, onMapPress }) {
       {seedResult === 'win' && (
         <div className={s.win}>
           <span className={s.winEmoji}>🔐</span>
-          <p>Phrase restored — that's how you recover a wallet!</p>
+          <p>{t('seed.win')}</p>
         </div>
       )}
     </GameFrame>

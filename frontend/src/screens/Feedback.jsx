@@ -3,14 +3,10 @@ import { feedbackApi } from '../core/APIClient'
 import { sound } from '../audio/SoundManager'
 import GlassPanel from '../ui/GlassPanel'
 import NeonButton from '../ui/NeonButton'
+import { t, tn } from '../i18n'
 import s from './Feedback.module.css'
 
-const CATEGORIES = [
-  { id: 'general', label: '💬 General' },
-  { id: 'bug', label: '🐛 Bug' },
-  { id: 'suggestion', label: '💡 Suggestion' },
-  { id: 'other', label: '✨ Other' },
-]
+const CATEGORIES = ['general', 'bug', 'suggestion', 'other']
 
 /*
   Feedback — submit feedback via feedbackApi.submit. Logic preserved
@@ -27,7 +23,7 @@ export default function Feedback({ username, onClose }) {
 
   const submit = async () => {
     if (!message.trim() || message.trim().length < 3) {
-      setError('Please write at least a few words.')
+      setError(t('fb.tooShort'))
       return
     }
     setLoading(true); setError(null)
@@ -40,7 +36,7 @@ export default function Feedback({ username, onClose }) {
       })
       setDone(true); sound.success()
     } catch (e) {
-      setError(e.message || 'Something went wrong. Please try again.')
+      setError(e.message || t('fb.failed'))
     } finally {
       setLoading(false)
     }
@@ -51,20 +47,20 @@ export default function Feedback({ username, onClose }) {
       <GlassPanel glow="purple" className={s.sheet}>
         <div onClick={(e) => e.stopPropagation()}>
           <div className={s.header}>
-            <h3 className={s.title}>Send Feedback</h3>
-            <button className={s.x} onClick={onClose} aria-label="Close">✕</button>
+            <h3 className={s.title}>{t('fb.title')}</h3>
+            <button className={s.x} onClick={onClose} aria-label={t('common.close')}>✕</button>
           </div>
 
           {done ? (
             <div className={s.success}>
               <p className={s.successIcon}>🎉</p>
-              <p className={s.successTitle}>Thanks for the feedback!</p>
-              <p className={s.successSub}>We read every message and use it to make SatQuest better.</p>
-              <NeonButton variant="purple" full onClick={onClose}>Done</NeonButton>
+              <p className={s.successTitle}>{t('fb.thanks')}</p>
+              <p className={s.successSub}>{t('fb.thanksSub')}</p>
+              <NeonButton variant="purple" full onClick={onClose}>{t('common.done')}</NeonButton>
             </div>
           ) : (
             <>
-              <p className={s.label}>How are you finding SatQuest?</p>
+              <p className={s.label}>{t('fb.rateLabel')}</p>
               <div className={s.stars}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
@@ -73,28 +69,28 @@ export default function Feedback({ username, onClose }) {
                     onClick={() => { sound.tap(); setRating(n) }}
                     onMouseEnter={() => setHovered(n)}
                     onMouseLeave={() => setHovered(0)}
-                    aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                    aria-label={tn('fb.stars', n)}
                   >★</button>
                 ))}
               </div>
 
-              <p className={s.label}>Category</p>
+              <p className={s.label}>{t('fb.category')}</p>
               <div className={s.pills}>
-                {CATEGORIES.map((c) => (
+                {CATEGORIES.map((id) => (
                   <button
-                    key={c.id}
-                    className={`${s.pill} ${category === c.id ? s.pillOn : ''}`}
-                    onClick={() => { sound.tap(); setCategory(category === c.id ? '' : c.id) }}
-                  >{c.label}</button>
+                    key={id}
+                    className={`${s.pill} ${category === id ? s.pillOn : ''}`}
+                    onClick={() => { sound.tap(); setCategory(category === id ? '' : id) }}
+                  >{t(`fb.cat.${id}`)}</button>
                 ))}
               </div>
 
-              <p className={s.label}>Your message <span className={s.req}>*</span></p>
+              <p className={s.label}>{t('fb.message')} <span className={s.req}>*</span></p>
               <textarea
                 className={s.textarea}
                 rows={4}
                 maxLength={2000}
-                placeholder="Tell us what you think, report a bug, or share an idea…"
+                placeholder={t('fb.placeholder')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
@@ -103,7 +99,7 @@ export default function Feedback({ username, onClose }) {
               {error && <p className={s.error}>{error}</p>}
 
               <NeonButton variant="purple" full disabled={loading} onClick={submit}>
-                {loading ? 'Sending…' : 'Send feedback →'}
+                {loading ? t('common.sending') : t('fb.send')}
               </NeonButton>
             </>
           )}

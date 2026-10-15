@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGame } from './hooks/useGame'
 import { sound } from './audio/SoundManager'
 import { SceneProvider, useScene } from './components3d/SceneBackground'
@@ -19,9 +19,11 @@ import Profile from './screens/Profile'
 import BottomNav from './ui/BottomNav'
 import NeonButton from './ui/NeonButton'
 import NetworkStatus from './ui/NetworkStatus'
+import Tour from './ui/Tour'
 import { LevelManager } from './core/LevelManager'
 import { ensureLevels } from './lib/levelsSync'
-import { t } from './i18n'
+import { isTourDone, markTourDone } from './lib/storage'
+import { t, useLocale } from './i18n'
 import s from './App.module.css'
 
 // Map each game phase to a cinematic camera mood.
@@ -31,7 +33,27 @@ const MOODS = {
   wallet: 'menu', leaderboard: 'menu', profile: 'menu', done: 'reveal',
 }
 
+// First-run guided walkthrough shown once on the player's first visit to the
+// Quest Map. Each step optionally spotlights a real element via its
+// `data-tour` anchor (see BottomNav / LevelMap). Text is looked up per render
+// so it follows the selected language.
+const TOUR_STEPS = [
+  { key: 'welcome', emoji: '\uD83D\uDC4B' },
+  { key: 'map', anchor: 'map', emoji: '\uD83D\uDDFA\uFE0F' },
+  { key: 'sats', anchor: 'sats', emoji: '\u26A1' },
+  { key: 'wallet', anchor: 'nav-wallet', emoji: '\uD83D\uDCB3' },
+  { key: 'ranks', anchor: 'nav-leaderboard', emoji: '\uD83C\uDFC6' },
+  { key: 'you', anchor: 'nav-profile', emoji: '\uD83D\uDC64' },
+  { key: 'ready', emoji: '\uD83D\uDE80' },
+]
+
 function Game() {
+  // Re-render the whole game tree when the player switches language.
+  const locale = useLocale()
+  const tourSteps = useMemo(
+    () => TOUR_STEPS.map((st) => ({ ...st, title: t(`tour.${st.key}.title`), body: t(`tour.${st.key}.body`) })),
+    [locale],
+  )
   const game = useGame()
   const { setMood } = useScene()
   const {
@@ -44,6 +66,16 @@ function Game() {
 
   // Drive the persistent 3D backdrop's framing from the active phase.
   useEffect(() => { setMood(MOODS[phase] || 'idle') }, [phase, setMood])
+
+  // First-run walkthrough: show once, the first time the player lands on the
+  // Quest Map. Delayed slightly so the map + nav anchors are mounted/measured.
+  const [showTour, setShowTour] = useState(false)
+  useEffect(() => {
+    if (phase !== 'map' || isTourDone()) return undefined
+    const id = setTimeout(() => setShowTour(true), 700)
+    return () => clearTimeout(id)
+  }, [phase])
+  const finishTour = () => { markTourDone(); setShowTour(false) }
 
   // Unlock the Web Audio context + start ambient score on the first gesture.
   useEffect(() => {
@@ -148,19 +180,18 @@ function Game() {
       {phase === 'done' && (
         <div className={s.done}>
           <p className={s.doneTrophy}>🏆</p>
-          <h1 className={s.doneTitle}>You finished all {LevelManager.total} levels!</h1>
-          <p className={s.doneSub}>
-            You are now more Bitcoin-literate than 90% of Nigerians. Share SatQuest with your people.
-          </p>
+          <h1 className={s.doneTitle}>{t('done.title', { count: LevelManager.total })}</h1>
+          <p className={s.doneSub}>{t('done.sub')}</p>
           <div className={s.doneSats}>
-            <p className={s.doneSatNum}>⚡ {sats} pts earned</p>
-            <p className={s.doneSatLbl}>across all {LevelManager.total} levels</p>
+            <p className={s.doneSatNum}>{t('done.earned', { sats })}</p>
+            <p className={s.doneSatLbl}>{t('done.across', { count: LevelManager.total })}</p>
           </div>
-          <NeonButton variant="gold" onClick={() => window.location.reload()}>Play again</NeonButton>
+          <NeonButton variant="gold" onClick={() => window.location.reload()}>{t('done.again')}</NeonButton>
         </div>
       )}
 
       {showNav && <BottomNav phase={phase} onTab={handleTab} />}
+      {showTour && <Tour steps={tourSteps} onDone={finishTour} />}
       <NetworkStatus />
     </div>
   )

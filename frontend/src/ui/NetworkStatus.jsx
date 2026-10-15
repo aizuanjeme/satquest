@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { t } from '../i18n'
 import s from './NetworkStatus.module.css'
 
 /*
@@ -62,12 +63,12 @@ export default function NetworkStatus() {
   if (!visible) return null
 
   const config = {
-    offline: { dot: s.dotRed,    label: 'No Connection',   icon: '✕' },
-    syncing: { dot: s.dotSpin,   label: 'Syncing…',        icon: '↻' },
-    saved:   { dot: s.dotGreen,  label: 'Saved',           icon: '✓' },
-    online:  { dot: s.dotGreen,  label: 'Back Online',     icon: '✓' },
-    idle:    { dot: s.dotGreen,  label: 'Online',          icon: '●' },
-  }[status] || { dot: s.dotGreen, label: 'Online', icon: '●' }
+    offline: { dot: s.dotRed,    label: t('net.offline'), icon: '✕' },
+    syncing: { dot: s.dotSpin,   label: t('net.syncing'), icon: '↻' },
+    saved:   { dot: s.dotGreen,  label: t('net.saved'),   icon: '✓' },
+    online:  { dot: s.dotGreen,  label: t('net.online'),  icon: '✓' },
+    idle:    { dot: s.dotGreen,  label: t('net.idle'),    icon: '●' },
+  }[status] || { dot: s.dotGreen, label: t('net.idle'), icon: '●' }
 
   return (
     <div className={`${s.pill} ${s[status]}`} role="status" aria-live="polite">

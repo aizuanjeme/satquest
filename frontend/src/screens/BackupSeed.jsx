@@ -3,6 +3,7 @@ import { profileApi } from '../core/APIClient'
 import { sound } from '../audio/SoundManager'
 import GlassPanel from '../ui/GlassPanel'
 import NeonButton from '../ui/NeonButton'
+import { t } from '../i18n'
 import s from './BackupSeed.module.css'
 
 /*
@@ -21,7 +22,7 @@ export default function BackupSeed({ username, onClose }) {
     setLoading(true); setError(null)
     profileApi.seed(username)
       .then(({ mnemonic }) => setWords(mnemonic.split(/\s+/)))
-      .catch((e) => setError(e.message || 'Failed to load recovery words'))
+      .catch((e) => setError(e.message || t('backup.loadFailed')))
       .finally(() => setLoading(false))
   }, [stage, username, words.length])
 
@@ -38,30 +39,30 @@ export default function BackupSeed({ username, onClose }) {
       <GlassPanel glow="purple" className={s.sheet}>
         <div onClick={(e) => e.stopPropagation()}>
           <div className={s.header}>
-            <h3 className={s.title}>Recovery Words</h3>
-            <button className={s.x} onClick={onClose} aria-label="Close">✕</button>
+            <h3 className={s.title}>{t('backup.title')}</h3>
+            <button className={s.x} onClick={onClose} aria-label={t('common.close')}>✕</button>
           </div>
 
           {stage === 'warn' && (
             <>
               <div className={s.warn}>
-                <p className={s.warnTitle}>The ONLY way to recover your sats.</p>
+                <p className={s.warnTitle}>{t('backup.warnTitle')}</p>
                 <ul className={s.warnList}>
-                  <li>Clear browser data or change device, and the wallet is gone without these.</li>
-                  <li>Anyone with these 12 words can spend your sats — keep them secret.</li>
-                  <li>Write them down or store in a password manager. Screenshots are risky.</li>
-                  <li>Importable into any BIP-39 wallet.</li>
+                  <li>{t('backup.warn1')}</li>
+                  <li>{t('backup.warn2')}</li>
+                  <li>{t('backup.warn3')}</li>
+                  <li>{t('backup.warn4')}</li>
                 </ul>
               </div>
               <NeonButton variant="gold" full onClick={() => { sound.tap(); setStage('reveal') }}>
-                Show my words →
+                {t('backup.show')}
               </NeonButton>
             </>
           )}
 
           {stage === 'reveal' && (
             <>
-              {loading && <p className={s.loading}>Loading…</p>}
+              {loading && <p className={s.loading}>{t('common.loading')}</p>}
               {error && <p className={s.error}>{error}</p>}
               {!loading && !error && words.length > 0 && (
                 <>
@@ -70,8 +71,8 @@ export default function BackupSeed({ username, onClose }) {
                       <div key={i} className={s.word}><span className={s.idx}>{i + 1}</span><span>{w}</span></div>
                     ))}
                   </div>
-                  <NeonButton variant="blue" full onClick={copy}>{copied ? '✓ Copied' : 'Copy all 12 words'}</NeonButton>
-                  <button className={s.saved} onClick={() => { sound.tap(); onClose() }}>I've saved them safely</button>
+                  <NeonButton variant="blue" full onClick={copy}>{copied ? t('backup.copied') : t('backup.copyAll')}</NeonButton>
+                  <button className={s.saved} onClick={() => { sound.tap(); onClose() }}>{t('backup.saved')}</button>
                 </>
               )}
             </>

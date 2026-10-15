@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import s from './LevelIndicator.module.css'
 
 /*
@@ -9,7 +10,7 @@ export default function LevelIndicator({ index, total, label, type = 'match' }) 
       <div className={s.badge}>{String(index + 1).padStart(2, '0')}</div>
       <div className={s.meta}>
         <span className={s.label}>{label}</span>
-        <span className={s.count}>Level {index + 1} / {total}</span>
+        <span className={s.count}>{t('game.levelOf', { n: index + 1, total })}</span>
       </div>
     </div>
   )
