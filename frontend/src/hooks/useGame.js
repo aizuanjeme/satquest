@@ -623,6 +623,7 @@ export function useGame() {
   const goToHome        = useCallback(() => setPhase('home'), [])
   const goToLeaderboard = useCallback(() => setPhase('leaderboard'), [])
   const goToProfile     = useCallback(() => setPhase('profile'), [])
+  const goToLarp        = useCallback(() => setPhase('larp'), [])
 
   // Award sats for sharing a level on social media.
   // Idempotent: only earns once per level (tracked in localStorage by ShareEarn).
@@ -707,7 +708,7 @@ export function useGame() {
     level, levelIdx,
     sats, unlockedUpTo, lastEarned,
     goNext, jumpTo, chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
-    goToMap, goToWallet, goToHome, goToLeaderboard, goToProfile,
+    goToMap, goToWallet, goToHome, goToLeaderboard, goToProfile, goToLarp,
     goToCelebrate, closeCelebrate, earnShareSats,
 
     // match game

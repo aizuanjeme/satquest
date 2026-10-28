@@ -42,6 +42,7 @@ Every level is grounded in real Nigerian life: Mama Titi's market savings, Emeka
 - **Welcome-back & edit-profile flows** — avatar is changeable; username is immutable (tied to your wallet).
 - **Performance tracked** per level — fastest completion time and attempt count.
 - **Global leaderboard** — infinite-scroll ranked list, paginated from the backend (20 per page).
+- **🎭 Bitcoin LARP** — a separate mode where you *play the network*: drag UTXO coins into a transaction, sign it with your key, fight for block space, mine blocks with real proof-of-work, catch forged and double-spent transactions as a node, and battle Group 1 vs Group 2. Includes a plain-language Library of the Bitcoin whitepaper. See [Bitcoin LARP](#bitcoin-larp).
 - **Cinematic 3D** — Three.js + GSAP scenes throughout (quest map, animated backgrounds).
 - **Arcade audio** — procedural Web Audio music tracks + full SFX set; toggles from the Profile screen.
 - **Plays offline** — installable PWA; levels cached in IndexedDB, progress in `localStorage`.
@@ -185,6 +186,7 @@ satquest/
 │   │   │   ├── useGame.js             # Full state machine + storage hydration
 │   │   │   └── useLightningEvents.js
 │   │   ├── i18n/                      # t() runtime + en.js / yo.js UI strings
+│   │   ├── larp/                      # Bitcoin LARP: pure engine, bots, chapters, whitepaper, drag & drop
 │   │   ├── lib/
 │   │   │   ├── api.js                 # profile/progress/rewards/lightning/… client
 │   │   │   ├── levelsSync.js          # offline-first level cache (IndexedDB)
@@ -440,6 +442,91 @@ completions" leaderboard is just a query away.
 
 ---
 
+## Bitcoin LARP
+
+A live-action role-play of the Bitcoin network, separate from the quest (its own
+🎭 tab and its own XP — LARP never pays out sats).
+
+It's designed so a **5-year-old can play it**, modelled on the paper Bitcoin
+LARP kit (transaction cards, coloured padlock stickers, block-header card,
+handheld miner):
+
+- **Bitty the owl 🦉** coaches every step, reads it **aloud** (Web Speech API,
+  can be muted) and bounces a 👆 over what to touch next.
+- **Locks & keys** — each player's padlock colour is their public key; only
+  your colour key opens your lock. Signing is "drag your key onto the card";
+  spotting a forgery is "does the key colour match the lock?".
+- **Simple words first**, grown-up words in a chip: *waiting room* (mempool),
+  *tip* (fee), *shout it out* (broadcast), *chain of blocks* (blockchain).
+- Hashes are plain numbers 0–99,999: *"find a number smaller than 390!"*
+  Tap the big MINE button (or turn on the robot helper); the gadget shows
+  Lowest Hash / Tries / Best Nonce like the real kit.
+- Tips are 🐢 / 🚶 / 🚀, mempool tips are ⭐ stars, confirmations are 🧱 bricks.
+
+**Start here — The Bitcoin Mission.** A digital twin of the paper LARP kit
+(UTXO SET and MEMPOOL baskets, transaction cards whose inputs name a
+*txid #n*, lock & key stickers, worksheets, block header card, handheld
+miner). Alice sends Bob 50,000 sats across seven stages:
+
+1. **Create** — drag coins from the UTXO SET into the card, stick Bob's lock on
+   the payment and Alice's lock on the change, sign each input with her key.
+2. **Relay** — pass the card peer-to-peer until every node has it.
+3. **Check** — *Transaction Validation* sheet; good cards go in the MEMPOOL,
+   the double-spend and the forgery are rejected.
+4. **Build & mine** — block txids card, coinbase (≤ reward + tips), header
+   (prev hash, tx commitment), then the miner until the hash is under the target.
+5. **Check blocks** — *Block Validation* sheet: a rival block with valid
+   proof-of-work is still rejected for paying itself too much.
+6. **After you validate** — take spent coins out of the UTXO SET, put new
+   ones in, clear confirmed cards from the MEMPOOL.
+7. **Confirm** — 1 confirmation, then 2 as another block lands.
+
+Mistakes are explained and retried, never fatal. XP is 300 minus 20 per
+mistake (minimum 100) plus a badge; progress is saved after every action so
+the mission resumes where you left it. Everything is simulated — no real funds,
+keys or recovery phrases.
+
+The five chapters below are **practice rounds**:
+
+| Chapter | Role | What you do | Whitepaper |
+|---|---|---|---|
+| Ada’s First Coins | Coin keeper | Pay with whole coins (UTXOs), get change back, sign with your key | §2 Transactions |
+| The Busy Waiting Room | Coin keeper | Beat a 3-block deadline in a full mempool; give a bigger tip (RBF) | §6 Incentive |
+| Be a Miner! | Miner | Fill your block with big tips, tap to mine, out-mine Group 2 | §4 Proof-of-Work |
+| Catch the Cheater | Checker (node) | Reject wrong-colour keys, spent coins and more-out-than-in | §5 Network |
+| Dayo’s Sneaky Trick | Shopkeeper | Wait for a block before handing over the phone — 0-conf gets replaced | §11 Calculations |
+| Group 1 vs Group 2 | Team game | Two teams, 8 blocks, halving every 4; richest group wins | §6 Incentive |
+
+How it's built (`frontend/src/larp/`):
+
+- **`engine.js`** — a pure `reduce(state, action)` model: UTXOs, signatures,
+  mempool with replace-by-fee, vB-limited blocks, and proof-of-work against a
+  numeric target. No timers, randomness or DOM, so the planned online rooms can
+  run the same file on the server as the authority for each room.
+- **`bots.js`** — bot holders (mempool traffic) and bot miners (hashrate,
+  optional team favouritism). Bots only emit actions; the engine validates them.
+- **`chapters.js`** — each chapter is `init` / `script` / `evaluate` plus story,
+  lesson and a whitepaper link. Chapter copy is English-only for now.
+- **`kit.js`** + **`mission.js`** — the mission's pure rules (UTXO set,
+  mempool, per-input key stickers, relay, block commitment, block validation,
+  basket updates) and its stage reducer. Covered by `npm test` in `frontend/`
+  (Vitest: transaction validation, double-spend rejection, invalid-block
+  rejection, stage progression, scoring).
+- **`whitepaper.js`** — original plain-language summaries, one per paper section.
+- **`coach.jsx`** — Bitty the owl: step guide, read-aloud and pointer.
+- **`drag.jsx`** — pointer-event drag & drop (works on touch; every drag has a
+  tap fallback). Progress lives in `localStorage` under `satquest.larp`.
+
+LARP XP and badges live on the device for now (SatQuest has no server-side XP
+system yet); move them to the backend before showing them on a shared
+leaderboard.
+
+Next up: **online rooms** — a backend `larp` module where a host shares a room
+code, players join Group 1 / Group 2 from their own phones, actions go up over
+HTTP and state comes down over SSE (the same pattern as the Lightning events).
+
+---
+
 ## Installing on Your Phone
 
 SatQuest now ships with proper home-screen icons (PNG, all sizes).
@@ -526,6 +613,8 @@ After changes, run `npm run build` in the app you touched to confirm it compiles
 - [x] i18n runtime + in-app language picker (English)
 - [ ] Yorùbá release (UI strings drafted; level content still to translate)
 - [ ] Hausa, Igbo, Naijá (Pidgin), and French
+- [x] Bitcoin LARP: solo story mode, Group 1 vs Group 2 free play, whitepaper Library
+- [ ] Bitcoin LARP online rooms (multiplayer groups)
 - [ ] Tournament mode (live bracket)
 - [ ] Share score card for social media
 - [ ] More game modes: timed flashcards, fill-in-the-blank, sentence shuffle

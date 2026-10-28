@@ -4,6 +4,7 @@ import s from './BottomNav.module.css'
 
 const TABS = [
   { id: 'map', icon: '🗺️' },
+  { id: 'larp', icon: '🎭', beta: true },
   { id: 'wallet', icon: '⚡' },
   { id: 'leaderboard', icon: '🏆' },
   { id: 'profile', icon: '👤' },
@@ -27,6 +28,7 @@ export default function BottomNav({ phase, onTab }) {
           >
             <span className={s.icon}>{tab.icon}</span>
             <span className={s.label}>{t(`tab.${tab.id}`)}</span>
+            {tab.beta && <span className={s.beta}>{t('common.beta')}</span>}
             {active && <span className={s.dot} />}
           </button>
         )
