@@ -16,6 +16,7 @@ import Celebrate from './screens/Celebrate'
 import Wallet from './screens/Wallet'
 import Leaderboard from './screens/Leaderboard'
 import Profile from './screens/Profile'
+import LarpHub from './screens/larp/LarpHub'
 import BottomNav from './ui/BottomNav'
 import NeonButton from './ui/NeonButton'
 import NetworkStatus from './ui/NetworkStatus'
@@ -30,7 +31,7 @@ import s from './App.module.css'
 const MOODS = {
   avatar: 'menu', intro: 'menu', map: 'map',
   playing: 'playing', reveal: 'reveal', celebrate: 'reveal',
-  wallet: 'menu', leaderboard: 'menu', profile: 'menu', done: 'reveal',
+  wallet: 'menu', leaderboard: 'menu', profile: 'menu', larp: 'menu', done: 'reveal',
 }
 
 // First-run guided walkthrough shown once on the player's first visit to the
@@ -40,6 +41,7 @@ const MOODS = {
 const TOUR_STEPS = [
   { key: 'welcome', emoji: '\uD83D\uDC4B' },
   { key: 'map', anchor: 'map', emoji: '\uD83D\uDDFA\uFE0F' },
+  { key: 'larp', anchor: 'nav-larp', emoji: '\uD83C\uDFAD' },
   { key: 'sats', anchor: 'sats', emoji: '\u26A1' },
   { key: 'wallet', anchor: 'nav-wallet', emoji: '\uD83D\uDCB3' },
   { key: 'ranks', anchor: 'nav-leaderboard', emoji: '\uD83C\uDFC6' },
@@ -60,7 +62,7 @@ function Game() {
     phase, avatar, username, profile, progress,
     level, levelIdx, sats, unlockedUpTo, lastEarned,
     chooseAvatar, resumeProfile, restoreFromProfile, resetEverything, updateProfile,
-    jumpTo, goToMap, goToWallet, goToLeaderboard, goToProfile,
+    jumpTo, goToMap, goToWallet, goToLeaderboard, goToProfile, goToLarp,
     goToCelebrate, closeCelebrate, earnShareSats,
   } = game
 
@@ -88,12 +90,13 @@ function Game() {
     }
   }, [])
 
-  const showNav = ['map', 'wallet', 'leaderboard', 'profile'].includes(phase)
+  const showNav = ['map', 'larp', 'wallet', 'leaderboard', 'profile'].includes(phase)
 
   const handleTab = (id) => {
     if (id === 'map') goToMap()
     else if (id === 'wallet') goToWallet()
     else if (id === 'profile') goToProfile()
+    else if (id === 'larp') goToLarp()
     else goToLeaderboard()
   }
 
@@ -123,6 +126,8 @@ function Game() {
           onSelect={jumpTo}
         />
       )}
+
+      {phase === 'larp' && <LarpHub username={username} />}
 
       {phase === 'leaderboard' && <Leaderboard username={username} avatar={avatar} />}
 

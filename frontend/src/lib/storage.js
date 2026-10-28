@@ -67,6 +67,8 @@ export function saveProfile(profile) {
 export function clearProfile() {
   localStorage.removeItem(PROFILE_KEY)
   localStorage.removeItem(PROGRESS_KEY)
+  localStorage.removeItem(LARP_KEY)
+  localStorage.removeItem('satquest.larp.mission')
 }
 
 /* ---------- First-run walkthrough flag ---------- */
@@ -79,6 +81,84 @@ export function isTourDone() {
 
 export function markTourDone() {
   try { localStorage.setItem(TOUR_KEY, '1') } catch { /* ignore */ }
+}
+
+/* ---------- Bitcoin LARP progress ----------
+   Kept apart from quest progress on purpose: LARP XP never converts to sats.
+   satquest.larp : { xp, chapters: { [id]: { doneAt, plays } }, freeBest, freeWins, badges }
+   ------------------------------------------- */
+
+const LARP_KEY = 'satquest.larp'
+
+const emptyLarp = () => ({ xp: 0, chapters: {}, freeBest: 0, freeWins: 0, badges: [] })
+
+export function loadLarp() {
+  try {
+    const raw = localStorage.getItem(LARP_KEY)
+    return raw ? { ...emptyLarp(), ...JSON.parse(raw) } : emptyLarp()
+  } catch {
+    return emptyLarp()
+  }
+}
+
+/**
+ * Record a finished LARP round. Story chapters award XP on first clear only;
+ * free play awards XP every round. Returns { progress, xpGained }.
+ */
+export function recordLarpResult({ id, won, xp }) {
+  const prev = loadLarp()
+  const next = { ...prev, chapters: { ...prev.chapters } }
+  let xpGained = 0
+  if (id === 'free') {
+    xpGained = xp
+    next.freeBest = Math.max(prev.freeBest, xp)
+    if (won) next.freeWins = prev.freeWins + 1
+  } else {
+    const ch = prev.chapters[id] || { doneAt: null, plays: 0 }
+    if (won && !ch.doneAt) xpGained = xp
+    next.chapters[id] = { doneAt: ch.doneAt || (won ? Date.now() : null), plays: ch.plays + 1 }
+  }
+  next.xp = prev.xp + xpGained
+  try { localStorage.setItem(LARP_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+  return { progress: next, xpGained }
+}
+
+/* Kit mission in progress — saved after every action so the player can resume. */
+const MISSION_KEY = 'satquest.larp.mission'
+
+export function loadMission(version) {
+  try {
+    const m = JSON.parse(localStorage.getItem(MISSION_KEY) || 'null')
+    return m && m.version === version ? m : null
+  } catch {
+    return null
+  }
+}
+
+export function saveMission(m) {
+  try { localStorage.setItem(MISSION_KEY, JSON.stringify(m)) } catch { /* ignore */ }
+}
+
+export function clearMission() {
+  try { localStorage.removeItem(MISSION_KEY) } catch { /* ignore */ }
+}
+
+/** Wipe LARP XP, chapters, badges and any saved mission. Quest progress and sats are untouched. */
+export function resetLarp() {
+  try {
+    localStorage.removeItem(LARP_KEY)
+    localStorage.removeItem(MISSION_KEY)
+  } catch { /* ignore */ }
+  return loadLarp()
+}
+
+/** Record the mission badge (kept with LARP progress). */
+export function awardBadge(id) {
+  const prev = loadLarp()
+  if (prev.badges?.includes(id)) return prev
+  const next = { ...prev, badges: [...(prev.badges || []), id] }
+  try { localStorage.setItem(LARP_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+  return next
 }
 
 /* ---------- Device id (stable per-browser identifier) ---------- */
